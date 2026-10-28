@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bike Logbook</title>
+<meta name="description" content="Track fuel, oil changes, servicing, tuning and part replacements for your motorcycle.">
+<meta name="theme-color" content="#0e1b30">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bike Logbook">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: instrument-cluster header (odometer + due gauges), then entry form beside a dated service history; stacks on phones. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#17202a; --muted:#5d6b78; --line:#d5dce3; --soft:#e4e9ee;
+  --accent:#1c4fc4; --accent-ink:#ffffff;
+  --fuel:#c77a06; --oil:#6b5a1e; --service:#0f7f78; --tune:#7046b8; --part:#b03a68;
+  --ok:#23824a; --warn:#b86e00; --bad:#c2352b;
+  --hero:#0e1b30; --hero-2:#16294a; --hero-ink:#eef3fa; --hero-muted:#9fb1c9; --hero-line:#2a3f60;
+  --glow:#ffb02e; --h-ok:#4fd88a; --h-warn:#ffb02e; --h-bad:#ff6b5e;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --panel:#18202a; --ink:#e6ebf0; --muted:#98a6b3; --line:#2b3644; --soft:#222c38;
+  --accent:#6f9bff; --accent-ink:#0b1220;
+  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
+  --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --panel:#18202a; --ink:#e6ebf0; --muted:#98a6b3; --line:#2b3644; --soft:#222c38;
+  --accent:#6f9bff; --accent-ink:#0b1220;
+  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
+  --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;text-wrap:balance}
+.label{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Hero cluster */
+.hero{background:radial-gradient(120% 140% at 85% 0%,var(--hero-2) 0%,var(--hero) 60%);color:var(--hero-ink);border-radius:18px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:20px;overflow:hidden}
+.hero .label{color:var(--hero-muted)}
+.hero .sub{color:var(--hero-muted)}
+.hero .st-bad{color:var(--h-bad)}
+/* Header */
+.brand{display:flex;gap:16px;align-items:center;min-width:0}
+.emblem{width:72px;height:72px;flex:none;border-radius:50%;display:grid;place-items:center;color:#0e1b30;background:radial-gradient(circle at 35% 30%,#ffd27a 0%,var(--glow) 55%,#e08a00 100%);box-shadow:0 0 0 4px rgba(255,176,46,.18),0 0 28px rgba(255,176,46,.45)}
+.emblem svg{width:46px;height:46px}
+@media (max-width:440px){.emblem{width:56px;height:56px}.emblem svg{width:36px;height:36px}}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.top h1{font-size:46px;line-height:.95;text-transform:uppercase;letter-spacing:.02em}
+.top .sub{color:var(--muted);margin-top:4px}
+.odo{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.digits{display:flex;gap:3px}
+.digits span{font-family:var(--mono);font-weight:600;font-size:28px;width:1.2em;text-align:center;padding:5px 0;background:#060c16;color:var(--glow);border:1px solid var(--hero-line);border-radius:5px;text-shadow:0 0 10px rgba(255,176,46,.55)}
+.digits span.unit{background:none;border:0;text-shadow:none;color:var(--hero-muted);width:auto;font-size:15px;padding-left:6px;align-self:flex-end}
+.banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;border:1px dashed var(--warn);border-radius:8px;color:var(--ink);background:var(--panel)}
+.banner[hidden]{display:none!important}
+
+/* Gauges */
+.gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.gauge{background:rgba(255,255,255,.05);border:1px solid var(--hero-line);border-radius:12px;padding:14px 16px;display:flex;gap:14px;align-items:center;min-width:0}
+.gtext{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ring{width:66px;height:66px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .trk{stroke:var(--hero-line)}
+.ring .val{stroke:var(--h-ok);stroke-linecap:round;stroke-dasharray:169.6;stroke-dashoffset:169.6}
+.gico{width:66px;height:66px;flex:none;border-radius:50%;display:grid;place-items:center;border:7px solid var(--hero-line);color:var(--k)}
+.gico svg{width:26px;height:26px}
+.gauge .big{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05}
+.gauge .big small{font-family:var(--body);font-size:13px;color:var(--hero-muted);font-weight:500;margin-left:4px}
+.gauge .note{font-size:12.5px;color:var(--hero-muted);line-height:1.4}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid currentColor;width:fit-content}
+.st-ok{color:var(--ok)} .st-warn{color:var(--warn)} .st-bad{color:var(--bad)} .st-none{color:var(--muted)}
+
+/* Main grid */
+.main{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{font-size:24px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--soft);padding:4px;border-radius:8px}
+.tabs button{font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:8px 4px;border-radius:6px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--k);color:var(--panel)}
+form{display:flex;flex-direction:column;gap:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13px;font-weight:500;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;min-width:0}
+textarea{min-height:64px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.check input{width:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+.chips input{width:auto;margin:0}
+.btn{font:600 14px var(--body);border:0;border-radius:6px;padding:10px 14px;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn[data-k]{background:var(--k);color:var(--panel)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.danger{background:none;color:var(--bad);border:1px solid var(--line)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.msg{font-size:13px;min-height:1.2em;color:var(--muted)}
+.msg.err{color:var(--bad)}
+[data-kinds]{display:none}
+
+/* History */
+.histhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{font:500 13px var(--body);border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:4px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--soft)}
+.list{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.ico{width:38px;height:38px;border-radius:50%;background:var(--k);color:var(--panel);display:grid;place-items:center}
+.ico svg{width:20px;height:20px}
+.item .meta{font-size:12.5px;color:var(--muted)}
+.item:first-child{border-top:0}
+.item .when{display:flex;flex-direction:column;gap:2px}
+.item .when b{font-family:var(--display);font-size:18px;font-weight:600;line-height:1}
+.item .when span{font-size:12px;color:var(--muted)}
+.item .what{display:flex;flex-direction:column;gap:2px;min-width:0}
+.item .what .t{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:600}
+.item .what .d{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.kind{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--k);border-left:3px solid var(--k);padding-left:6px}
+.ex{font-size:11px;color:var(--warn);border:1px dashed var(--warn);border-radius:4px;padding:0 5px}
+.item .side{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.item .side .num{font-weight:600}
+.link{background:none;border:0;padding:0;font:500 12.5px var(--body);color:var(--accent);cursor:pointer}
+.link.del{color:var(--bad)}
+.empty{padding:28px 8px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty b{color:var(--ink);font-family:var(--display);font-size:22px;font-weight:600}
+[data-k="fuel"]{--k:var(--fuel)} [data-k="oil"]{--k:var(--oil)} [data-k="service"]{--k:var(--service)} [data-k="tune"]{--k:var(--tune)} [data-k="part"]{--k:var(--part)}
+
+/* Spend chart */
+.chart{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;height:120px;padding-top:8px}
+.col{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;gap:4px;min-width:0}
+.stack{display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;background:var(--soft);min-height:2px}
+.stack i{display:block}
+.col span{font-size:11.5px;color:var(--muted);text-align:center}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:flex;gap:6px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:2px;background:var(--k);display:inline-block}
+
+details.settings{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+details.settings summary{cursor:pointer;font-family:var(--display);font-size:20px;font-weight:600}
+details.settings form{margin-top:12px}
+.foot{font-size:12.5px;color:var(--muted)}
+.parts{display:flex;flex-direction:column}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
+.prow:first-child{border-top:0}
+.prow .pn{font-weight:600}
+.prow .pd{font-size:12.5px;color:var(--muted);grid-column:1/-1}
+.prow .bar{grid-column:1/-1}
+.lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:440px){.hero{padding:18px 16px}.top h1{font-size:36px}.odo{align-items:flex-start}.digits span{font-size:22px}.gauge .big{font-size:26px}.row{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}.ring .val{transition:stroke-dashoffset .8s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero" aria-label="Bike status">
+  <header class="top">
+    <div class="brand">
+      <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="32" r="7"/><circle cx="37" cy="32" r="7"/><path d="M11 32l7-12h10l9 12"/><path d="M20 20l5 12h-6"/><path d="M28 20l3-6h5"/><path d="M17 17h9" stroke-width="4"/></svg></div>
+      <div>
+        <div class="label">Maintenance logbook</div>
+        <h1 id="bikeName">My Bike</h1>
+        <div class="sub" id="subline">Fuel, oil changes, service and tuning in one place</div>
+      </div>
+    </div>
+    <div class="odo">
+      <div class="label">Odometer</div>
+      <div class="digits" id="digits" aria-label="Current odometer"></div>
+    </div>
+  </header>
+
+  <div class="gauges">
+    <div class="gauge">
+      <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="oilRing" cx="32" cy="32" r="27"/></svg>
+      <div class="gtext"><div class="label">Next oil change</div><div class="big" id="oilBig">—</div><div class="note" id="oilNote">Log an oil change to start the countdown</div></div>
+    </div>
+    <div class="gauge">
+      <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="tuneRing" cx="32" cy="32" r="27"/></svg>
+      <div class="gtext"><div class="label">Next tuning</div><div class="big" id="tuneBig">—</div><div class="note" id="tuneNote">Log a tuning to start the countdown</div></div>
+    </div>
+    <div class="gauge">
+      <div class="gico" data-k="fuel" style="--k:var(--glow)" data-icon="fuel"></div>
+      <div class="gtext"><div class="label">Fuel average</div><div class="big" id="avgBig">—</div><div class="note" id="avgNote">Needs two full-tank fills</div></div>
+    </div>
+    <div class="gauge">
+      <div class="gico" style="--k:var(--h-ok)" data-icon="money"></div>
+      <div class="gtext"><div class="label">Spent this month</div><div class="big" id="monthBig">—</div><div class="note" id="monthNote">Running cost per km appears after a few entries</div></div>
+    </div>
+  </div>
+  </section>
+
+  <div class="main">
+    <section class="panel" aria-labelledby="formTitle">
+      <h2 id="formTitle">Add entry</h2>
+      <div class="tabs" role="tablist" id="tabs">
+        <button type="button" role="tab" data-kind="fuel" data-k="fuel" aria-selected="true">Fuel</button>
+        <button type="button" role="tab" data-kind="oil" data-k="oil" aria-selected="false">Oil</button>
+        <button type="button" role="tab" data-kind="service" data-k="service" aria-selected="false">Service</button>
+        <button type="button" role="tab" data-kind="tune" data-k="tune" aria-selected="false">Tuning</button>
+        <button type="button" role="tab" data-kind="part" data-k="part" aria-selected="false">Parts</button>
+      </div>
+      <form id="entryForm" novalidate>
+        <div class="row">
+          <div class="field"><label for="fDate">Date</label><input id="fDate" type="date" required></div>
+          <div class="field"><label for="fOdo">Odometer (km)</label><input id="fOdo" type="number" inputmode="numeric" min="0" step="1" required placeholder="e.g. 12450"></div>
+        </div>
+        <div class="row" data-kinds="fuel">
+          <div class="field"><label for="fLiters">Litres filled</label><input id="fLiters" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 5.5"></div>
+          <div class="field"><label for="fPrice">Price per litre</label><input id="fPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="optional"></div>
+        </div>
+        <label class="check" data-kinds="fuel"><input id="fFull" type="checkbox" checked> Filled to full tank (needed for the average)</label>
+        <div class="field" data-kinds="oil"><label for="fOil">Oil brand and grade</label><input id="fOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+        <label class="check" data-kinds="oil"><input id="fFilter" type="checkbox"> Oil filter changed too</label>
+        <div class="field" data-kinds="service"><label for="fWork">Work done</label><input id="fWork" type="text" placeholder="e.g. Brake shoes replaced, chain tightened"></div>
+        <div class="row" data-kinds="part">
+          <div class="field"><label for="fPart">Part replaced</label><select id="fPart"></select></div>
+          <div class="field"><label for="fBrand">Brand / type</label><input id="fBrand" type="text" placeholder="optional"></div>
+        </div>
+        <div class="row" data-kinds="part">
+          <div class="field" id="partNameWrap"><label for="fPartName">Part name</label><input id="fPartName" type="text" placeholder="e.g. Clutch cable"></div>
+          <div class="field"><label for="fLife" id="fLifeLabel">Expected life (km)</label><input id="fLife" type="number" min="1" step="1" placeholder="default"></div>
+        </div>
+        <div class="field" data-kinds="tune"><span class="label" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:500">What was done</span>
+          <div class="chips" id="tuneChips">
+            <label><input type="checkbox" value="Carburetor cleaned"> Carburetor</label>
+            <label><input type="checkbox" value="Spark plug"> Spark plug</label>
+            <label><input type="checkbox" value="Air filter"> Air filter</label>
+            <label><input type="checkbox" value="Valve clearance"> Valve clearance</label>
+            <label><input type="checkbox" value="Idle / mixture set"> Idle / mixture</label>
+            <label><input type="checkbox" value="Chain lube & adjust"> Chain</label>
+            <label><input type="checkbox" id="fTuneOtherChk" value=""> + Other</label>
+          </div>
+          <div class="field" id="tuneOtherWrap" hidden><label for="fTuneOther">What else was done? Separate items with commas</label><input id="fTuneOther" type="text" placeholder="e.g. Clutch cable adjusted, new fuel pipe"></div>
+        </div>
+        <div class="row">
+          <div class="field" data-kinds="service tune part"><label for="fShop">Workshop / mechanic</label><input id="fShop" type="text" placeholder="optional"></div>
+          <div class="field"><label for="fCost">Total cost</label><input id="fCost" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        </div>
+        <div class="field"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Anything to remember next time"></textarea></div>
+        <div class="actions">
+          <button class="btn" type="submit" id="saveBtn">Save entry</button>
+          <button class="btn ghost" type="button" id="cancelEdit" hidden>Cancel edit</button>
+        </div>
+        <div class="msg" id="formMsg" role="status"></div>
+      </form>
+    </section>
+
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <section class="panel" aria-labelledby="partsTitle">
+        <h2 id="partsTitle">Parts life</h2>
+        <div class="parts" id="parts"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="spendTitle">
+        <div class="histhead"><h2 id="spendTitle">Spending, last 6 months</h2><span class="note num" id="spendTotal" style="color:var(--muted);font-size:13px"></span></div>
+        <div class="chart" id="chart"></div>
+        <div class="legend">
+          <span data-k="fuel"><i></i>Fuel</span><span data-k="oil"><i></i>Oil</span><span data-k="service"><i></i>Service</span><span data-k="tune"><i></i>Tuning</span><span data-k="part"><i></i>Parts</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="histTitle">
+        <div class="histhead">
+          <h2 id="histTitle">History</h2>
+          <div class="filters" id="filters">
+            <button type="button" data-f="all" aria-pressed="true">All</button>
+            <button type="button" data-f="fuel" aria-pressed="false">Fuel</button>
+            <button type="button" data-f="oil" aria-pressed="false">Oil</button>
+            <button type="button" data-f="service" aria-pressed="false">Service</button>
+            <button type="button" data-f="tune" aria-pressed="false">Tuning</button>
+            <button type="button" data-f="part" aria-pressed="false">Parts</button>
+          </div>
+        </div>
+        <div class="list" id="list"></div>
+      </section>
+    </div>
+  </div>
+
+  <details class="settings" id="settingsBox">
+    <summary>Bike &amp; reminder settings</summary>
+    <form id="settingsForm">
+      <div class="row">
+        <div class="field"><label for="sName">Bike name</label><input id="sName" type="text" placeholder="e.g. Honda CG125 2021"></div>
+        <div class="field"><label for="sCur">Currency label</label><input id="sCur" type="text" placeholder="Rs"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="sOil">Oil change every (km)</label><input id="sOil" type="number" min="100" step="50"></div>
+        <div class="field"><label for="sTuneKm">Tuning every (km)</label><input id="sTuneKm" type="number" min="100" step="100"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="sTuneMo">…or every (months), whichever first</label><input id="sTuneMo" type="number" min="1" step="1"></div>
+
+      </div>
+      <div class="label" style="margin-top:6px">Part life (optional). Fill in only if you know it, and the part gets a countdown bar</div>
+      <div class="lifegrid" id="lifeGrid"></div>
+      <div class="actions"><button class="btn" type="submit">Save settings</button></div>
+      <div class="msg" id="setMsg" role="status"></div>
+    </form>
+  </details>
+
+  <section class="panel" aria-labelledby="bkTitle">
+    <h2 id="bkTitle">Backup &amp; restore</h2>
+    <p class="foot" style="margin:0">Entries live on this phone. Save a backup file to keep them safe, or to move them to a new phone.</p>
+    <div class="actions">
+      <button class="btn" type="button" id="backupBtn">Backup now</button>
+      <label class="btn ghost" for="restoreFile" style="display:inline-block">Restore from file</label>
+      <input id="restoreFile" type="file" accept=".json,application/json" hidden>
+    </div>
+    <div class="msg" id="bkMsg" role="status"></div>
+  </section>
+
+  <p class="foot" id="storeNote">Loading your logbook…</p>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part"};
+  const PARTS = [
+    {key:"chain", label:"Chain"},
+    {key:"sprocket", label:"Sprocket set"},
+    {key:"tyreF", label:"Front tyre"},
+    {key:"tyreR", label:"Rear tyre"},
+    {key:"brakeF", label:"Front brake"},
+    {key:"brakeR", label:"Rear brake"},
+    {key:"clutch", label:"Clutch plates"},
+    {key:"battery", label:"Battery", months:true},
+    {key:"other", label:"Other part"}
+  ];
+  const SV = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const ICONS = {
+    fuel: SV('<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M3.5 20h12M7.5 8h4M14 9h2a1 1 0 0 1 1 1v5.5a1.5 1.5 0 0 0 3 0V8l-3-3"/>'),
+    oil: SV('<path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/>'),
+    service: SV('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>'),
+    tune: SV('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
+    part: SV('<rect x="2.5" y="9" width="11" height="6" rx="3"/><rect x="10.5" y="9" width="11" height="6" rx="3"/>'),
+    money: SV('<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v5M17.5 9.5v5"/>')
+  };
+  document.querySelectorAll("[data-icon]").forEach(el=>el.innerHTML = ICONS[el.dataset.icon]);
+  const PDEF = Object.fromEntries(PARTS.map(p=>[p.key,p]));
+  const defLife = () => ({});
+  const DEF = {name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, partLife:defLife()};
+  let entries = [];          // {id, kind, date, odo, cost, ...}
+  let settings = {...DEF};
+  let filter = "all";
+  let kind = "fuel";
+  let editingId = null;
+  let store = null;
+
+  // ---------- storage: private cloud rows, falling back to this browser ----------
+  const LS = "bike-logbook-v1";
+  function localStore(){
+    let data = {entries:[], settings:null};
+    try { const raw = localStorage.getItem(LS); if (raw) data = JSON.parse(raw); } catch(e){}
+    let cb = ()=>{};
+    const save = ()=>{ try{ localStorage.setItem(LS, JSON.stringify(data)); }catch(e){} cb(data); };
+    return {
+      mode:"local",
+      subscribe(fn){ cb = fn; fn(data); },
+      async put(e){ const i = data.entries.findIndex(x=>x.id===e.id); if(i>=0) data.entries[i]=e; else data.entries.push(e); save(); },
+      async remove(id){ data.entries = data.entries.filter(x=>x.id!==id); save(); },
+      async putSettings(s){ data.settings = s; save(); }
+    };
+  }
+  async function cloudStore(){
+    const db = await claude.use("db"); const user = await claude.use("user");
+    if (!db || !user) return null;
+    const uid = await user.id(); if (!uid) return null;
+    const col = db.collection("data/users/" + uid);
+    return {
+      mode:"cloud",
+      subscribe(fn){
+        col.onSnapshot(snap=>{
+          const es=[]; let s=null;
+          snap.docs.forEach(d=>{ const v=d.data(); if(!v) return; if(d.id==="settings") s=v; else es.push({...v, id:d.id}); });
+          fn({entries:es, settings:s});
+        }, err=>{ $("#storeNote").textContent = "Couldn't load your saved entries. Reload the page to try again."; });
+      },
+      async put(e){ const {id, ...body} = e; await col.doc(id).set(body); },
+      async remove(id){ await col.doc(id).delete(); },
+      async putSettings(s){ await col.doc("settings").set(s); }
+    };
+  }
+
+  // ---------- helpers ----------
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+  const fmt = n => Math.round(n).toLocaleString("en-US");
+  const money = n => settings.currency + " " + fmt(n||0);
+  const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const esc = s => String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const byOdo = (a,b) => (a.odo-b.odo) || a.date.localeCompare(b.date);
+  const byNewest = (a,b) => b.date.localeCompare(a.date) || (b.odo-a.odo);
+
+  function currentOdo(){ return entries.reduce((m,e)=>Math.max(m, e.odo||0), 0); }
+
+  function fuelStats(){
+    const f = entries.filter(e=>e.kind==="fuel" && e.liters>0).sort(byOdo);
+    let km=0, lit=0, last=null, prev=null;
+    for (let i=0;i<f.length;i++){
+      if (!f[i].full) continue;
+      if (prev){
+        // litres used since previous full fill = all fills after prev up to and including this one
+        let used=0; for (let j=f.indexOf(prev)+1;j<=i;j++) used += f[j].liters;
+        const d = f[i].odo - prev.odo;
+        if (d>0 && used>0){ km+=d; lit+=used; last = d/used; }
+      }
+      prev = f[i];
+    }
+    return {avg: lit? km/lit : null, last, samples: lit};
+  }
+
+  // ---------- render ----------
+  function render(){
+    const odo = currentOdo();
+    $("#bikeName").textContent = settings.name || "My Bike";
+    const dg = String(Math.round(odo)).padStart(6,"0").split("");
+    $("#digits").innerHTML = dg.map(d=>`<span>${d}</span>`).join("") + `<span class="unit">km</span>`;
+    $("#sampleBanner").hidden = !entries.some(e=>e.sample);
+    $("#subline").textContent = entries.length ? `${entries.length} entr${entries.length===1?"y":"ies"} logged` : "Fuel, oil changes, service and tuning in one place";
+
+    // Oil
+    const lastOil = entries.filter(e=>e.kind==="oil").sort(byOdo).pop();
+    setGauge("oil", lastOil, settings.oilKm, null, odo);
+    // Tune
+    const lastTune = entries.filter(e=>e.kind==="tune").sort(byOdo).pop();
+    setGauge("tune", lastTune, settings.tuneKm, settings.tuneMonths, odo);
+
+    // Fuel
+    const fs = fuelStats();
+    if (fs.avg){
+      $("#avgBig").innerHTML = `${fs.avg.toFixed(1)}<small>km/L</small>`;
+      $("#avgNote").textContent = `Last tank: ${fs.last.toFixed(1)} km/L`;
+    } else { $("#avgBig").textContent = "—"; $("#avgNote").textContent = "Needs two full-tank fills"; }
+
+    // Month spend + cost per km
+    const now = new Date(); const ym = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+    const monthSum = entries.filter(e=>e.date.startsWith(ym)).reduce((s,e)=>s+(e.cost||0),0);
+    $("#monthBig").textContent = money(monthSum);
+    const minOdo = entries.length ? Math.min(...entries.map(e=>e.odo)) : 0;
+    const total = entries.reduce((s,e)=>s+(e.cost||0),0);
+    $("#monthNote").textContent = (odo-minOdo>50) ? `Running cost: ${settings.currency} ${(total/(odo-minOdo)).toFixed(2)} per km` : "Running cost per km appears after a few entries";
+
+    renderParts(odo);
+    renderChart(now);
+    renderList();
+  }
+
+  function setGauge(key, last, kmInt, months, odo){
+    const big = $("#"+key+"Big"), ring = $("#"+key+"Ring"), note = $("#"+key+"Note");
+    if (!last){ big.textContent="—"; ring.style.strokeDashoffset="169.6"; note.textContent = key==="oil" ? "Log an oil change to start the countdown" : "Log a tuning to start the countdown"; return; }
+    const left = last.odo + kmInt - odo;
+    let frac = Math.min(1, Math.max(0, (odo-last.odo)/kmInt));
+    let dueBy = `at ${fmt(last.odo+kmInt)} km`;
+    let daysLeft = null;
+    if (months){
+      const due = parseD(last.date); due.setMonth(due.getMonth()+months);
+      daysLeft = Math.ceil((due - new Date())/864e5);
+      const total = Math.max(1,(due - parseD(last.date))/864e5);
+      frac = Math.max(frac, Math.min(1, Math.max(0, 1 - daysLeft/total)));
+      dueBy += ` or ${due.getDate()} ${MON[due.getMonth()]} ${due.getFullYear()}`;
+    }
+    const overdue = left<=0 || (daysLeft!==null && daysLeft<=0);
+    const soon = !overdue && frac>=0.8;
+    const cls = overdue ? "bad" : soon ? "warn" : "ok";
+    big.innerHTML = overdue ? `<span class="st-bad">Overdue</span>` : `${fmt(left)}<small>km left</small>`;
+    ring.style.strokeDashoffset = (169.6*(1-frac)).toFixed(1);
+    ring.style.stroke = `var(--h-${cls})`;
+    note.textContent = `Last done at ${fmt(last.odo)} km · due ${dueBy}` + (daysLeft!==null && !overdue ? ` (${daysLeft} days)` : "");
+  }
+
+  function partLabel(e){ return e.part==="other" ? (e.partName||"Other part") : (PDEF[e.part]?.label||"Part"); }
+  function renderParts(odo){
+    const latest = {};
+    entries.filter(e=>e.kind==="part").forEach(e=>{
+      const k = e.part==="other" ? "other:"+(e.partName||"").trim().toLowerCase() : e.part;
+      if (!latest[k] || byOdo(latest[k], e) < 0) latest[k] = e;
+    });
+    const keys = Object.keys(latest).sort((a,b)=>{ const ia=PARTS.findIndex(p=>p.key===a), ib=PARTS.findIndex(p=>p.key===b); return (ia<0?99:ia)-(ib<0?99:ib); });
+    if (!keys.length){ $("#parts").innerHTML = `<div class="empty" style="padding:12px 8px">Log a chain, tyre, brake or battery change under <b style="font-size:inherit;font-family:inherit">Parts</b> and its wear shows here.</div>`; return; }
+    $("#parts").innerHTML = keys.map(k=>{
+      const e = latest[k], def = PDEF[e.part] || {};
+      const byMonths = !!def.months;
+      const life = e.life || (settings.partLife||{})[e.part] || 0;
+      const d = parseD(e.date);
+      let frac=null, status="", cls="none";
+      if (life && byMonths){
+        const due = parseD(e.date); due.setMonth(due.getMonth()+life);
+        const left = Math.ceil((due-new Date())/864e5), tot = Math.max(1,(due-d)/864e5);
+        frac = Math.min(1,Math.max(0,1-left/tot));
+        status = left<=0 ? "Due now" : left<60 ? `${left} days left` : `${Math.round(left/30)} months left`;
+        cls = left<=0 ? "bad" : frac>=0.8 ? "warn" : "ok";
+      } else if (life){
+        const used = Math.max(0, odo-e.odo), left = life-used;
+        frac = Math.min(1, used/life);
+        status = left<=0 ? "Due now" : `${fmt(left)} km left`;
+        cls = left<=0 ? "bad" : frac>=0.8 ? "warn" : "ok";
+      } else {
+        const mo = Math.max(0, Math.round((new Date()-d)/2629800000));
+        status = `${fmt(Math.max(0,odo-e.odo))} km on it`;
+        cls = "none"; e._age = mo<1 ? "under a month old" : `${mo} month${mo===1?"":"s"} old`;
+      }
+      return `<div class="prow">
+        <span class="pn">${esc(partLabel(e))}</span><span class="pill st-${cls}">${esc(status)}</span>
+        ${frac!==null?`<div class="bar"><i style="width:${(frac*100).toFixed(0)}%;background:var(--${cls})"></i></div>`:""}
+        <span class="pd">Fitted ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} at ${fmt(e.odo)} km${e.brand?` · ${esc(e.brand)}`:""}${life?` · life ${fmt(life)} ${byMonths?"months":"km"}`:(e._age?` · ${e._age}`:"")}</span>
+      </div>`;
+    }).join("");
+  }
+
+  function renderChart(now){
+    const months=[];
+    for (let i=5;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); months.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label:MON[d.getMonth()], fuel:0,oil:0,service:0,tune:0,part:0}); }
+    entries.forEach(e=>{ const m = months.find(x=>e.date.startsWith(x.key)); if (m) m[e.kind] += (e.cost||0); });
+    const totals = months.map(m=>m.fuel+m.oil+m.service+m.tune+m.part);
+    const max = Math.max(1,...totals);
+    $("#chart").innerHTML = months.map((m,i)=>{
+      const h = totals[i]/max*100;
+      const segs = ["fuel","oil","service","tune","part"].filter(k=>m[k]>0).map(k=>`<i data-k="${k}" style="background:var(--k);height:${(m[k]/Math.max(1,totals[i])*100).toFixed(1)}%"></i>`).join("");
+      return `<div class="col" title="${m.label}: ${esc(money(totals[i]))}"><div class="stack" style="height:${Math.max(h,1).toFixed(1)}%">${segs}</div><span>${m.label}</span></div>`;
+    }).join("");
+    $("#spendTotal").textContent = "Total " + money(totals.reduce((a,b)=>a+b,0));
+  }
+
+  function detail(e){
+    if (e.kind==="fuel"){
+      const p = e.liters ? (e.cost/e.liters) : 0;
+      return `${e.liters} L${p?` · ${settings.currency} ${p.toFixed(0)}/L`:""}${e.full?" · full tank":" · partial"}`;
+    }
+    if (e.kind==="oil") return [e.oil, e.filter?"filter changed":""].filter(Boolean).join(" · ");
+    if (e.kind==="service") return [e.work, e.shop].filter(Boolean).join(" · ");
+    if (e.kind==="tune") return [(e.items||[]).join(", "), e.shop].filter(Boolean).join(" · ");
+    if (e.kind==="part") return [e.brand, e.shop].filter(Boolean).join(" · ");
+    return "";
+  }
+
+  function renderList(){
+    const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
+    if (!entries.length){
+      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span><button class="btn small ghost" type="button" id="loadSamples">Show example entries</button></div>`;
+      $("#loadSamples").onclick = loadSamples; return;
+    }
+    if (!rows.length){ $("#list").innerHTML = `<div class="empty">Nothing logged under ${esc(KINDS[filter])} yet.</div>`; return; }
+    $("#list").innerHTML = rows.map(e=>{
+      const d = parseD(e.date);
+      const extra = [detail(e), e.notes].filter(Boolean).map(esc).join(" — ");
+      return `<div class="item" data-k="${e.kind}">
+        <div class="ico">${ICONS[e.kind]}</div>
+        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}</div>
+        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button> · <button class="link del" data-del="${e.id}" type="button">Delete</button></span></div>
+      </div>`;
+    }).join("");
+  }
+
+  // ---------- form ----------
+  function setKind(k){
+    kind = k;
+    document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.kind===k)));
+    document.querySelectorAll("#entryForm [data-kinds]").forEach(el=>{ el.style.display = el.dataset.kinds.split(" ").includes(k) ? (el.classList.contains("row")?"grid":"flex") : "none"; });
+    syncPart();
+    $("#saveBtn").dataset.k = k;
+    $("#saveBtn").textContent = editingId ? "Save changes" : `Save ${KINDS[k].toLowerCase()}`;
+  }
+  function syncPart(){
+    const p = PDEF[$("#fPart").value] || {};
+    $("#partNameWrap").style.visibility = $("#fPart").value==="other" ? "visible" : "hidden";
+    $("#fLifeLabel").textContent = p.months ? "Expected life (months)" : "Expected life (km)";
+    const dv = (settings.partLife||{})[$("#fPart").value];
+    $("#fLife").placeholder = dv ? `your setting: ${fmt(dv)}` : "optional";
+  }
+  $("#fPart").innerHTML = PARTS.map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
+  $("#fPart").addEventListener("change", syncPart);
+  $("#fTuneOtherChk").addEventListener("change", ()=>{ $("#tuneOtherWrap").hidden = !$("#fTuneOtherChk").checked; if ($("#fTuneOtherChk").checked) $("#fTuneOther").focus(); });
+  function resetForm(){
+    editingId = null; $("#entryForm").reset(); $("#tuneOtherWrap").hidden = true; $("#fDate").value = today(); $("#fFull").checked = true;
+    $("#cancelEdit").hidden = true; $("#formTitle").textContent = "Add entry"; setKind(kind);
+  }
+  function fillForm(e){
+    editingId = e.id; kind = e.kind;
+    $("#fDate").value=e.date; $("#fOdo").value=e.odo; $("#fCost").value=e.cost||""; $("#fNotes").value=e.notes||"";
+    $("#fLiters").value=e.liters||""; $("#fPrice").value=""; $("#fFull").checked=!!e.full;
+    $("#fOil").value=e.oil||""; $("#fFilter").checked=!!e.filter; $("#fWork").value=e.work||""; $("#fShop").value=e.shop||"";
+    $("#fPart").value=e.part||"chain"; $("#fBrand").value=e.brand||""; $("#fPartName").value=e.partName||""; $("#fLife").value=e.life||"";
+    const chipVals = [...document.querySelectorAll("#tuneChips input")].map(c=>c.value).filter(Boolean);
+    document.querySelectorAll("#tuneChips input").forEach(c=>c.checked=!!c.value && (e.items||[]).includes(c.value));
+    const extra = (e.items||[]).filter(x=>!chipVals.includes(x));
+    $("#fTuneOtherChk").checked = extra.length>0; $("#fTuneOther").value = extra.join(", "); $("#tuneOtherWrap").hidden = !extra.length;
+    $("#cancelEdit").hidden=false; $("#formTitle").textContent = "Edit entry"; setKind(kind);
+    $("#formMsg").textContent=""; $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  $("#tabs").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(b) setKind(b.dataset.kind); });
+  $("#fPrice").addEventListener("input", ()=>{ const l=+$("#fLiters").value, p=+$("#fPrice").value; if(l>0&&p>0) $("#fCost").value = Math.round(l*p); });
+  $("#fLiters").addEventListener("input", ()=>{ const l=+$("#fLiters").value, p=+$("#fPrice").value; if(l>0&&p>0) $("#fCost").value = Math.round(l*p); });
+  $("#cancelEdit").addEventListener("click", ()=>{ resetForm(); $("#formMsg").textContent=""; });
+
+  $("#entryForm").addEventListener("submit", async ev=>{
+    ev.preventDefault();
+    const msg = $("#formMsg"); msg.className="msg";
+    const date=$("#fDate").value, odo=parseFloat($("#fOdo").value);
+    if (!date){ msg.className="msg err"; msg.textContent="Pick the date of this entry."; return; }
+    if (!(odo>=0)){ msg.className="msg err"; msg.textContent="Enter the odometer reading in km."; return; }
+    const e = {id: editingId || uid(), kind, date, odo, cost: parseFloat($("#fCost").value)||0, notes: $("#fNotes").value.trim()};
+    if (kind==="fuel"){ e.liters = parseFloat($("#fLiters").value)||0; e.full = $("#fFull").checked;
+      if (!(e.liters>0)){ msg.className="msg err"; msg.textContent="Enter how many litres you filled."; return; } }
+    if (kind==="oil"){ e.oil=$("#fOil").value.trim(); e.filter=$("#fFilter").checked; }
+    if (kind==="service"){ e.work=$("#fWork").value.trim(); e.shop=$("#fShop").value.trim();
+      if (!e.work){ msg.className="msg err"; msg.textContent="Describe the work done."; return; } }
+    if (kind==="part"){ e.part=$("#fPart").value; e.brand=$("#fBrand").value.trim(); e.shop=$("#fShop").value.trim();
+      e.partName = e.part==="other" ? $("#fPartName").value.trim() : ""; e.life = parseInt($("#fLife").value)||0;
+      if (e.part==="other" && !e.partName){ msg.className="msg err"; msg.textContent="Name the part you replaced."; return; } }
+    if (kind==="tune"){ e.items=[...document.querySelectorAll("#tuneChips input:checked")].map(c=>c.value).filter(Boolean);
+      if ($("#fTuneOtherChk").checked) e.items.push(...$("#fTuneOther").value.split(",").map(x=>x.trim()).filter(Boolean));
+      if ($("#fTuneOtherChk").checked && !$("#fTuneOther").value.trim()){ msg.className="msg err"; msg.textContent="Type what else was done, or untick Other."; return; } e.shop=$("#fShop").value.trim(); }
+    const wasEdit = !!editingId;
+    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : `${KINDS[kind]} saved.`; resetForm(); }
+    catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
+  });
+
+  $("#list").addEventListener("click", async ev=>{
+    const ed = ev.target.closest("[data-edit]"), dl = ev.target.closest("[data-del]");
+    if (ed){ const e = entries.find(x=>x.id===ed.dataset.edit); if(e) fillForm(e); }
+    if (dl){
+      if (dl.dataset.confirm){ try{ await store.remove(dl.dataset.del); if(editingId===dl.dataset.del) resetForm(); }catch(e){} }
+      else { dl.dataset.confirm="1"; dl.textContent="Tap again to delete"; setTimeout(()=>{ if(dl.isConnected){ delete dl.dataset.confirm; dl.textContent="Delete"; } }, 3000); }
+    }
+  });
+  $("#filters").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(!b) return; filter=b.dataset.f;
+    document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); renderList(); });
+
+  // ---------- settings ----------
+  function fillSettings(){ $("#sName").value=settings.name; $("#sCur").value=settings.currency; $("#sOil").value=settings.oilKm; $("#sTuneKm").value=settings.tuneKm; $("#sTuneMo").value=settings.tuneMonths;
+    $("#lifeGrid").innerHTML = PARTS.filter(p=>p.key!=="other").map(p=>`<div class="field"><label for="pl-${p.key}">${p.label} (${p.months?"months":"km"})</label><input id="pl-${p.key}" type="number" min="1" step="1" placeholder="optional" value="${settings.partLife[p.key]||""}"></div>`).join(""); }
+  $("#settingsForm").addEventListener("submit", async ev=>{
+    ev.preventDefault();
+    const s = { name: $("#sName").value.trim(), currency: $("#sCur").value.trim()||"Rs",
+      oilKm: Math.max(100, parseInt($("#sOil").value)||DEF.oilKm), tuneKm: Math.max(100, parseInt($("#sTuneKm").value)||DEF.tuneKm),
+      tuneMonths: Math.max(1, parseInt($("#sTuneMo").value)||DEF.tuneMonths),
+      partLife: Object.fromEntries(PARTS.filter(p=>p.key!=="other").map(p=>[p.key, parseInt(($("#pl-"+p.key)||{}).value)||0]).filter(x=>x[1]>0)) };
+    try { await store.putSettings(s); $("#setMsg").textContent="Settings saved."; } catch(e){ $("#setMsg").textContent="Couldn't save settings. Try again."; }
+  });
+
+  // ---------- examples ----------
+  async function loadSamples(){
+    const d = n => { const x=new Date(); x.setDate(x.getDate()-n); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
+    const S = [
+      {kind:"oil", date:d(150), odo:10120, cost:1450, oil:"20W-50, 1 L", filter:false},
+      {kind:"tune", date:d(140), odo:10300, cost:1200, items:["Carburetor cleaned","Spark plug","Idle / mixture set"], shop:"Local mechanic"},
+      {kind:"fuel", date:d(120), odo:10450, liters:6.0, cost:1600, full:true},
+      {kind:"fuel", date:d(95), odo:10760, liters:6.2, cost:1650, full:true},
+      {kind:"service", date:d(80), odo:10980, cost:2200, work:"Brake shoes replaced, chain tightened"},
+      {kind:"fuel", date:d(70), odo:11070, liters:6.1, cost:1620, full:true},
+      {kind:"oil", date:d(55), odo:12150, cost:1500, oil:"20W-50, 1 L", filter:true},
+      {kind:"fuel", date:d(45), odo:11380, liters:6.3, cost:1680, full:true},
+      {kind:"fuel", date:d(20), odo:11700, liters:6.4, cost:1700, full:true},
+      {kind:"fuel", date:d(4), odo:12020, liters:6.3, cost:1690, full:true},
+      {kind:"part", date:d(130), odo:10350, cost:3800, part:"chain", brand:"Chain kit", life:12000},
+      {kind:"part", date:d(130), odo:10350, cost:0, part:"sprocket", brand:"With chain kit"},
+      {kind:"part", date:d(60), odo:11300, cost:4200, part:"tyreR", shop:"Tyre shop"},
+      {kind:"part", date:d(80), odo:10980, cost:0, part:"brakeR", brand:"With service"},
+      {kind:"part", date:d(400), odo:6000, cost:5200, part:"battery"},
+    ];
+    // keep the oil change chronological with odometer
+    S[6].odo = 12020; S[6].date = d(3);
+    for (const s of S){ s.id = "ex-"+uid(); s.sample = true; s.notes = s.notes||""; try{ await store.put(s); }catch(e){} }
+  }
+  $("#clearSamples").addEventListener("click", async ()=>{ for (const e of entries.filter(x=>x.sample)) { try{ await store.remove(e.id); }catch(err){} } });
+
+  // ---------- backup ----------
+  $("#backupBtn").addEventListener("click", ()=>{
+    const data = {app:"bike-logbook", version:1, exported:new Date().toISOString(), settings, entries: entries.filter(e=>!e.sample)};
+    const blob = new Blob([JSON.stringify(data, null, 1)], {type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "bike-logbook-backup-" + today() + ".json"; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    $("#bkMsg").className="msg"; $("#bkMsg").textContent = `Backup saved with ${data.entries.length} entries. Check your Downloads folder.`;
+  });
+  $("#restoreFile").addEventListener("change", async ev=>{
+    const f = ev.target.files[0]; if (!f) return; const m = $("#bkMsg");
+    try {
+      const data = JSON.parse(await f.text());
+      const list = Array.isArray(data) ? data : data.entries;
+      if (!Array.isArray(list)) throw new Error("bad");
+      let n = 0;
+      for (const e of list){ if (e && e.kind in KINDS && typeof e.date==="string"){ await store.put({...e, id: e.id || uid()}); n++; } }
+      if (data.settings && typeof data.settings==="object") await store.putSettings({...settings, ...data.settings});
+      m.className="msg"; m.textContent = `Restored ${n} entries.`;
+    } catch(err){ m.className="msg err"; m.textContent = "That file isn't a Bike Logbook backup. Pick the .json file you saved with Backup now."; }
+    ev.target.value = "";
+  });
+
+  // ---------- boot ----------
+  function onData(data){
+    entries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
+    settings = {...DEF, ...(data.settings||{})}; settings.partLife = {...defLife(), ...((data.settings||{}).partLife||{})};
+    const box = $("#settingsBox"); if (!box.open) fillSettings();
+    render();
+  }
+  async function start(){
+    resetForm(); onData({entries:[], settings:null});
+    store = localStore();
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+    $("#storeNote").textContent = "Your entries are saved on this phone only. Tap Backup now and then to keep a safe copy.";
+    store.subscribe(onData);
+  }
+  start();
+  if ("serviceWorker" in navigator) window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+})();
+</script>
+</body>
+</html>
