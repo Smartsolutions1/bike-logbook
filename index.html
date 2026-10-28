@@ -162,6 +162,17 @@ details.settings form{margin-top:12px}
 .prow .pn{font-weight:600}
 .prow .pd{font-size:12.5px;color:var(--muted);grid-column:1/-1}
 .prow .bar{grid-column:1/-1}
+.switch{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--hero-muted)}
+.switch select{width:auto;max-width:100%;background:rgba(255,255,255,.08);color:var(--hero-ink);border:1px solid var(--hero-line);border-radius:999px;padding:5px 12px;font-weight:600}
+.switch select option{color:#17202a;background:#fff}
+.bikes{display:flex;flex-direction:column}
+.brow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.brow:first-child{border-top:0}
+.brow .bn{display:flex;flex-direction:column;gap:2px;min-width:0}
+.brow .bn b{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1;overflow-wrap:anywhere}
+.brow .bn span{font-size:12.5px;color:var(--muted)}
+.brow .bact{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.current{font-size:11.5px;font-weight:600;color:var(--ok);border:1px solid currentColor;border-radius:999px;padding:1px 8px}
 .lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 
 @media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
@@ -179,6 +190,7 @@ details.settings form{margin-top:12px}
         <div class="label">Maintenance logbook</div>
         <h1 id="bikeName">My Bike</h1>
         <div class="sub" id="subline">Fuel, oil changes, service and tuning in one place</div>
+        <div class="switch" id="switchWrap" hidden><label for="bikeSwitch">Showing</label><select id="bikeSwitch"></select></div>
       </div>
     </div>
     <div class="odo">
@@ -299,27 +311,26 @@ details.settings form{margin-top:12px}
     </div>
   </div>
 
-  <details class="settings" id="settingsBox">
-    <summary>Bike &amp; reminder settings</summary>
-    <form id="settingsForm">
+  <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel">
+    <div class="histhead"><h2 id="bikesTitle">My bikes</h2><button class="btn small" type="button" id="addBikeBtn">+ Add new bike</button></div>
+    <div class="bikes" id="bikeList"></div>
+    <form id="bikeForm" hidden>
+      <h3 id="bikeFormTitle" style="font-size:20px">Add a bike</h3>
       <div class="row">
-        <div class="field"><label for="sName">Bike name</label><input id="sName" type="text" placeholder="e.g. Honda CG125 2021"></div>
-        <div class="field"><label for="sCur">Currency label</label><input id="sCur" type="text" placeholder="Rs"></div>
+        <div class="field"><label for="bName">Bike name</label><input id="bName" type="text" placeholder="e.g. Honda CG125 2021"></div>
+        <div class="field"><label for="bCur">Currency label</label><input id="bCur" type="text" placeholder="Rs"></div>
       </div>
       <div class="row">
-        <div class="field"><label for="sOil">Oil change every (km)</label><input id="sOil" type="number" min="100" step="50"></div>
-        <div class="field"><label for="sTuneKm">Tuning every (km)</label><input id="sTuneKm" type="number" min="100" step="100"></div>
+        <div class="field"><label for="bOil">Oil change every (km)</label><input id="bOil" type="number" min="100" step="50" placeholder="2000"></div>
+        <div class="field"><label for="bTuneKm">Tuning every (km)</label><input id="bTuneKm" type="number" min="100" step="100" placeholder="3000"></div>
       </div>
       <div class="row">
-        <div class="field"><label for="sTuneMo">…or every (months), whichever first</label><input id="sTuneMo" type="number" min="1" step="1"></div>
-
+        <div class="field"><label for="bTuneMo">…or every (months), whichever first</label><input id="bTuneMo" type="number" min="1" step="1" placeholder="3"></div>
       </div>
-      <div class="label" style="margin-top:6px">Part life (optional). Fill in only if you know it, and the part gets a countdown bar</div>
-      <div class="lifegrid" id="lifeGrid"></div>
-      <div class="actions"><button class="btn" type="submit">Save settings</button></div>
-      <div class="msg" id="setMsg" role="status"></div>
+      <div class="actions"><button class="btn" type="submit" id="bikeSave">Save bike</button><button class="btn ghost" type="button" id="bikeCancel">Cancel</button></div>
     </form>
-  </details>
+    <div class="msg" id="bikeMsg" role="status"></div>
+  </section>
 
   <section class="panel" aria-labelledby="bkTitle">
     <h2 id="bkTitle">Backup &amp; restore</h2>
@@ -333,7 +344,7 @@ details.settings form{margin-top:12px}
   </section>
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="1.4" data-updated="2026-10-28T23:51:51Z">Version 1.4</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="1.5" data-updated="2026-10-28T23:56:55Z">Version 1.5</p>
 </div>
 
 <script>
@@ -367,45 +378,44 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const PDEF = Object.fromEntries(PARTS.map(p=>[p.key,p]));
   const defLife = () => ({});
   const DEF = {name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, partLife:defLife()};
-  let entries = [];          // {id, kind, date, odo, cost, ...}
+  let entries = [];          // active bike's entries {id, bikeId, kind, date, odo, cost, ...}
+  let allEntries = [];
+  let bikes = [];            // {id, name, currency, oilKm, tuneKm, tuneMonths}
+  let activeId = null;
   let settings = {...DEF};
+  let editingBikeId = null;
   let filter = "all";
   let kind = "fuel";
   let editingId = null;
   let store = null;
 
-  // ---------- storage: private cloud rows, falling back to this browser ----------
+  // ---------- storage: everything lives in this phone's browser storage ----------
   const LS = "bike-logbook-v1";
   function localStore(){
-    let data = {entries:[], settings:null};
-    try { const raw = localStorage.getItem(LS); if (raw) data = JSON.parse(raw); } catch(e){}
+    let data = {};
+    try { const raw = localStorage.getItem(LS); if (raw) data = JSON.parse(raw) || {}; } catch(e){}
+    // upgrade older single-bike data into the multi-bike layout
+    if (!Array.isArray(data.bikes) || !data.bikes.length){
+      const old = data.settings || {};
+      const b = {id:"b-"+Date.now().toString(36), name: old.name || "", currency: old.currency || "Rs", oilKm: old.oilKm || 2000, tuneKm: old.tuneKm || 3000, tuneMonths: old.tuneMonths || 3};
+      if (old.partLife) b.partLife = old.partLife;
+      data.bikes = [b];
+    }
+    if (!Array.isArray(data.entries)) data.entries = [];
+    if (!data.bikes.some(b=>b.id===data.active)) data.active = data.bikes[0].id;
+    data.entries.forEach(e=>{ if (!e.bikeId) e.bikeId = data.active; });
+    delete data.settings;
     let cb = ()=>{};
-    const save = ()=>{ try{ localStorage.setItem(LS, JSON.stringify(data)); }catch(e){} cb(data); };
+    const save = ()=>{ try{ localStorage.setItem(LS, JSON.stringify(data)); }catch(e){ throw new Error("storage"); } cb(data); };
     return {
       mode:"local",
       subscribe(fn){ cb = fn; fn(data); },
-      async put(e){ const i = data.entries.findIndex(x=>x.id===e.id); if(i>=0) data.entries[i]=e; else data.entries.push(e); save(); },
+      async put(e){ if (!e.bikeId) e.bikeId = data.active; const i = data.entries.findIndex(x=>x.id===e.id); if(i>=0) data.entries[i]=e; else data.entries.push(e); save(); },
       async remove(id){ data.entries = data.entries.filter(x=>x.id!==id); save(); },
-      async putSettings(s){ data.settings = s; save(); }
-    };
-  }
-  async function cloudStore(){
-    const db = await claude.use("db"); const user = await claude.use("user");
-    if (!db || !user) return null;
-    const uid = await user.id(); if (!uid) return null;
-    const col = db.collection("data/users/" + uid);
-    return {
-      mode:"cloud",
-      subscribe(fn){
-        col.onSnapshot(snap=>{
-          const es=[]; let s=null;
-          snap.docs.forEach(d=>{ const v=d.data(); if(!v) return; if(d.id==="settings") s=v; else es.push({...v, id:d.id}); });
-          fn({entries:es, settings:s});
-        }, err=>{ $("#storeNote").textContent = "Couldn't load your saved entries. Reload the page to try again."; });
-      },
-      async put(e){ const {id, ...body} = e; await col.doc(id).set(body); },
-      async remove(id){ await col.doc(id).delete(); },
-      async putSettings(s){ await col.doc("settings").set(s); }
+      async putBike(b){ const i = data.bikes.findIndex(x=>x.id===b.id); if(i>=0) data.bikes[i]=b; else data.bikes.push(b); save(); },
+      async removeBike(id){ if (data.bikes.length<2) return; data.bikes = data.bikes.filter(b=>b.id!==id); data.entries = data.entries.filter(e=>e.bikeId!==id); if (data.active===id) data.active = data.bikes[0].id; save(); },
+      async setActive(id){ if (data.bikes.some(b=>b.id===id)){ data.active = id; save(); } },
+      async putSettings(sv){ const i = data.bikes.findIndex(b=>b.id===data.active); data.bikes[i] = {...data.bikes[i], ...sv, id:data.active}; save(); }
     };
   }
 
@@ -441,7 +451,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   // ---------- render ----------
   function render(){
     const odo = currentOdo();
-    $("#bikeName").textContent = settings.name || "My Bike";
+    $("#bikeName").textContent = settings.name || (bikes.length>1 ? "Bike " + (bikes.findIndex(b=>b.id===activeId)+1) : "My Bike");
     const dg = String(Math.round(odo)).padStart(6,"0").split("");
     $("#digits").innerHTML = dg.map(d=>`<span>${d}</span>`).join("") + `<span class="unit">km</span>`;
     $("#sampleBanner").hidden = !entries.some(e=>e.sample);
@@ -531,7 +541,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       return `<div class="prow">
         <span class="pn">${esc(partLabel(e))}</span><span class="pill st-${cls}">${esc(status)}</span>
         ${frac!==null?`<div class="bar"><i style="width:${(frac*100).toFixed(0)}%;background:var(--${cls})"></i></div>`:""}
-        <span class="pd">Fitted ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} at ${fmt(e.odo)} km${e.brand?` · ${esc(e.brand)}`:""}${life?` · life ${fmt(life)} ${byMonths?"months":"km"}`:(e._age?` · ${e._age}`:"")}</span>
+        <span class="pd">${e.sample?"":`<button class="link" type="button" data-life="${e.id}" style="float:right;margin-left:8px">${life?"Change life":"Set expected life"}</button>`}Fitted ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} at ${fmt(e.odo)} km${e.brand?` · ${esc(e.brand)}`:""}${life?` · life ${fmt(life)} ${byMonths?"months":"km"}`:(e._age?` · ${e._age}`:"")}</span>
       </div>`;
     }).join("");
   }
@@ -653,20 +663,66 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       else { dl.dataset.confirm="1"; dl.textContent="Tap again to delete"; setTimeout(()=>{ if(dl.isConnected){ delete dl.dataset.confirm; dl.textContent="Delete"; } }, 3000); }
     }
   });
+  $("#parts").addEventListener("click", ev=>{ const b=ev.target.closest("[data-life]"); if(!b) return; const e=entries.find(x=>x.id===b.dataset.life); if(!e) return; fillForm(e); setTimeout(()=>$("#fLife").focus(), 400); });
   $("#filters").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(!b) return; filter=b.dataset.f;
     document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); renderList(); });
 
-  // ---------- settings ----------
-  function fillSettings(){ $("#sName").value=settings.name; $("#sCur").value=settings.currency; $("#sOil").value=settings.oilKm; $("#sTuneKm").value=settings.tuneKm; $("#sTuneMo").value=settings.tuneMonths;
-    $("#lifeGrid").innerHTML = PARTS.filter(p=>p.key!=="other").map(p=>`<div class="field"><label for="pl-${p.key}">${p.label} (${p.months?"months":"km"})</label><input id="pl-${p.key}" type="number" min="1" step="1" placeholder="optional" value="${settings.partLife[p.key]||""}"></div>`).join(""); }
-  $("#settingsForm").addEventListener("submit", async ev=>{
+  // ---------- bikes ----------
+  const bikeLabel = (b, i) => b.name || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
+  function renderBikes(){
+    const sw = $("#bikeSwitch");
+    sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("");
+    $("#switchWrap").hidden = bikes.length < 2;
+    $("#bikeList").innerHTML = bikes.map((b,i)=>{
+      const es = allEntries.filter(e=>e.bikeId===b.id && !e.sample);
+      const odo = es.reduce((m,e)=>Math.max(m,e.odo||0),0);
+      const cur = b.id===activeId;
+      return `<div class="brow">
+        <div class="bn"><b>${esc(bikeLabel(b,i))}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""} · oil every ${fmt(b.oilKm||2000)} km</span></div>
+        <div class="bact">${cur?'<span class="current">Showing now</span>':`<button class="btn small" type="button" data-open="${b.id}">Open</button>`}
+          <button class="btn small ghost" type="button" data-bedit="${b.id}">Edit</button>
+          ${bikes.length>1?`<button class="btn small danger" type="button" data-bdel="${b.id}">Delete</button>`:""}</div>
+      </div>`;
+    }).join("");
+  }
+  function openBikeForm(b){
+    editingBikeId = b ? b.id : null;
+    $("#bikeFormTitle").textContent = b ? "Edit bike" : "Add a bike";
+    $("#bikeSave").textContent = b ? "Save changes" : "Save bike";
+    $("#bName").value = b ? (b.name||"") : ""; $("#bCur").value = b ? (b.currency||"Rs") : (settings.currency||"Rs");
+    $("#bOil").value = b ? (b.oilKm||"") : ""; $("#bTuneKm").value = b ? (b.tuneKm||"") : ""; $("#bTuneMo").value = b ? (b.tuneMonths||"") : "";
+    $("#bikeForm").hidden = false; $("#bikeMsg").textContent = ""; $("#bName").focus();
+  }
+  $("#addBikeBtn").addEventListener("click", ()=>openBikeForm(null));
+  $("#bikeCancel").addEventListener("click", ()=>{ $("#bikeForm").hidden = true; editingBikeId = null; });
+  $("#bikeForm").addEventListener("submit", async ev=>{
     ev.preventDefault();
-    const s = { name: $("#sName").value.trim(), currency: $("#sCur").value.trim()||"Rs",
-      oilKm: Math.max(100, parseInt($("#sOil").value)||DEF.oilKm), tuneKm: Math.max(100, parseInt($("#sTuneKm").value)||DEF.tuneKm),
-      tuneMonths: Math.max(1, parseInt($("#sTuneMo").value)||DEF.tuneMonths),
-      partLife: Object.fromEntries(PARTS.filter(p=>p.key!=="other").map(p=>[p.key, parseInt(($("#pl-"+p.key)||{}).value)||0]).filter(x=>x[1]>0)) };
-    try { await store.putSettings(s); $("#setMsg").textContent="Settings saved."; } catch(e){ $("#setMsg").textContent="Couldn't save settings. Try again."; }
+    const m = $("#bikeMsg"); m.className = "msg";
+    const name = $("#bName").value.trim();
+    if (!name){ m.className="msg err"; m.textContent="Give the bike a name, for example Honda CG125."; $("#bName").focus(); return; }
+    const old = bikes.find(b=>b.id===editingBikeId) || {};
+    const b = {...old, id: editingBikeId || ("b-"+uid()), name, currency: $("#bCur").value.trim()||"Rs",
+      oilKm: Math.max(100, parseInt($("#bOil").value)||2000), tuneKm: Math.max(100, parseInt($("#bTuneKm").value)||3000),
+      tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3)};
+    const isNew = !editingBikeId;
+    try {
+      await store.putBike(b);
+      if (isNew){ await store.setActive(b.id); resetForm(); }
+      $("#bikeForm").hidden = true; editingBikeId = null;
+      m.textContent = isNew ? `${name} added. You're now logging for this bike.` : "Bike saved.";
+    } catch(e){ m.className="msg err"; m.textContent="Couldn't save. Your phone storage may be full."; }
   });
+  $("#bikeList").addEventListener("click", async ev=>{
+    const o = ev.target.closest("[data-open]"), ed = ev.target.closest("[data-bedit]"), dl = ev.target.closest("[data-bdel]");
+    if (o){ await store.setActive(o.dataset.open); resetForm(); $("#bikeMsg").textContent=""; window.scrollTo({top:0, behavior:"smooth"}); }
+    if (ed){ openBikeForm(bikes.find(b=>b.id===ed.dataset.bedit)); }
+    if (dl){
+      const id = dl.dataset.bdel, n = allEntries.filter(e=>e.bikeId===id).length;
+      if (dl.dataset.confirm){ await store.removeBike(id); resetForm(); $("#bikeMsg").textContent = "Bike deleted."; }
+      else { dl.dataset.confirm="1"; dl.textContent = n ? `Tap again: deletes ${n} entries too` : "Tap again to delete"; setTimeout(()=>{ if(dl.isConnected){ delete dl.dataset.confirm; dl.textContent="Delete"; } }, 4000); }
+    }
+  });
+  $("#bikeSwitch").addEventListener("change", async ev=>{ await store.setActive(ev.target.value); resetForm(); });
 
   // ---------- examples ----------
   async function loadSamples(){
@@ -696,7 +752,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 
   // ---------- backup ----------
   $("#backupBtn").addEventListener("click", ()=>{
-    const data = {app:"bike-logbook", version:1, exported:new Date().toISOString(), settings, entries: entries.filter(e=>!e.sample)};
+    const data = {app:"bike-logbook", version:2, exported:new Date().toISOString(), bikes, active:activeId, entries: allEntries.filter(e=>!e.sample)};
     const blob = new Blob([JSON.stringify(data, null, 1)], {type:"application/json"});
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "bike-logbook-backup-" + today() + ".json"; document.body.appendChild(a); a.click();
@@ -710,8 +766,16 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const list = Array.isArray(data) ? data : data.entries;
       if (!Array.isArray(list)) throw new Error("bad");
       let n = 0;
-      for (const e of list){ if (e && e.kind in KINDS && typeof e.date==="string"){ await store.put({...e, id: e.id || uid()}); n++; } }
-      if (data.settings && typeof data.settings==="object") await store.putSettings({...settings, ...data.settings});
+      const known = new Set(bikes.map(b=>b.id));
+      if (Array.isArray(data.bikes)) for (const b of data.bikes){ if (b && b.id){ await store.putBike(b); known.add(b.id); } }
+      for (const e of list){ if (e && e.kind in KINDS && typeof e.date==="string"){ const bikeId = known.has(e.bikeId) ? e.bikeId : activeId; await store.put({...e, bikeId, id: e.id || uid()}); n++; } }
+      if (!Array.isArray(data.bikes) && data.settings && typeof data.settings==="object") await store.putSettings({...data.settings});
+      if (Array.isArray(data.bikes) && data.bikes.length){
+        // drop an unnamed, empty starter bike that the backup doesn't know about
+        const fromBackup = new Set(data.bikes.map(b=>b.id));
+        for (const b of bikes.slice()){ if (!fromBackup.has(b.id) && !b.name && !allEntries.some(e=>e.bikeId===b.id)) await store.removeBike(b.id); }
+        if (data.active && bikes.some(b=>b.id===data.active)) await store.setActive(data.active);
+      }
       m.className="msg"; m.textContent = `Restored ${n} entries.`;
     } catch(err){ m.className="msg err"; m.textContent = "That file isn't a Bike Logbook backup. Pick the .json file you saved with Backup now."; }
     ev.target.value = "";
@@ -719,13 +783,15 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 
   // ---------- boot ----------
   function onData(data){
-    entries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
-    settings = {...DEF, ...(data.settings||{})}; settings.partLife = {...defLife(), ...((data.settings||{}).partLife||{})};
-    const box = $("#settingsBox"); if (!box.open) fillSettings();
-    render();
+    bikes = data.bikes || []; activeId = data.active;
+    allEntries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
+    entries = allEntries.filter(e=>e.bikeId===activeId);
+    const ab = bikes.find(b=>b.id===activeId) || {};
+    settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
+    render(); renderBikes();
   }
   async function start(){
-    resetForm(); onData({entries:[], settings:null});
+    resetForm(); onData({bikes:[], entries:[]});
     store = localStore();
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
     $("#storeNote").textContent = "Your entries are saved on this phone only. Tap Backup now and then to keep a safe copy.";
