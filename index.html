@@ -333,7 +333,7 @@ details.settings form{margin-top:12px}
   </section>
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
-  <p class="foot" style="margin-top:-12px">App version 3</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="1.4" data-updated="2026-10-28T23:51:51Z">Version 1.4</p>
 </div>
 
 <script>
@@ -732,6 +732,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     store.subscribe(onData);
   }
   start();
+  (function(){ const v=$("#appVersion"); if(!v) return; const d=new Date(v.dataset.updated);
+    const t = isNaN(d) ? "" : " · Updated " + d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear()+", "+d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+    v.textContent = "Version " + v.dataset.version + t; })();
   if ("serviceWorker" in navigator) window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js", {updateViaCache:"none"}).then(reg=>reg.update()).catch(()=>{}));
   if ("serviceWorker" in navigator) { let reloaded=false; navigator.serviceWorker.addEventListener("controllerchange", ()=>{ if(!reloaded && !document.querySelector("#entryForm input:focus")){ reloaded=true; location.reload(); } }); }
 })();
