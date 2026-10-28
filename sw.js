@@ -1,7 +1,7 @@
 // Bike Logbook offline support.
 // Online: always load the newest app from the network (bypassing the browser cache).
 // Offline: fall back to the last saved copy.
-const CACHE = "bike-logbook-v3";
+const CACHE = "bike-logbook-v4";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE)

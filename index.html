@@ -333,8 +333,12 @@ details.settings form{margin-top:12px}
   </section>
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
+  <p class="foot" style="margin-top:-12px">App version 3</p>
 </div>
 
+<script>
+window.addEventListener("error", function(ev){ var n=document.getElementById("storeNote"); if(n){ n.style.color="var(--bad)"; n.textContent="Something went wrong: "+(ev.message||"unknown error")+" (line "+(ev.lineno||"?")+"). Please send this message to Claude."; } });
+</script>
 <script>
 (function(){
   const $ = s => document.querySelector(s);
