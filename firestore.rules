@@ -15,10 +15,11 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/groups/$(gid)/members/$(me()));
     }
     function inGroup(gs, i) { return gs.size() > i && isGroupMember(gs[i]); }
+    function sharedWithMe(gs) {
+      return gs is list && (inGroup(gs, 0) || inGroup(gs, 1) || inGroup(gs, 2));
+    }
     function canAccess(b) {
-      let gs = b.get('groups', []);
-      return b.ownerId == me()
-        || (gs is list && (inGroup(gs, 0) || inGroup(gs, 1) || inGroup(gs, 2)));
+      return b.ownerId == me() || sharedWithMe(b.get('groups', []));
     }
     function validGroups(b) {
       let gs = b.get('groups', []);
@@ -28,7 +29,8 @@ service cloud.firestore {
         && (gs.size() < 3 || isGroupMember(gs[2]));
     }
 
-    // Public display names, so family members see who added an entry.
+    // Public display names (so family members see who added an entry),
+    // plus the list of groups the person has joined.
     match /users/{uid} {
       allow read: if signedIn();
       allow write: if signedIn() && me() == uid;

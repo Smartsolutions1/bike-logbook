@@ -173,6 +173,27 @@ details.settings form{margin-top:12px}
 .brow .bn span{font-size:12.5px;color:var(--muted)}
 .brow .bact{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .current{font-size:11.5px;font-weight:600;color:var(--ok);border:1px solid currentColor;border-radius:999px;padding:1px 8px}
+.gate{position:fixed;inset:0;z-index:60;background:radial-gradient(120% 120% at 80% 0%,var(--hero-2) 0%,var(--hero) 60%);color:var(--hero-ink);display:flex;align-items:center;justify-content:center;padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));overflow:auto}
+.gate-in{max-width:380px;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.gate h1{font-size:44px;line-height:1;text-transform:uppercase;letter-spacing:.02em}
+.gate p{margin:0;color:var(--hero-muted);line-height:1.55}
+.gate .join{background:rgba(255,176,46,.12);border:1px solid rgba(255,176,46,.45);color:var(--hero-ink);border-radius:10px;padding:10px 14px;font-size:14px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font:600 16px var(--body);background:#fff;color:#1f2937;border:0;border-radius:999px;padding:13px 18px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.gbtn svg{width:20px;height:20px}
+.gate .link{color:var(--hero-muted);font-size:13.5px;text-decoration:underline}
+.gate .msg{color:var(--h-bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.groups{display:flex;flex-direction:column;gap:12px}
+.grp{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.grp .gh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:baseline}
+.grp .gh b{font-family:var(--display);font-size:22px;font-weight:600}
+.grp .gh span{font-size:12.5px;color:var(--muted)}
+.mems{display:flex;flex-wrap:wrap;gap:6px}
+.mem{display:inline-flex;align-items:center;gap:6px;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--soft)}
+.mem button{background:none;border:0;color:var(--bad);font-size:15px;line-height:1;cursor:pointer;padding:0 2px}
+.invite{display:flex;flex-direction:column;gap:8px;background:var(--soft);border-radius:8px;padding:10px}
+.invite input{font-family:var(--mono);font-size:12.5px}
+.by{font-size:12px;color:var(--muted)}
 .lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 
 @media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
@@ -181,6 +202,18 @@ details.settings form{margin-top:12px}
 </style>
 </head>
 <body>
+<div class="gate" id="gate" hidden>
+  <div class="gate-in">
+    <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="32" r="7"/><circle cx="37" cy="32" r="7"/><path d="M11 32l7-12h10l9 12"/><path d="M20 20l5 12h-6"/><path d="M28 20l3-6h5"/><path d="M17 17h9" stroke-width="4"/></svg></div>
+    <h1>Bike Logbook</h1>
+    <p>Fuel, oil changes, tuning and parts for every bike in the family, saved to your Google account and shared with the people who ride it.</p>
+    <div class="join" id="gateJoin" hidden></div>
+    <button class="gbtn" type="button" id="signInBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
+    <div class="msg" id="gateMsg" role="status"></div>
+    <button class="link" type="button" id="localBtn">Use without an account (this phone only)</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
 <div class="wrap">
   <section class="hero" aria-label="Bike status">
   <header class="top">
@@ -327,9 +360,26 @@ details.settings form{margin-top:12px}
       <div class="row">
         <div class="field"><label for="bTuneMo">…or every (months), whichever first</label><input id="bTuneMo" type="number" min="1" step="1" placeholder="3"></div>
       </div>
+      <div class="field" id="bShareWrap" hidden><span style="font-size:13px;font-weight:500;color:var(--muted)">Share this bike with</span><div class="chips" id="bShare"></div></div>
       <div class="actions"><button class="btn" type="submit" id="bikeSave">Save bike</button><button class="btn ghost" type="button" id="bikeCancel">Cancel</button></div>
     </form>
     <div class="msg" id="bikeMsg" role="status"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="famTitle" id="familyPanel">
+    <h2 id="famTitle">Family &amp; sharing</h2>
+    <div id="famLocal" hidden>
+      <p class="foot" style="margin:0">Sign in with Google to save your bikes online and share them with your family, so everyone can add fuel and maintenance from their own phone.</p>
+      <div class="actions"><button class="btn" type="button" id="goSignIn">Sign in to share</button></div>
+    </div>
+    <div id="famCloud" hidden>
+      <div class="groups" id="groupList"></div>
+      <form id="groupForm" class="row" style="align-items:end">
+        <div class="field"><label for="gName">New group name</label><input id="gName" type="text" placeholder="Family" maxlength="40"></div>
+        <div class="field"><button class="btn" type="submit" id="createGroupBtn">Create group</button></div>
+      </form>
+    </div>
+    <div class="msg" id="groupMsg" role="status"></div>
   </section>
 
   <section class="panel" aria-labelledby="bkTitle">
@@ -344,9 +394,15 @@ details.settings form{margin-top:12px}
   </section>
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="1.5" data-updated="2026-10-28T23:56:55Z">Version 1.5</p>
+  <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.0" data-updated="2026-10-29T00:34:44Z">Version 2.0</p>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="cloud.js"></script>
 <script>
 window.addEventListener("error", function(ev){ var n=document.getElementById("storeNote"); if(n){ n.style.color="var(--bad)"; n.textContent="Something went wrong: "+(ev.message||"unknown error")+" (line "+(ev.lineno||"?")+"). Please send this message to Claude."; } });
 </script>
@@ -384,6 +440,14 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   let activeId = null;
   let settings = {...DEF};
   let editingBikeId = null;
+  let groups = [];           // family groups (online mode)
+  let me = null;             // signed-in person (online mode)
+  const lsGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
+  const lsSet = (k,v) => { try { localStorage.setItem(k, v); } catch(e){} };
+  let toastTimer = null;
+  function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{ el.hidden=true; }, 4500); }
+  const isCloud = () => !!(store && store.mode==="cloud");
+  const ownsBike = b => !b || !b.ownerId || !me || b.ownerId===me.uid;
   let filter = "all";
   let kind = "fuel";
   let editingId = null;
@@ -582,10 +646,13 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#list").innerHTML = rows.map(e=>{
       const d = parseD(e.date);
       const extra = [detail(e), e.notes].filter(Boolean).map(esc).join(" — ");
+      const ab = bikes.find(b=>b.id===e.bikeId);
+      const canDel = !isCloud() || ownsBike(ab) || e.addedBy===me.uid;
+      const by = isCloud() && e.addedBy && ((ab && (ab.groups||[]).length) || e.addedBy!==me.uid) ? `<div class="by">Added by ${e.addedBy===me.uid?"you":esc(e.addedByName||"family member")}</div>` : "";
       return `<div class="item" data-k="${e.kind}">
         <div class="ico">${ICONS[e.kind]}</div>
-        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}</div>
-        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button> · <button class="link del" data-del="${e.id}" type="button">Delete</button></span></div>
+        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}${by}</div>
+        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button>${canDel?` · <button class="link del" data-del="${e.id}" type="button">Delete</button>`:""}</span></div>
       </div>`;
     }).join("");
   }
@@ -673,17 +740,20 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const sw = $("#bikeSwitch");
     sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("");
     $("#switchWrap").hidden = bikes.length < 2;
-    $("#bikeList").innerHTML = bikes.map((b,i)=>{
+    const ownedCount = bikes.filter(b=>ownsBike(b)).length;
+    $("#bikeList").innerHTML = bikes.length ? bikes.map((b,i)=>{
       const es = allEntries.filter(e=>e.bikeId===b.id && !e.sample);
       const odo = es.reduce((m,e)=>Math.max(m,e.odo||0),0);
-      const cur = b.id===activeId;
+      const cur = b.id===activeId, own = ownsBike(b);
+      const gnames = (b.groups||[]).map(g=>(groups.find(x=>x.id===g)||{}).name).filter(Boolean);
+      const shareTxt = !own ? ` · shared by ${esc(b.ownerName||"family")}` : (gnames.length ? ` · shared with ${esc(gnames.join(", "))}` : "");
       return `<div class="brow">
-        <div class="bn"><b>${esc(bikeLabel(b,i))}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""} · oil every ${fmt(b.oilKm||2000)} km</span></div>
+        <div class="bn"><b>${esc(bikeLabel(b,i))}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""}${shareTxt}</span></div>
         <div class="bact">${cur?'<span class="current">Showing now</span>':`<button class="btn small" type="button" data-open="${b.id}">Open</button>`}
-          <button class="btn small ghost" type="button" data-bedit="${b.id}">Edit</button>
-          ${bikes.length>1?`<button class="btn small danger" type="button" data-bdel="${b.id}">Delete</button>`:""}</div>
+          ${own?`<button class="btn small ghost" type="button" data-bedit="${b.id}">Edit</button>`:""}
+          ${own && (ownedCount>1 || isCloud())?`<button class="btn small danger" type="button" data-bdel="${b.id}">Delete</button>`:""}</div>
       </div>`;
-    }).join("");
+    }).join("") : `<div class="empty" style="padding:12px 8px">No bikes yet. Tap <b style="font-size:inherit;font-family:inherit">+ Add new bike</b> to start.</div>`;
   }
   function openBikeForm(b){
     editingBikeId = b ? b.id : null;
@@ -691,6 +761,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#bikeSave").textContent = b ? "Save changes" : "Save bike";
     $("#bName").value = b ? (b.name||"") : ""; $("#bCur").value = b ? (b.currency||"Rs") : (settings.currency||"Rs");
     $("#bOil").value = b ? (b.oilKm||"") : ""; $("#bTuneKm").value = b ? (b.tuneKm||"") : ""; $("#bTuneMo").value = b ? (b.tuneMonths||"") : "";
+    const mine = b ? (b.groups||[]) : [];
+    $("#bShareWrap").hidden = !(isCloud() && groups.length);
+    $("#bShare").innerHTML = groups.map(g=>`<label><input type="checkbox" value="${esc(g.id)}"${mine.includes(g.id)?" checked":""}> ${esc(g.name||"Family")}</label>`).join("");
     $("#bikeForm").hidden = false; $("#bikeMsg").textContent = ""; $("#bName").focus();
   }
   $("#addBikeBtn").addEventListener("click", ()=>openBikeForm(null));
@@ -704,13 +777,14 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const b = {...old, id: editingBikeId || ("b-"+uid()), name, currency: $("#bCur").value.trim()||"Rs",
       oilKm: Math.max(100, parseInt($("#bOil").value)||2000), tuneKm: Math.max(100, parseInt($("#bTuneKm").value)||3000),
       tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3)};
+    if (isCloud()) b.groups = [...document.querySelectorAll("#bShare input:checked")].map(c=>c.value).slice(0,3);
     const isNew = !editingBikeId;
     try {
       await store.putBike(b);
       if (isNew){ await store.setActive(b.id); resetForm(); }
       $("#bikeForm").hidden = true; editingBikeId = null;
       m.textContent = isNew ? `${name} added. You're now logging for this bike.` : "Bike saved.";
-    } catch(e){ m.className="msg err"; m.textContent="Couldn't save. Your phone storage may be full."; }
+    } catch(e){ m.className="msg err"; m.textContent= isCloud() ? "Couldn't save the bike. Only the bike's owner can change it." : "Couldn't save. Your phone storage may be full."; }
   });
   $("#bikeList").addEventListener("click", async ev=>{
     const o = ev.target.closest("[data-open]"), ed = ev.target.closest("[data-bedit]"), dl = ev.target.closest("[data-bdel]");
@@ -723,6 +797,53 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     }
   });
   $("#bikeSwitch").addEventListener("change", async ev=>{ await store.setActive(ev.target.value); resetForm(); });
+
+  // ---------- family groups ----------
+  let openInvite = null;
+  function renderGroups(){
+    $("#famLocal").hidden = isCloud(); $("#famCloud").hidden = !isCloud();
+    if (!isCloud()) return;
+    $("#gName").placeholder = groups.length ? "e.g. Cousins" : "Family";
+    $("#groupList").innerHTML = groups.length ? groups.map(g=>{
+      const owner = g.ownerId===me.uid;
+      const gb = bikes.filter(b=>(b.groups||[]).includes(g.id));
+      const mems = (g.members||[]).map(m=>`<span class="mem">${m.uid===me.uid?"You":esc(m.name)}${m.uid===g.ownerId?" · owner":""}${owner && m.uid!==me.uid?`<button type="button" title="Remove ${esc(m.name)}" aria-label="Remove ${esc(m.name)}" data-rm="${esc(g.id)}|${esc(m.uid)}">×</button>`:""}</span>`).join("");
+      const link = store.inviteLink(g.id);
+      const waText = encodeURIComponent(`Join my "${g.name||"Family"}" group on Bike Logbook so we can track our bikes together: ${link}`);
+      return `<div class="grp">
+        <div class="gh"><b>${esc(g.name||"Family")}</b><span>${(g.members||[]).length} member${(g.members||[]).length===1?"":"s"} · ${gb.length} bike${gb.length===1?"":"s"} shared</span></div>
+        <div class="mems">${mems}</div>
+        ${gb.length?`<div class="by">Bikes: ${gb.map(b=>esc(b.name||"Bike")).join(", ")}</div>`:`<div class="by">No bikes shared yet. Tap Edit on a bike above and tick ${esc(g.name||"Family")}.</div>`}
+        <div class="bact"><button class="btn small" type="button" data-inv="${esc(g.id)}">Invite someone</button>${!owner?`<button class="btn small danger" type="button" data-leave="${esc(g.id)}">Leave group</button>`:""}</div>
+        <div class="invite" ${openInvite===g.id?"":"hidden"}>
+          <span style="font-size:13px">Send this link. They open it, sign in with Google, and they're in.</span>
+          <input type="text" readonly value="${esc(link)}" id="inv-${esc(g.id)}" aria-label="Invite link">
+          <div class="actions"><button class="btn small" type="button" data-copy="${esc(g.id)}">Copy link</button><a class="btn small ghost" style="text-decoration:none" href="https://wa.me/?text=${waText}" target="_blank" rel="noopener">Send on WhatsApp</a></div>
+        </div>
+      </div>`;
+    }).join("") : `<p class="foot" style="margin:0">Create a group (for example <b>Family</b>), invite your family with a link, then tick the group on any bike you want to share. Everyone in the group can add fuel and maintenance from their own phone.</p>`;
+  }
+  $("#groupForm").addEventListener("submit", async ev=>{
+    ev.preventDefault(); const m=$("#groupMsg"); m.className="msg";
+    const name = $("#gName").value.trim() || (groups.length ? "" : "Family");
+    if (!name){ m.className="msg err"; m.textContent="Give the group a name."; return; }
+    if (!navigator.onLine){ m.className="msg err"; m.textContent="You're offline. Creating a group needs internet."; return; }
+    $("#createGroupBtn").disabled = true;
+    try { const gid = await store.createGroup(name); openInvite = gid; $("#gName").value=""; m.textContent=`${name} group created. Invite your family, then share a bike with it.`; renderGroups(); }
+    catch(e){ m.className="msg err"; m.textContent="Couldn't create the group. Check your internet and try again."; }
+    $("#createGroupBtn").disabled = false;
+  });
+  $("#groupList").addEventListener("click", async ev=>{
+    const inv=ev.target.closest("[data-inv]"), cp=ev.target.closest("[data-copy]"), lv=ev.target.closest("[data-leave]"), rm=ev.target.closest("[data-rm]");
+    const m=$("#groupMsg"); m.className="msg";
+    if (inv){ openInvite = openInvite===inv.dataset.inv ? null : inv.dataset.inv; renderGroups(); }
+    if (cp){ const inp=$("#inv-"+cp.dataset.copy); try { await navigator.clipboard.writeText(inp.value); m.textContent="Invite link copied. Paste it in WhatsApp or a text message."; } catch(e){ inp.select(); m.textContent="Link selected. Copy it from the box."; } }
+    if (lv){ if (lv.dataset.confirm){ try { await store.leaveGroup(lv.dataset.leave); m.textContent="You left the group."; } catch(e){ m.className="msg err"; m.textContent="Couldn't leave the group. Check your internet."; } }
+      else { lv.dataset.confirm="1"; lv.textContent="Tap again to leave"; setTimeout(()=>{ if(lv.isConnected){ delete lv.dataset.confirm; lv.textContent="Leave group"; } }, 4000); } }
+    if (rm){ const [gid, u] = rm.dataset.rm.split("|");
+      if (rm.dataset.confirm){ try { await store.removeMember(gid, u); m.textContent="Removed from the group."; } catch(e){ m.className="msg err"; m.textContent="Couldn't remove them. Check your internet."; } }
+      else { rm.dataset.confirm="1"; rm.textContent="Remove?"; setTimeout(()=>{ if(rm.isConnected){ delete rm.dataset.confirm; rm.textContent="×"; } }, 4000); } }
+  });
 
   // ---------- examples ----------
   async function loadSamples(){
@@ -782,20 +903,94 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   });
 
   // ---------- boot ----------
+  let autoBikeMade = false;
   function onData(data){
     bikes = data.bikes || []; activeId = data.active;
+    groups = data.groups || []; if (data.me) me = data.me;
+    if (isCloud() && data.ready && !bikes.length && !autoBikeMade && !lsGet("bike-logbook-migrating") && !pendingJoin()){
+      autoBikeMade = true; store.putBike({id:"b-"+uid(), name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, groups:[]});
+    }
     allEntries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
     entries = allEntries.filter(e=>e.bikeId===activeId);
     const ab = bikes.find(b=>b.id===activeId) || {};
     settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
-    render(); renderBikes();
+    render(); renderBikes(); renderGroups();
   }
+  // invite links: ?join=<group>&code=<code>&g=<name>
+  (function(){
+    const q = new URLSearchParams(location.search);
+    if (q.get("join") && q.get("code")){
+      lsSet("bike-logbook-join", JSON.stringify({gid:q.get("join"), code:q.get("code"), name:q.get("g")||"Family"}));
+      try { history.replaceState(null, "", location.pathname); } catch(e){}
+    }
+  })();
+  function pendingJoin(){ try { return JSON.parse(lsGet("bike-logbook-join")||"null"); } catch(e){ return null; } }
+
+  function useLocal(){
+    store = localStore();
+    $("#storeNote").textContent = "Your entries are saved on this phone only. Tap Backup now and then to keep a safe copy.";
+    $("#acctLine").hidden = true;
+    store.subscribe(onData);
+  }
+  function showGate(){
+    const pj = pendingJoin();
+    $("#gateJoin").hidden = !pj; if (pj) $("#gateJoin").textContent = `You've been invited to the "${pj.name}" group. Sign in to join.`;
+    $("#localBtn").hidden = !!pj;
+    $("#gate").hidden = false;
+  }
+  $("#signInBtn").addEventListener("click", async ()=>{
+    const m=$("#gateMsg"); m.textContent="";
+    try { await BikeCloud.signIn(); }
+    catch(err){ m.textContent = (err && err.code==="auth/popup-closed-by-user") ? "Sign-in was closed before it finished. Tap the button to try again." : (navigator.onLine ? "Couldn't sign in. Tap the button to try again." : "You're offline. Connect to the internet to sign in."); }
+  });
+  $("#localBtn").addEventListener("click", ()=>{ lsSet("bike-logbook-mode","local"); $("#gate").hidden = true; if (!store) useLocal(); });
+  $("#goSignIn").addEventListener("click", ()=>{ lsSet("bike-logbook-mode","cloud"); location.reload(); });
+
+  async function migrateLocal(user){
+    const flag = "bike-logbook-moved-" + user.uid;
+    if (lsGet(flag)) return;
+    let data = null; try { data = JSON.parse(lsGet(LS)||"null"); } catch(e){}
+    const es = (data && Array.isArray(data.entries) ? data.entries : []).filter(e=>e && !e.sample && e.kind in KINDS);
+    const bs = data && Array.isArray(data.bikes) ? data.bikes : [];
+    const keep = bs.filter(b=>b.name || es.some(e=>e.bikeId===b.id));
+    if (!keep.length && !es.length){ lsSet(flag, "1"); return; }
+    lsSet("bike-logbook-migrating","1");
+    keep.forEach(b=>store.putBike({...b, groups:[]}));
+    const fallback = keep[0] ? keep[0].id : null;
+    es.forEach(e=>{ const bikeId = keep.some(b=>b.id===e.bikeId) ? e.bikeId : fallback; if (bikeId) store.put({...e, bikeId}); });
+    if (data.active && keep.some(b=>b.id===data.active)) store.setActive(data.active);
+    lsSet(flag, "1");
+    // moved, not copied: keep a safety copy, so another person signing in on this phone doesn't get these entries
+    try { localStorage.setItem("bike-logbook-v1-moved", lsGet(LS)); localStorage.removeItem(LS); localStorage.removeItem("bike-logbook-migrating"); } catch(e){}
+    toast(`Moved ${es.length} entr${es.length===1?"y":"ies"} from this phone to your account.`);
+  }
+  async function joinIfInvited(){
+    const pj = pendingJoin(); if (!pj) return;
+    try { await store.joinGroup(pj.gid, pj.code); toast(`You've joined "${pj.name}". Shared bikes appear in My bikes.`); try { localStorage.removeItem("bike-logbook-join"); } catch(e){} }
+    catch(e){ toast(navigator.onLine ? "That invite link didn't work. Ask for a new one." : "You're offline. We'll join the group when you're back online."); if (navigator.onLine) try { localStorage.removeItem("bike-logbook-join"); } catch(e2){} }
+  }
+
   async function start(){
     resetForm(); onData({bikes:[], entries:[]});
-    store = localStore();
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
-    $("#storeNote").textContent = "Your entries are saved on this phone only. Tap Backup now and then to keep a safe copy.";
-    store.subscribe(onData);
+    if (!window.BikeCloud || !BikeCloud.available()){ useLocal(); $("#storeNote").textContent += " (Online sync couldn't load. Check your internet and reopen the app.)"; return; }
+    if (lsGet("bike-logbook-mode")==="local" && !pendingJoin()){ useLocal(); return; }
+    BikeCloud.init();
+    BikeCloud.onAuth(async user=>{
+      if (!user){ if (store && store.stop) { store.stop(); store = null; } showGate(); return; }
+      lsSet("bike-logbook-mode","cloud");
+      $("#gate").hidden = true;
+      if (store && store.stop) store.stop();
+      store = BikeCloud.createStore(user, (what)=>toast(`${what}. Check your internet and try again.`));
+      me = {uid:user.uid, name:user.displayName||"", email:user.email||""};
+      $("#storeNote").textContent = "Saved to your Google account. Works offline too: entries upload when you're back online.";
+      $("#acctLine").hidden = false;
+      $("#acctLine").innerHTML = `Signed in as ${esc(user.displayName||user.email||"you")}${user.email?` (${esc(user.email)})`:""} · <button class="link" type="button" id="signOutBtn">Sign out</button>`;
+      $("#signOutBtn").onclick = async ()=>{ await BikeCloud.signOut(); };
+      store.subscribe(onData);
+      await migrateLocal(user);
+      joinIfInvited();
+    });
   }
   start();
   (function(){ const v=$("#appVersion"); if(!v) return; const d=new Date(v.dataset.updated);
