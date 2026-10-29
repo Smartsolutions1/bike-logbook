@@ -446,13 +446,15 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <form id="bikeForm" hidden>
       <h3 id="bikeFormTitle" style="font-size:20px">Add a bike</h3>
       <div class="row">
-        <div class="field"><label for="bName">Bike name</label><input id="bName" type="text" placeholder="e.g. Honda CG125 2021"></div>
+        <div class="field"><label for="bType">Type of bike</label><select id="bType"><option value="petrol">Petrol</option><option value="electric">Electric</option></select></div>
+        <div class="field"><label for="bModel">Model</label><select id="bModel"></select></div>
+      </div>
+      <div class="field" id="bModelOtherWrap" hidden><label for="bModelOther">Type the make and model</label><input id="bModelOther" type="text" placeholder="e.g. Honda CD 70 2015"></div>
+      <div class="row">
+        <div class="field"><label for="bName">Bike name <span style="font-weight:500">(optional)</span></label><input id="bName" type="text" placeholder="e.g. Abu's Pridor"></div>
         <div class="field"><label for="bCur">Currency label</label><input id="bCur" type="text" placeholder="Rs"></div>
       </div>
-      <div class="row">
-        <div class="field"><label for="bType">Type of bike</label><select id="bType"><option value="petrol">Petrol</option><option value="electric">Electric</option></select></div>
-        <div class="field" style="justify-content:flex-end"><span class="by">Electric bikes log charging instead of fuel, oil and tuning.</span></div>
-      </div>
+      <span class="by" id="bTypeHint" style="margin-top:-4px">Pick the model, then give it your own name if you like. Electric bikes log charging instead of fuel, oil and tuning.</span>
       <div class="row">
         <div class="field"><label for="bOdo" id="bOdoLabel">Current odometer (km)</label><input id="bOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 18500"></div>
         <div class="field" style="justify-content:flex-end"><span class="by" id="bOdoHint">What the meter shows today. Leave blank for a new bike.</span></div>
@@ -516,7 +518,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.0" data-updated="2026-10-29T01:43:26Z">Version 3.0</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.1" data-updated="2026-10-29T01:51:17Z">Version 3.1</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -550,6 +552,43 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     {key:"other", label:"Other part", for:"pe"}
   ];
   const TYPE_KINDS = {petrol:["fuel","oil","service","tune","part"], electric:["charge","service","part"]};
+  // Common bikes in Pakistan, grouped by company
+  const MODELS = {
+    petrol: {
+      "Honda": ["CD 70","CD 70 Dream","Pridor","CG 125","CG 125 Special Edition","CB 125F","CB 150F"],
+      "Suzuki": ["GD 110S","GS 150","GS 150 SE","GR 150"],
+      "Yamaha": ["YB 125Z","YB 125Z-DX","YBR 125","YBR 125G"],
+      "United": ["US 70","US 100","US 125"],
+      "Road Prince": ["RP 70","RP 110","Wego 150"],
+      "Unique": ["UD 70","UD 100","UD 125"],
+      "Super Power": ["SP 70","SP 100","SP 125"]
+    },
+    electric: {
+      "Jolta": ["JE-70D","JE-70L","JE-100L","JE-125L","Sparrow","Scooty"],
+      "Evee": ["C1","C1 Air","Gen-Z","Nisa","Flipper","S1 Air","S1 Pro"],
+      "Vlektra": ["Bolt","Retro","Retro 1969","Velocity 180 SE"],
+      "United": ["EV Smart","EV Revolt","EV Bullet Ultimate","EV Bullet Swap Pro","EV Bullet Swap Max"],
+      "Metro": ["Matrix","M6 Power Lithium","Thrill Lithium","E8S Mountain Climber"],
+      "Yadea": ["T5"],
+      "OKLA": ["OKT","Omax","Ovega","OKG"],
+      "Crown": ["Roshni X","Raftaar","Champion"],
+      "Revoo": ["E52","A12","C32 Pro"],
+      "PakZon": ["PE-70D","PE-100L-SE"],
+      "ELFA": ["EV-1","EV-125"]
+    }
+  };
+  function fillModels(type, selected){
+    const groups = MODELS[type] || {};
+    let html = `<option value="">Choose a model…</option>`;
+    Object.keys(groups).forEach(make=>{ html += `<optgroup label="${make}">` + groups[make].map(m=>{ const v = make+" "+m; return `<option value="${v}">${v}</option>`; }).join("") + `</optgroup>`; });
+    html += `<option value="__other">Other / not listed</option>`;
+    $("#bModel").innerHTML = html;
+    const known = selected && [...$("#bModel").options].some(o=>o.value===selected);
+    $("#bModel").value = !selected ? "" : known ? selected : "__other";
+    $("#bModelOther").value = selected && !known ? selected : "";
+    $("#bModelOtherWrap").hidden = $("#bModel").value!=="__other";
+  }
+  const bikeModel = () => $("#bModel").value==="__other" ? $("#bModelOther").value.trim() : $("#bModel").value;
   const SV = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const ICONS = {
     fuel: SV('<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M3.5 20h12M7.5 8h4M14 9h2a1 1 0 0 1 1 1v5.5a1.5 1.5 0 0 0 3 0V8l-3-3"/>'),
@@ -707,11 +746,11 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     applyBikeType();
     const odo = currentOdo();
     $("#fOdo").placeholder = odo ? `now ${fmt(odo)}` : "e.g. 12450";
-    $("#bikeName").textContent = settings.name || (bikes.length>1 ? "Bike " + (bikes.findIndex(b=>b.id===activeId)+1) : "My Bike");
+    $("#bikeName").textContent = settings.name || settings.model || (bikes.length>1 ? "Bike " + (bikes.findIndex(b=>b.id===activeId)+1) : "My Bike");
     const dg = String(Math.round(odo)).padStart(6,"0").split("");
     $("#digits").innerHTML = dg.map(d=>`<span>${d}</span>`).join("") + `<span class="unit">km</span>`;
     $("#sampleBanner").hidden = !entries.some(e=>e.sample);
-    $("#subline").textContent = entries.length ? `${entries.length} entr${entries.length===1?"y":"ies"} logged${isEV()?" · electric":""}` : (isEV() ? "Charging, check-ups and parts in one place" : "Fuel, oil changes, service and tuning in one place");
+    $("#subline").textContent = entries.length ? `${settings.name && settings.model ? settings.model+" · " : ""}${entries.length} entr${entries.length===1?"y":"ies"} logged${isEV()?" · electric":""}` : (settings.name && settings.model ? settings.model + (isEV() ? " · electric" : "") : (isEV() ? "Charging, check-ups and parts in one place" : "Fuel, oil changes, service and tuning in one place"));
 
     if (isEV()){
       // Check-up countdown
@@ -1078,7 +1117,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); renderList(); });
 
   // ---------- bikes ----------
-  const bikeLabel = (b, i) => b.name || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
+  const bikeLabel = (b, i) => b.name || b.model || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
   function renderBikes(){
     const sw = $("#bikeSwitch");
     sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("") + `<option value="__add">+ Add another bike</option>`;
@@ -1091,7 +1130,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const gnames = (b.groups||[]).map(g=>(groups.find(x=>x.id===g)||{}).name).filter(Boolean);
       const shareTxt = !own ? ` · shared by ${esc(b.ownerName||"family")}` : (gnames.length ? ` · shared with ${esc(gnames.join(", "))}` : "");
       return `<div class="brow">
-        <div class="bn"><b>${esc(bikeLabel(b,i))}${b.type==="electric"?' <span class="by" style="font-family:var(--body);font-weight:600;color:var(--charge)">⚡ Electric</span>':""}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""}${shareTxt}</span></div>
+        <div class="bn"><b>${esc(bikeLabel(b,i))}${b.type==="electric"?' <span class="by" style="font-family:var(--body);font-weight:600;color:var(--charge)">⚡ Electric</span>':""}</b><span>${b.name && b.model ? esc(b.model)+" · " : ""}${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""}${shareTxt}</span></div>
         <div class="bact">${cur?'<span class="current">Showing now</span>':`<button class="btn small" type="button" data-open="${b.id}">Open</button>`}
           ${own?`<button class="btn small ghost" type="button" data-bedit="${b.id}">Edit</button>`:""}
           ${own && (ownedCount>1 || isCloud())?`<button class="btn small danger" type="button" data-bdel="${b.id}">Delete</button>`:""}</div>
@@ -1108,6 +1147,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#bOdoHint").textContent = b ? "The reading you started the logbook from. New entries keep the odometer up to date." : "What the meter shows today. Leave blank for a new bike.";
     $("#bOil").value = b ? (b.oilKm||"") : ""; $("#bTuneKm").value = b ? (b.tuneKm||"") : ""; $("#bTuneMo").value = b ? (b.tuneMonths||"") : "";
     $("#bType").value = (b && b.type) || "petrol";
+    fillModels($("#bType").value, b ? (b.model||"") : "");
     $("#bKwh").value = b && b.batteryKwh ? b.batteryKwh : ""; $("#bRate").value = b && b.unitRate ? b.unitRate : "";
     $("#bVolt").value = ""; $("#bAh").value = "";
     $("#bSvcKm").value = b && b.serviceKm ? b.serviceKm : ""; $("#bSvcMo").value = b && b.serviceMonths ? b.serviceMonths : "";
@@ -1115,10 +1155,11 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const mine = b ? (b.groups||[]) : [];
     $("#bShareWrap").hidden = !(isCloud() && groups.length);
     $("#bShare").innerHTML = groups.map(g=>`<label><input type="checkbox" value="${esc(g.id)}"${mine.includes(g.id)?" checked":""}> ${esc(g.name||"Family")}</label>`).join("");
-    $("#bikeForm").hidden = false; $("#bikeMsg").textContent = ""; $("#bName").focus();
+    $("#bikeForm").hidden = false; $("#bikeMsg").textContent = ""; $("#bModel").focus();
   }
   function syncBikeType(){ const ev = $("#bType").value==="electric"; $("#bEvWrap").hidden = !ev; $("#bPetrolWrap").hidden = ev; }
-  $("#bType").addEventListener("change", syncBikeType);
+  $("#bType").addEventListener("change", ()=>{ syncBikeType(); fillModels($("#bType").value, ""); });
+  $("#bModel").addEventListener("change", ()=>{ const o = $("#bModel").value==="__other"; $("#bModelOtherWrap").hidden = !o; if (o) $("#bModelOther").focus(); });
   ["#bVolt","#bAh"].forEach(id=>$(id).addEventListener("input", ()=>{ const v=+$("#bVolt").value, ah=+$("#bAh").value; if (v>0 && ah>0) $("#bKwh").value = (v*ah/1000).toFixed(2); }));
   $("#addBikeBtn").addEventListener("click", ()=>openBikeForm(null));
   $("#bikeCancel").addEventListener("click", ()=>{ $("#bikeForm").hidden = true; editingBikeId = null; });
@@ -1126,9 +1167,11 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     ev.preventDefault();
     const m = $("#bikeMsg"); m.className = "msg";
     const name = $("#bName").value.trim();
-    if (!name){ m.className="msg err"; m.textContent="Give the bike a name, for example Honda CG125."; $("#bName").focus(); return; }
+    const model = bikeModel();
+    if (!name && !model){ m.className="msg err"; m.textContent="Choose the bike's model, or type a name for it."; $("#bModel").focus(); return; }
+    if ($("#bModel").value==="__other" && !model){ m.className="msg err"; m.textContent="Type the make and model, for example Honda CD 70."; $("#bModelOther").focus(); return; }
     const old = bikes.find(b=>b.id===editingBikeId) || {};
-    const b = {...old, id: editingBikeId || ("b-"+uid()), name, currency: $("#bCur").value.trim()||"Rs",
+    const b = {...old, id: editingBikeId || ("b-"+uid()), name, model, currency: $("#bCur").value.trim()||"Rs",
       startOdo: Math.max(0, parseInt($("#bOdo").value)||0),
       oilKm: Math.max(100, parseInt($("#bOil").value)||2000), tuneKm: Math.max(100, parseInt($("#bTuneKm").value)||3000),
       tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3),
@@ -1140,7 +1183,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       await store.putBike(b);
       if (isNew){ await store.setActive(b.id); resetForm(); }
       $("#bikeForm").hidden = true; editingBikeId = null;
-      m.textContent = isNew ? `${name} added. You're now logging for this bike.` : "Bike saved.";
+      m.textContent = isNew ? `${name || model} added. You're now logging for this bike.` : "Bike saved.";
     } catch(e){ m.className="msg err"; m.textContent= isCloud() ? "Couldn't save the bike. Only the bike's owner can change it." : "Couldn't save. Your phone storage may be full."; }
   });
   $("#bikeList").addEventListener("click", async ev=>{
