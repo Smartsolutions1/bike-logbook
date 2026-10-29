@@ -354,6 +354,10 @@ details.settings form{margin-top:12px}
         <div class="field"><label for="bCur">Currency label</label><input id="bCur" type="text" placeholder="Rs"></div>
       </div>
       <div class="row">
+        <div class="field"><label for="bOdo" id="bOdoLabel">Current odometer (km)</label><input id="bOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 18500"></div>
+        <div class="field" style="justify-content:flex-end"><span class="by" id="bOdoHint">What the meter shows today. Leave blank for a new bike.</span></div>
+      </div>
+      <div class="row">
         <div class="field"><label for="bOil">Oil change every (km)</label><input id="bOil" type="number" min="100" step="50" placeholder="2000"></div>
         <div class="field"><label for="bTuneKm">Tuning every (km)</label><input id="bTuneKm" type="number" min="100" step="100" placeholder="3000"></div>
       </div>
@@ -395,7 +399,7 @@ details.settings form{margin-top:12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.0" data-updated="2026-10-29T00:34:44Z">Version 2.0</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.1" data-updated="2026-10-29T00:41:08Z">Version 2.1</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -494,7 +498,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const byOdo = (a,b) => (a.odo-b.odo) || a.date.localeCompare(b.date);
   const byNewest = (a,b) => b.date.localeCompare(a.date) || (b.odo-a.odo);
 
-  function currentOdo(){ return entries.reduce((m,e)=>Math.max(m, e.odo||0), 0); }
+  function currentOdo(){ return entries.reduce((m,e)=>Math.max(m, e.odo||0), settings.startOdo||0); }
 
   function fuelStats(){
     const f = entries.filter(e=>e.kind==="fuel" && e.liters>0).sort(byOdo);
@@ -515,6 +519,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   // ---------- render ----------
   function render(){
     const odo = currentOdo();
+    $("#fOdo").placeholder = odo ? `now ${fmt(odo)}` : "e.g. 12450";
     $("#bikeName").textContent = settings.name || (bikes.length>1 ? "Bike " + (bikes.findIndex(b=>b.id===activeId)+1) : "My Bike");
     const dg = String(Math.round(odo)).padStart(6,"0").split("");
     $("#digits").innerHTML = dg.map(d=>`<span>${d}</span>`).join("") + `<span class="unit">km</span>`;
@@ -539,7 +544,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const now = new Date(); const ym = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
     const monthSum = entries.filter(e=>e.date.startsWith(ym)).reduce((s,e)=>s+(e.cost||0),0);
     $("#monthBig").textContent = money(monthSum);
-    const minOdo = entries.length ? Math.min(...entries.map(e=>e.odo)) : 0;
+    const minOdo = settings.startOdo ? settings.startOdo : (entries.length ? Math.min(...entries.map(e=>e.odo)) : 0);
     const total = entries.reduce((s,e)=>s+(e.cost||0),0);
     $("#monthNote").textContent = (odo-minOdo>50) ? `Running cost: ${settings.currency} ${(total/(odo-minOdo)).toFixed(2)} per km` : "Running cost per km appears after a few entries";
 
@@ -717,6 +722,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (kind==="tune"){ e.items=[...document.querySelectorAll("#tuneChips input:checked")].map(c=>c.value).filter(Boolean);
       if ($("#fTuneOtherChk").checked) e.items.push(...$("#fTuneOther").value.split(",").map(x=>x.trim()).filter(Boolean));
       if ($("#fTuneOtherChk").checked && !$("#fTuneOther").value.trim()){ msg.className="msg err"; msg.textContent="Type what else was done, or untick Other."; return; } e.shop=$("#fShop").value.trim(); }
+    if (!activeId && isCloud()){ msg.className="msg err"; msg.textContent="Add a bike first (in My bikes below), then log entries for it."; return; }
     const wasEdit = !!editingId;
     try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : `${KINDS[kind]} saved.`; resetForm(); }
     catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
@@ -743,7 +749,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const ownedCount = bikes.filter(b=>ownsBike(b)).length;
     $("#bikeList").innerHTML = bikes.length ? bikes.map((b,i)=>{
       const es = allEntries.filter(e=>e.bikeId===b.id && !e.sample);
-      const odo = es.reduce((m,e)=>Math.max(m,e.odo||0),0);
+      const odo = es.reduce((m,e)=>Math.max(m,e.odo||0), b.startOdo||0);
       const cur = b.id===activeId, own = ownsBike(b);
       const gnames = (b.groups||[]).map(g=>(groups.find(x=>x.id===g)||{}).name).filter(Boolean);
       const shareTxt = !own ? ` · shared by ${esc(b.ownerName||"family")}` : (gnames.length ? ` · shared with ${esc(gnames.join(", "))}` : "");
@@ -760,6 +766,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#bikeFormTitle").textContent = b ? "Edit bike" : "Add a bike";
     $("#bikeSave").textContent = b ? "Save changes" : "Save bike";
     $("#bName").value = b ? (b.name||"") : ""; $("#bCur").value = b ? (b.currency||"Rs") : (settings.currency||"Rs");
+    $("#bOdo").value = b && b.startOdo ? b.startOdo : "";
+    $("#bOdoLabel").textContent = b ? "Odometer when added (km)" : "Current odometer (km)";
+    $("#bOdoHint").textContent = b ? "The reading you started the logbook from. New entries keep the odometer up to date." : "What the meter shows today. Leave blank for a new bike.";
     $("#bOil").value = b ? (b.oilKm||"") : ""; $("#bTuneKm").value = b ? (b.tuneKm||"") : ""; $("#bTuneMo").value = b ? (b.tuneMonths||"") : "";
     const mine = b ? (b.groups||[]) : [];
     $("#bShareWrap").hidden = !(isCloud() && groups.length);
@@ -775,6 +784,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (!name){ m.className="msg err"; m.textContent="Give the bike a name, for example Honda CG125."; $("#bName").focus(); return; }
     const old = bikes.find(b=>b.id===editingBikeId) || {};
     const b = {...old, id: editingBikeId || ("b-"+uid()), name, currency: $("#bCur").value.trim()||"Rs",
+      startOdo: Math.max(0, parseInt($("#bOdo").value)||0),
       oilKm: Math.max(100, parseInt($("#bOil").value)||2000), tuneKm: Math.max(100, parseInt($("#bTuneKm").value)||3000),
       tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3)};
     if (isCloud()) b.groups = [...document.querySelectorAll("#bShare input:checked")].map(c=>c.value).slice(0,3);
@@ -908,7 +918,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     bikes = data.bikes || []; activeId = data.active;
     groups = data.groups || []; if (data.me) me = data.me;
     if (isCloud() && data.ready && !bikes.length && !autoBikeMade && !lsGet("bike-logbook-migrating") && !pendingJoin()){
-      autoBikeMade = true; store.putBike({id:"b-"+uid(), name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, groups:[]});
+      autoBikeMade = true;
+      setTimeout(()=>{ openBikeForm(null); $("#bikeMsg").textContent = "Add your bike to start: its name and what the odometer shows today."; $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); }, 50);
     }
     allEntries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
     entries = allEntries.filter(e=>e.bikeId===activeId);

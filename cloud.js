@@ -78,14 +78,15 @@
       Promise.resolve().then(() => {
         emitQueued = false;
         const bikes = allBikes();
-        if (!bikes.some((b) => b.id === state.active)) state.active = bikes.length ? bikes[0].id : null;
+        const ready = state.loaded.own && state.loaded.groups;
+        if (ready && !bikes.some((b) => b.id === state.active)) state.active = bikes.length ? bikes[0].id : null;
         const entries = [];
         state.entriesByBike.forEach((m) => m.forEach((e) => entries.push(e)));
         cb({
           bikes, active: state.active, entries,
           groups: [...state.groups.values()],
           me: state.me,
-          ready: state.loaded.own && state.loaded.groups,
+          ready,
         });
       });
     }
@@ -203,7 +204,7 @@
         if (!prev && state.sharedBikes.has(b.id)) throw new Error("not owner");
         const groups = (b.groups || []).filter((g) => state.groups.has(g)).slice(0, 3);
         const body = {
-          name: b.name || "", currency: b.currency || "Rs",
+          name: b.name || "", currency: b.currency || "Rs", startOdo: b.startOdo || 0,
           oilKm: b.oilKm || 2000, tuneKm: b.tuneKm || 3000, tuneMonths: b.tuneMonths || 3,
           partLife: b.partLife || {}, ownerId: uid, ownerName: myName, groups,
           createdAt: (prev && prev.createdAt) || b.createdAt || now(), updatedAt: now(),
