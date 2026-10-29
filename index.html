@@ -431,7 +431,7 @@ details.settings form{margin-top:12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.3" data-updated="2026-10-29T00:54:56Z">Version 2.3</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.4" data-updated="2026-10-29T00:59:32Z">Version 2.4</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -756,8 +756,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function renderList(){
     const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
     if (!entries.length){
-      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span>${isCloud() ? "" : '<button class="btn small ghost" type="button" id="loadSamples">Show example entries</button>'}</div>`;
-      if (!isCloud()) $("#loadSamples").onclick = loadSamples; return;
+      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span></div>`; return;
     }
     if (!rows.length){ $("#list").innerHTML = `<div class="empty">Nothing logged under ${esc(KINDS[filter])} yet.</div>`; return; }
     $("#list").innerHTML = rows.map(e=>{
