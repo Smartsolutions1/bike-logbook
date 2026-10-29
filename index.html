@@ -356,7 +356,6 @@ input,select,textarea{font-size:16px;padding:10px 12px}
         </div>
         <label class="check" data-kinds="fuel"><input id="fFull" type="checkbox" checked> Filled to full tank (needed for the average)</label>
         <div class="field" data-kinds="oil"><label for="fOil">Oil brand and grade</label><input id="fOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
-        <label class="check" data-kinds="oil"><input id="fFilter" type="checkbox"> Oil filter changed too</label>
         <div class="field" data-kinds="service"><label for="fWork">Work done</label><input id="fWork" type="text" placeholder="e.g. Brake shoes replaced, chain tightened"></div>
         <div class="row" data-kinds="part">
           <div class="field"><label for="fPart">Part replaced</label><select id="fPart"></select></div>
@@ -371,7 +370,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
             <label><input type="checkbox" value="Carburetor cleaned"> Carburetor</label>
             <label><input type="checkbox" value="Spark plug"> Spark plug</label>
             <label><input type="checkbox" value="Air filter"> Air filter</label>
-            <label><input type="checkbox" value="Valve clearance"> Valve clearance</label>
+            <label><input type="checkbox" value="Tappets set"> Tappets</label>
             <label><input type="checkbox" value="Idle / mixture set"> Idle / mixture</label>
             <label><input type="checkbox" value="Chain lube & adjust"> Chain</label>
             <label><input type="checkbox" id="fTuneOtherChk" value=""> + Other</label>
@@ -486,7 +485,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.7" data-updated="2026-10-29T01:13:12Z">Version 2.7</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.8" data-updated="2026-10-29T01:32:31Z">Version 2.8</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -506,8 +505,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     {key:"sprocket", label:"Sprocket set"},
     {key:"tyreF", label:"Front tyre"},
     {key:"tyreR", label:"Rear tyre"},
-    {key:"brakeF", label:"Front brake"},
-    {key:"brakeR", label:"Rear brake"},
+    {key:"brakeF", label:"Front brake shoes/pads"},
+    {key:"brakeR", label:"Rear brake shoes"},
     {key:"clutch", label:"Clutch plates"},
     {key:"battery", label:"Battery", months:true},
     {key:"other", label:"Other part"}
@@ -883,9 +882,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     editingId = e.id; kind = e.kind;
     $("#fDate").value=e.date; $("#fOdo").value=e.odo; $("#fCost").value=e.cost||""; $("#fNotes").value=e.notes||"";
     $("#fLiters").value=e.liters||""; $("#fPrice").value=""; $("#fFull").checked=!!e.full;
-    $("#fOil").value=e.oil||""; $("#fFilter").checked=!!e.filter; $("#fWork").value=e.work||""; $("#fShop").value=e.shop||"";
+    $("#fOil").value=e.oil||""; $("#fWork").value=e.work||""; $("#fShop").value=e.shop||"";
     $("#fPart").value=e.part||"chain"; $("#fBrand").value=e.brand||""; $("#fPartName").value=e.partName||""; $("#fLife").value=e.life||"";
     const chipVals = [...document.querySelectorAll("#tuneChips input")].map(c=>c.value).filter(Boolean);
+    if (Array.isArray(e.items)) e = {...e, items: e.items.map(x=>x==="Valve clearance" ? "Tappets set" : x)};
     document.querySelectorAll("#tuneChips input").forEach(c=>c.checked=!!c.value && (e.items||[]).includes(c.value));
     const extra = (e.items||[]).filter(x=>!chipVals.includes(x));
     $("#fTuneOtherChk").checked = extra.length>0; $("#fTuneOther").value = extra.join(", "); $("#tuneOtherWrap").hidden = !extra.length;
@@ -907,7 +907,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const e = {id: editingId || uid(), kind, date, odo, cost: parseFloat($("#fCost").value)||0, notes: $("#fNotes").value.trim()};
     if (kind==="fuel"){ e.liters = parseFloat($("#fLiters").value)||0; e.full = $("#fFull").checked;
       if (!(e.liters>0)){ msg.className="msg err"; msg.textContent="Enter how many litres you filled."; return; } }
-    if (kind==="oil"){ e.oil=$("#fOil").value.trim(); e.filter=$("#fFilter").checked; }
+    if (kind==="oil"){ e.oil=$("#fOil").value.trim(); }
     if (kind==="service"){ e.work=$("#fWork").value.trim(); e.shop=$("#fShop").value.trim();
       if (!e.work){ msg.className="msg err"; msg.textContent="Describe the work done."; return; } }
     if (kind==="part"){ e.part=$("#fPart").value; e.brand=$("#fBrand").value.trim(); e.shop=$("#fShop").value.trim();
