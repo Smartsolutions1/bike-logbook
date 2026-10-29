@@ -230,6 +230,9 @@ details.settings form{margin-top:12px}
 #bikesTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%225.5%22%20cy%3D%2216%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%2218.5%22%20cy%3D%2216%22%20r%3D%223.5%22%2F%3E%3Cpath%20d%3D%22M5.5%2016l3.5-6h5l4.5%206%22%2F%3E%3Cpath%20d%3D%22M10%2010l2.5%206h-3%22%2F%3E%3Cpath%20d%3D%22M14%2010l1.5-3h2.5%22%2F%3E%3Cpath%20d%3D%22M8.5%208.5h4.5%22%20stroke-width%3D%222.6%22%2F%3E%3C%2Fsvg%3E")}
 #famTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%228.5%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M3%2019c0-3.3%202.7-5.5%206-5.5s6%202.2%206%205.5%22%2F%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M15.5%2014c3%200%205.5%201.8%205.5%205%22%2F%3E%3C%2Fsvg%3E")}
 #bkTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%204v11M7.5%2010.5L12%2015l4.5-4.5%22%2F%3E%3Cpath%20d%3D%22M4.5%2019.5h15%22%2F%3E%3C%2Fsvg%3E")}
+/* App feel: no text-selection menu or Google search card when tapping or long-pressing labels */
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
 .label{font-size:12.5px}
@@ -483,7 +486,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.6" data-updated="2026-10-29T01:11:39Z">Version 2.6</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.7" data-updated="2026-10-29T01:13:12Z">Version 2.7</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
