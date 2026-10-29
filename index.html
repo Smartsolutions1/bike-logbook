@@ -6,7 +6,7 @@
 <title>Bike Logbook</title>
 <meta name="description" content="Track fuel, oil changes, servicing, tuning and part replacements for your motorcycle.">
 <meta name="theme-color" content="#0e1b30">
-<script>try{var t=localStorage.getItem("bike-logbook-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script>try{var t=localStorage.getItem("bike-logbook-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);if(localStorage.getItem("bike-logbook-lang")==="ur"){document.documentElement.setAttribute("dir","rtl");document.documentElement.setAttribute("lang","ur");}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -86,7 +86,7 @@ h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:
 .gico{width:66px;height:66px;flex:none;border-radius:50%;display:grid;place-items:center;border:7px solid var(--hero-line);color:var(--k)}
 .gico svg{width:26px;height:26px}
 .gauge .big{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05}
-.gauge .big small{font-family:var(--body);font-size:13px;color:var(--hero-muted);font-weight:500;margin-left:4px}
+.gauge .big small{font-family:var(--body);font-size:13px;color:var(--hero-muted);font-weight:500;margin-inline-start:4px}
 .gauge .note{font-size:12.5px;color:var(--hero-muted);line-height:1.4}
 .bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
@@ -181,12 +181,14 @@ details.settings form{margin-top:12px}
 .prow .pn{font-weight:600}
 .prow .pd{font-size:12.5px;color:var(--muted);grid-column:1/-1}
 .prow .bar{grid-column:1/-1}
-.switch{position:relative;display:flex;flex-direction:column;align-items:stretch;flex:1 1 100%;order:2;width:100%;gap:2px;margin-top:2px;max-width:100%;cursor:pointer;border:2px solid var(--glow);border-radius:16px;padding:8px 12px 10px 16px;background:rgba(255,176,46,.12);box-shadow:0 0 14px rgba(255,176,46,.25)}
+.switch{position:relative;display:flex;flex-direction:column;align-items:stretch;flex:1 1 100%;order:2;width:100%;gap:2px;margin-top:2px;max-width:100%;cursor:pointer;border:2px solid var(--glow);border-radius:16px;padding-block:8px 10px;padding-inline:16px 12px;background:rgba(255,176,46,.12);box-shadow:0 0 14px rgba(255,176,46,.25)}
 .swtext{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--hero-ink);font:700 18px/1.3 var(--body);overflow-wrap:anywhere}
 .swtext svg{flex:none;width:20px;height:20px;color:var(--glow)}
 .switch:focus-within{outline:2px solid var(--hero-ink);outline-offset:2px}
 .switch select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;min-width:0;max-width:100%;background:transparent;color:var(--hero-ink);border:0;border-radius:16px;padding:0;font:700 18px var(--body);letter-spacing:.01em;text-overflow:ellipsis;cursor:pointer}
-.themeBtn{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--hero-ink);border:var(--bw) solid var(--hero-line);border-radius:999px;padding:6px 12px;font:600 12.5px var(--body);cursor:pointer;z-index:2}
+.topBtns{position:absolute;top:12px;inset-inline-end:12px;display:flex;gap:6px;z-index:2}
+.gate .topBtns{top:max(14px,env(safe-area-inset-top,0px))}
+.themeBtn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--hero-ink);border:var(--bw) solid var(--hero-line);border-radius:999px;padding:6px 12px;font:600 12.5px var(--body);cursor:pointer;z-index:2}
 .themeBtn svg{width:16px;height:16px}
 .hero .top{padding-top:30px}
 .switch label{flex:none;color:var(--glow);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
@@ -208,7 +210,7 @@ details.settings form{margin-top:12px}
 .gbtn svg{width:20px;height:20px}
 .gate .link{color:var(--hero-muted);font-size:13.5px;text-decoration:underline}
 .gate .msg{color:var(--h-bad)}
-.toastBtn{margin-left:12px;background:none;border:var(--bw) solid currentColor;color:inherit;border-radius:999px;padding:3px 12px;font:700 14px var(--body);cursor:pointer}
+.toastBtn{margin-inline-start:12px;background:none;border:var(--bw) solid currentColor;color:inherit;border-radius:999px;padding:3px 12px;font:700 14px var(--body);cursor:pointer}
 .toast{display:flex;align-items:center;justify-content:space-between;gap:6px;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .groups{display:flex;flex-direction:column;gap:12px}
 .grp{border:var(--bw) solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
@@ -224,7 +226,7 @@ details.settings form{margin-top:12px}
 .lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 
 /* Section headings: glowing badges with an icon (not buttons) */
-.panel h2{display:inline-flex;align-items:center;gap:10px;width:fit-content;max-width:100%;font-size:23px;line-height:1.1;color:var(--head);padding:5px 18px 5px 5px;border:2px solid var(--glow);border-radius:999px;background:linear-gradient(90deg,rgba(255,176,46,.20),rgba(255,176,46,.06));box-shadow:0 0 0 3px rgba(255,176,46,.08),0 0 16px rgba(255,176,46,.22);letter-spacing:.015em}
+.panel h2{display:inline-flex;align-items:center;gap:10px;width:fit-content;max-width:100%;font-size:23px;line-height:1.1;color:var(--head);padding-block:5px;padding-inline:5px 18px;border:2px solid var(--glow);border-radius:999px;background:linear-gradient(90deg,rgba(255,176,46,.20),rgba(255,176,46,.06));box-shadow:0 0 0 3px rgba(255,176,46,.08),0 0 16px rgba(255,176,46,.22);letter-spacing:.015em}
 .panel h2::before{content:"";flex:none;width:34px;height:34px;border-radius:50%;background:var(--hicon) center/19px 19px no-repeat,radial-gradient(circle at 35% 30%,#ffd27a 0%,var(--glow) 60%,#e08a00 100%);box-shadow:0 0 10px rgba(255,176,46,.45)}
 #formTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228.5%22%2F%3E%3Cpath%20d%3D%22M12%208v8M8%2012h8%22%2F%3E%3C%2Fsvg%3E")}
 #partsTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.5%22%20y%3D%229%22%20width%3D%2211%22%20height%3D%226%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%2210.5%22%20y%3D%229%22%20width%3D%2211%22%20height%3D%226%22%20rx%3D%223%22%2F%3E%3C%2Fsvg%3E")}
@@ -236,6 +238,18 @@ details.settings form{margin-top:12px}
 /* App feel: no text-selection menu or Google search card when tapping or long-pressing labels */
 html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* Urdu: right-to-left with Nastaliq script; digits and the odometer stay left-to-right */
+[dir="rtl"] body{font-family:"IBM Plex Sans","Noto Nastaliq Urdu",system-ui,sans-serif;line-height:2}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] .gauge .big,[dir="rtl"] .empty b,[dir="rtl"] .brow .bn b,[dir="rtl"] .grp .gh b,[dir="rtl"] .sptot b,[dir="rtl"] .item .when b{font-family:"Barlow Condensed","Noto Nastaliq Urdu",sans-serif;line-height:1.7}
+[dir="rtl"] .num,[dir="rtl"] .col .amt{font-family:"IBM Plex Mono","Noto Nastaliq Urdu",monospace}
+[dir="rtl"] input,[dir="rtl"] select,[dir="rtl"] textarea,[dir="rtl"] button{font-family:"IBM Plex Sans","Noto Nastaliq Urdu",system-ui,sans-serif}
+[dir="rtl"] *{letter-spacing:0!important}
+[dir="rtl"] .digits{direction:ltr}
+[dir="rtl"] input[type="number"],[dir="rtl"] input[type="date"]{direction:ltr;text-align:right}
+[dir="rtl"] .top h1{line-height:1.45}
+[dir="rtl"] .panel h2{line-height:1.6}
+[dir="rtl"] .tabs button,[dir="rtl"] .filters button{line-height:1.8}
+.langBtn b{font-weight:700}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
 .label{font-size:12.5px}
@@ -284,6 +298,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 </head>
 <body>
 <div class="gate" id="gate" hidden>
+  <div class="topBtns"><button class="themeBtn langBtn" type="button" id="gateLangBtn" aria-label="Change language" data-noi18n></button></div>
   <div class="gate-in">
     <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"> <g stroke-width="2.4"> <path d="M7 20.5v-4.3c0-1 .7-1.7 1.6-1.9l3.6-.8 3.4-4.6c.4-.5 1-.8 1.6-.8h12.1c.7 0 1.3.3 1.7.9l3.3 4.5 4.3.9c.9.2 1.5 1 1.5 1.9v4.2"/> <path d="M12.6 13.5h23.2"/><path d="M23.6 9v4.5"/> <path d="M17.6 20.5h12.8"/> <circle cx="14" cy="21" r="2.9"/><circle cx="34" cy="21" r="2.9"/> </g> <g stroke-width="2.2"> <circle cx="8" cy="38.5" r="3.6"/><circle cx="21" cy="38.5" r="3.6"/> <path d="M8 38.5l3.7-6.3h5.2l4.1 6.3"/><path d="M13.2 32.2l2.6 6.3h-3"/> <path d="M17 32.2l1.6-3.2h2.6"/><path d="M10.6 30.3h4.8" stroke-width="2.8"/> </g> <g stroke-width="2.2" transform="translate(2.4 0)"> <path d="M27.4 37.6v-7.2c0-2.5 2-4.4 4.5-4.4h10.6v11.6"/> <path d="M23.6 37.6l1.4-4.6h2.4"/> <path d="M23.6 37.6h20.6"/> <path d="M27.4 31.4h4.2"/> <circle cx="27.6" cy="39.8" r="2.3" fill="var(--glow)"/><circle cx="40" cy="39.8" r="2.3" fill="var(--glow)"/> </g> </g></svg></div>
     <h1>Bike Logbook</h1>
@@ -297,7 +312,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="wrap">
   <section class="hero" aria-label="Bike status">
-  <button class="themeBtn" type="button" id="themeBtn" aria-label="Change light or dark mode"></button>
+  <div class="topBtns"><button class="themeBtn langBtn" type="button" id="langBtn" aria-label="Change language" data-noi18n></button><button class="themeBtn" type="button" id="themeBtn" aria-label="Change light or dark mode"></button></div>
   <header class="top">
     <div class="brand">
       <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"> <g stroke-width="2.4"> <path d="M7 20.5v-4.3c0-1 .7-1.7 1.6-1.9l3.6-.8 3.4-4.6c.4-.5 1-.8 1.6-.8h12.1c.7 0 1.3.3 1.7.9l3.3 4.5 4.3.9c.9.2 1.5 1 1.5 1.9v4.2"/> <path d="M12.6 13.5h23.2"/><path d="M23.6 9v4.5"/> <path d="M17.6 20.5h12.8"/> <circle cx="14" cy="21" r="2.9"/><circle cx="34" cy="21" r="2.9"/> </g> <g stroke-width="2.2"> <circle cx="8" cy="38.5" r="3.6"/><circle cx="21" cy="38.5" r="3.6"/> <path d="M8 38.5l3.7-6.3h5.2l4.1 6.3"/><path d="M13.2 32.2l2.6 6.3h-3"/> <path d="M17 32.2l1.6-3.2h2.6"/><path d="M10.6 30.3h4.8" stroke-width="2.8"/> </g> <g stroke-width="2.2" transform="translate(2.4 0)"> <path d="M27.4 37.6v-7.2c0-2.5 2-4.4 4.5-4.4h10.6v11.6"/> <path d="M23.6 37.6l1.4-4.6h2.4"/> <path d="M23.6 37.6h20.6"/> <path d="M27.4 31.4h4.2"/> <circle cx="27.6" cy="39.8" r="2.3" fill="var(--glow)"/><circle cx="40" cy="39.8" r="2.3" fill="var(--glow)"/> </g> </g></svg></div>
@@ -523,7 +538,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.4" data-updated="2026-10-29T02:14:01Z">Version 3.4</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.5" data-updated="2026-10-29T02:23:26Z">Version 3.5</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -531,6 +546,8 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="cloud.js"></script>
+<script src="ur.js"></script>
+<script>try{ BikeI18n.start(); }catch(e){}</script>
 <script>
 window.addEventListener("error", function(ev){ var n=document.getElementById("storeNote"); if(n){ n.style.color="var(--bad)"; n.textContent="Something went wrong: "+(ev.message||"unknown error")+" (line "+(ev.lineno||"?")+"). Please send this message to Claude."; } });
 </script>
@@ -656,6 +673,19 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     dark: SV('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>')
   };
   const THEME_NAMES = {auto:"Auto", light:"Light", dark:"Dark"};
+  // ---------- language ----------
+  const LANG_ICON = SV('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9s1.3-6.4 3.9-9z"/>');
+  function paintLangBtns(){
+    const ur = window.BikeI18n && BikeI18n.lang === "ur";
+    const html = LANG_ICON + (ur ? "<b>English</b>" : "<b>اردو</b>");
+    ["#langBtn","#gateLangBtn"].forEach(id=>{ const b=$(id); if (b){ b.innerHTML = html; b.title = ur ? "Switch to English" : "اردو میں دیکھیں"; } });
+  }
+  function toggleLang(){ if (window.BikeI18n) BikeI18n.set(BikeI18n.lang === "ur" ? "en" : "ur"); }
+  ["#langBtn","#gateLangBtn"].forEach(id=>{ const b=$(id); if (b) b.addEventListener("click", toggleLang); });
+  document.addEventListener("bike-lang", ()=>{
+    paintLangBtns(); applyTheme(theme);
+    try { render(); renderBikes(); renderGroups(); } catch(e){}
+  });
   function applyTheme(t){
     const root = document.documentElement;
     if (t==="light" || t==="dark") root.setAttribute("data-theme", t); else root.removeAttribute("data-theme");
@@ -664,6 +694,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
   let theme = (()=>{ try { const t = localStorage.getItem("bike-logbook-theme"); return t==="light"||t==="dark" ? t : "auto"; } catch(e){ return "auto"; } })();
   applyTheme(theme);
+  paintLangBtns();
   $("#themeBtn").addEventListener("click", ()=>{
     theme = theme==="auto" ? "light" : theme==="light" ? "dark" : "auto";
     try { localStorage.setItem("bike-logbook-theme", theme); } catch(e){}
@@ -906,7 +937,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       return `<div class="prow">
         <span class="pn">${esc(partLabel(e))}</span><span class="pill st-${cls}">${esc(status)}</span>
         ${frac!==null?`<div class="bar"><i style="width:${(frac*100).toFixed(0)}%;background:var(--${cls})"></i></div>`:""}
-        <span class="pd">${e.sample?"":`<button class="link" type="button" data-life="${e.id}" style="float:right;margin-left:8px">${life?"Change life":"Set expected life"}</button>`}Fitted ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} at ${fmt(e.odo)} km${e.brand?` · ${esc(e.brand)}`:""}${life?` · life ${fmt(life)} ${byMonths?"months":"km"}`:(e._age?` · ${e._age}`:"")}</span>
+        <span class="pd">${e.sample?"":`<button class="link" type="button" data-life="${e.id}" style="float:inline-end;margin-inline-start:8px">${life?"Change life":"Set expected life"}</button>`}Fitted ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} at ${fmt(e.odo)} km${e.brand?` · ${esc(e.brand)}`:""}${life?` · life ${fmt(life)} ${byMonths?"months":"km"}`:(e._age?` · ${e._age}`:"")}</span>
       </div>`;
     }).join("");
   }
