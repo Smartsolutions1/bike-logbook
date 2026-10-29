@@ -56,6 +56,8 @@ h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:
 .hero .st-bad{color:var(--h-bad)}
 /* Header */
 .brand{display:flex;gap:16px;align-items:center;min-width:0}
+.brand > div:last-child{min-width:0;flex:1 1 auto}
+.top > .brand{flex:1 1 260px;min-width:0}
 .emblem{width:72px;height:72px;flex:none;border-radius:50%;display:grid;place-items:center;color:#0e1b30;background:radial-gradient(circle at 35% 30%,#ffd27a 0%,var(--glow) 55%,#e08a00 100%);box-shadow:0 0 0 4px rgba(255,176,46,.18),0 0 28px rgba(255,176,46,.45)}
 .emblem svg{width:46px;height:46px}
 @media (max-width:440px){.emblem{width:56px;height:56px}.emblem svg{width:36px;height:36px}}
@@ -148,11 +150,23 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 [data-k="fuel"]{--k:var(--fuel)} [data-k="oil"]{--k:var(--oil)} [data-k="service"]{--k:var(--service)} [data-k="tune"]{--k:var(--tune)} [data-k="part"]{--k:var(--part)}
 
 /* Spend chart */
-.chart{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;height:120px;padding-top:8px}
-.col{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;gap:4px;min-width:0}
+.chart{display:flex;gap:8px;align-items:stretch;height:160px;padding-top:4px;overflow-x:auto}
+.sptot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sptot b{font-family:var(--display);font-size:28px;font-weight:600}
+.spd{display:flex;flex-direction:column;gap:6px;border-top:var(--bw) solid var(--line);padding-top:12px}
+.spd .sph{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.spd .spr{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:14px}
+.spd .spr i{width:12px;height:12px;border-radius:3px;background:var(--k)}
+.spd .spr span{color:var(--muted)}
+.spd .spr b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.col{flex:1 0 38px;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;gap:4px;min-width:0;background:none;border:0;padding:2px;border-radius:6px;cursor:pointer;color:inherit;font:inherit}
+.col .amt{font-size:10.5px;font-family:var(--mono);color:var(--ink);text-align:center;white-space:nowrap}
+.col .bar-area{flex:1;display:flex;flex-direction:column;justify-content:flex-end}
+.col[aria-pressed="true"]{background:var(--soft)}
+.col[aria-pressed="true"] .stack{outline:2px solid var(--ink);outline-offset:1px}
 .stack{display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;background:var(--soft);min-height:2px}
 .stack i{display:block}
-.col span{font-size:11.5px;color:var(--muted);text-align:center}
+.col .lab{font-size:11px;color:var(--muted);text-align:center;white-space:nowrap}
 .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted)}
 .legend span{display:flex;gap:6px;align-items:center}
 .legend i{width:10px;height:10px;border-radius:2px;background:var(--k);display:inline-block}
@@ -167,11 +181,12 @@ details.settings form{margin-top:12px}
 .prow .pn{font-weight:600}
 .prow .pd{font-size:12.5px;color:var(--muted);grid-column:1/-1}
 .prow .bar{grid-column:1/-1}
-.switch{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:var(--hero-muted);flex-wrap:wrap}
-.switch select{width:auto;max-width:100%;background:rgba(255,176,46,.12);color:var(--hero-ink);border:2px solid var(--glow);border-radius:999px;padding:7px 14px;font:700 15px var(--body);letter-spacing:.01em;box-shadow:0 0 14px rgba(255,176,46,.25)}
+.switch{display:inline-flex;gap:6px;align-items:center;margin-top:10px;max-width:100%;border:2px solid var(--glow);border-radius:999px;padding:3px 6px 3px 12px;background:rgba(255,176,46,.12);box-shadow:0 0 14px rgba(255,176,46,.25)}
+.switch select{width:auto;min-width:0;max-width:100%;flex:1 1 auto;background:transparent;color:var(--hero-ink);border:0;border-radius:999px;padding:5px 6px;font:700 15px var(--body);letter-spacing:.01em;text-overflow:ellipsis;cursor:pointer}
 .themeBtn{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:var(--hero-ink);border:var(--bw) solid var(--hero-line);border-radius:999px;padding:6px 12px;font:600 12.5px var(--body);cursor:pointer;z-index:2}
 .themeBtn svg{width:16px;height:16px}
 .hero .top{padding-top:30px}
+.switch label{flex:none;color:var(--glow);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-right:var(--bw) solid rgba(255,176,46,.45);padding-right:8px}
 .switch select option{color:#17202a;background:#fff}
 .bikes{display:flex;flex-direction:column}
 .brow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:var(--bw) solid var(--line)}
@@ -329,11 +344,19 @@ details.settings form{margin-top:12px}
       </section>
 
       <section class="panel" aria-labelledby="spendTitle">
-        <div class="histhead"><h2 id="spendTitle">Spending, last 6 months</h2><span class="note num" id="spendTotal" style="color:var(--muted);font-size:13px"></span></div>
-        <div class="chart" id="chart"></div>
-        <div class="legend">
-          <span data-k="fuel"><i></i>Fuel</span><span data-k="oil"><i></i>Oil</span><span data-k="service"><i></i>Service</span><span data-k="tune"><i></i>Tuning</span><span data-k="part"><i></i>Parts</span>
+        <div class="histhead"><h2 id="spendTitle">Spending</h2>
+          <select id="spendPeriod" aria-label="Spending period" style="width:auto">
+            <option value="m0">This month</option><option value="m1">Last month</option>
+            <option value="3">Last 3 months</option><option value="6" selected>Last 6 months</option>
+            <option value="custom">Choose dates…</option>
+          </select></div>
+        <div class="row" id="spendRange" hidden>
+          <div class="field"><label for="spFrom">From</label><input id="spFrom" type="date"></div>
+          <div class="field"><label for="spTo">To</label><input id="spTo" type="date"></div>
         </div>
+        <div class="sptot"><span class="label" id="spendLabel">Last 6 months</span><b class="num" id="spendTotal"></b></div>
+        <div class="chart" id="chart" role="group" aria-label="Spending by period. Tap a bar for its breakdown."></div>
+        <div class="spd" id="spendDetail"></div>
       </section>
 
       <section class="panel" aria-labelledby="histTitle">
@@ -395,7 +418,7 @@ details.settings form{margin-top:12px}
     <div class="msg" id="groupMsg" role="status"></div>
   </section>
 
-  <section class="panel" aria-labelledby="bkTitle">
+  <section class="panel" aria-labelledby="bkTitle" id="backupPanel">
     <h2 id="bkTitle">Backup &amp; restore</h2>
     <p class="foot" style="margin:0">Entries live on this phone. Save a backup file to keep them safe, or to move them to a new phone.</p>
     <div class="actions">
@@ -408,7 +431,7 @@ details.settings form{margin-top:12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.2" data-updated="2026-10-29T00:48:27Z">Version 2.2</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.3" data-updated="2026-10-29T00:54:56Z">Version 2.3</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -578,7 +601,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#monthNote").textContent = (odo-minOdo>50) ? `Running cost: ${settings.currency} ${(total/(odo-minOdo)).toFixed(2)} per km` : "Running cost per km appears after a few entries";
 
     renderParts(odo);
-    renderChart(now);
+    renderChart();
     renderList();
   }
 
@@ -644,19 +667,79 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     }).join("");
   }
 
-  function renderChart(now){
-    const months=[];
-    for (let i=5;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); months.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label:MON[d.getMonth()], fuel:0,oil:0,service:0,tune:0,part:0}); }
-    entries.forEach(e=>{ const m = months.find(x=>e.date.startsWith(x.key)); if (m) m[e.kind] += (e.cost||0); });
-    const totals = months.map(m=>m.fuel+m.oil+m.service+m.tune+m.part);
-    const max = Math.max(1,...totals);
-    $("#chart").innerHTML = months.map((m,i)=>{
-      const h = totals[i]/max*100;
-      const segs = ["fuel","oil","service","tune","part"].filter(k=>m[k]>0).map(k=>`<i data-k="${k}" style="background:var(--k);height:${(m[k]/Math.max(1,totals[i])*100).toFixed(1)}%"></i>`).join("");
-      return `<div class="col" title="${m.label}: ${esc(money(totals[i]))}"><div class="stack" style="height:${Math.max(h,1).toFixed(1)}%">${segs}</div><span>${m.label}</span></div>`;
-    }).join("");
-    $("#spendTotal").textContent = "Total " + money(totals.reduce((a,b)=>a+b,0));
+  // ---------- spending ----------
+  let spendSel = null;     // index of the tapped bar, or null for the whole period
+  const KORDER = ["fuel","oil","service","tune","part"];
+  const KLABEL = {fuel:"Fuel", oil:"Oil changes", service:"Service & repairs", tune:"Tuning", part:"Parts"};
+  const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const short = n => n>=100000 ? (n/1000).toFixed(0)+"k" : n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"k" : String(Math.round(n));
+  const dShort = d => d.getDate()+" "+MON[d.getMonth()];
+  function spendRange(){
+    const p = $("#spendPeriod").value, now = new Date(); let from, to;
+    if (p==="m0"){ from = new Date(now.getFullYear(), now.getMonth(), 1); to = now; }
+    else if (p==="m1"){ from = new Date(now.getFullYear(), now.getMonth()-1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); }
+    else if (p==="3" || p==="6"){ from = new Date(now.getFullYear(), now.getMonth()-(+p-1), 1); to = now; }
+    else {
+      const f = $("#spFrom").value, t = $("#spTo").value;
+      to = t ? parseD(t) : now; from = f ? parseD(f) : new Date(to.getFullYear(), to.getMonth(), to.getDate()-29);
+      if (from > to){ const x = from; from = to; to = x; }
+    }
+    return {p, from, to};
   }
+  function spendBuckets(){
+    const {p, from, to} = spendRange();
+    const days = Math.round((to-from)/864e5)+1, out = [];
+    const weekly = p==="m0" || p==="m1" || (p==="custom" && days<=62);
+    if (weekly){
+      for (let d = new Date(from); d <= to; d.setDate(d.getDate()+7)){
+        const a = new Date(d), b = new Date(d); b.setDate(b.getDate()+6); if (b > to) b.setTime(to.getTime());
+        out.push({from:iso(a), to:iso(b), label:dShort(a), range: a.getTime()===b.getTime() ? dShort(a) : `${dShort(a)} – ${dShort(b)}`});
+      }
+    } else {
+      const multiYear = from.getFullYear()!==to.getFullYear();
+      for (let m = new Date(from.getFullYear(), from.getMonth(), 1); m <= to; m = new Date(m.getFullYear(), m.getMonth()+1, 1)){
+        const a = m < from ? new Date(from) : new Date(m), end = new Date(m.getFullYear(), m.getMonth()+1, 0), b = end > to ? new Date(to) : end;
+        out.push({from:iso(a), to:iso(b), label: MON[m.getMonth()] + (multiYear ? " '"+String(m.getFullYear()).slice(2) : ""), range: `${MON[m.getMonth()]} ${m.getFullYear()}`});
+      }
+    }
+    out.forEach(bk=>{ KORDER.forEach(k=>{ bk[k]=0; bk["n_"+k]=0; }); });
+    entries.forEach(e=>{ const bk = out.find(x=>e.date>=x.from && e.date<=x.to); if (bk && e.kind in bk){ bk[e.kind] += (e.cost||0); bk["n_"+e.kind]++; } });
+    out.forEach(bk=>{ bk.total = KORDER.reduce((s,k)=>s+bk[k],0); });
+    const label = p==="custom" ? `${dShort(from)} ${from.getFullYear()} – ${dShort(to)} ${to.getFullYear()}` : $("#spendPeriod").selectedOptions[0].textContent;
+    return {buckets: out, label};
+  }
+  function renderChart(){
+    const {buckets, label} = spendBuckets();
+    if (spendSel!==null && spendSel>=buckets.length) spendSel = null;
+    const max = Math.max(1, ...buckets.map(b=>b.total));
+    const grand = buckets.reduce((s,b)=>s+b.total,0);
+    $("#spendLabel").textContent = label;
+    $("#spendTotal").textContent = money(grand);
+    $("#chart").innerHTML = buckets.map((b,i)=>{
+      const segs = KORDER.filter(k=>b[k]>0).map(k=>`<i data-k="${k}" style="background:var(--k);height:${(b[k]/Math.max(1,b.total)*100).toFixed(1)}%"></i>`).join("");
+      return `<button type="button" class="col" data-b="${i}" aria-pressed="${spendSel===i}" aria-label="${esc(b.range)}: ${esc(money(b.total))}">
+        <span class="amt">${b.total?short(b.total):""}</span>
+        <span class="bar-area"><span class="stack" style="height:${Math.max(b.total/max*100,1.5).toFixed(1)}%">${segs}</span></span>
+        <span class="lab">${esc(b.label)}</span></button>`;
+    }).join("");
+    // breakdown: tapped bar, or the whole period
+    const src = spendSel===null ? null : buckets[spendSel];
+    const sum = {}; KORDER.forEach(k=>{ sum[k] = src ? src[k] : buckets.reduce((s,b)=>s+b[k],0); sum["n_"+k] = src ? src["n_"+k] : buckets.reduce((s,b)=>s+b["n_"+k],0); });
+    const tot = src ? src.total : grand;
+    const rows = KORDER.filter(k=>sum[k]>0).map(k=>`<div class="spr" data-k="${k}"><i></i><span>${KLABEL[k]} · ${sum["n_"+k]} entr${sum["n_"+k]===1?"y":"ies"}</span><b>${esc(money(sum[k]))}</b></div>`).join("");
+    $("#spendDetail").innerHTML = `<div class="sph"><span>${src ? esc(src.range) : "Whole period"}</span><span class="num">${esc(money(tot))}</span></div>`
+      + (rows || `<div class="by">No spending ${src ? "in this period" : "logged for these dates"}.</div>`)
+      + (src ? `<div class="by">Tap the bar again to see the whole period.</div>` : (buckets.length>1 ? `<div class="by">Tap a bar to see that ${buckets.length && /–/.test(buckets[0].range) ? "week" : "month"} on its own.</div>` : ""));
+  }
+  $("#chart").addEventListener("click", ev=>{ const b = ev.target.closest("[data-b]"); if (!b) return; const i = +b.dataset.b; spendSel = spendSel===i ? null : i; renderChart(); });
+  $("#spendPeriod").addEventListener("change", ()=>{
+    spendSel = null;
+    const custom = $("#spendPeriod").value==="custom";
+    $("#spendRange").hidden = !custom;
+    if (custom && !$("#spTo").value){ const t = new Date(), f = new Date(t.getFullYear(), t.getMonth(), t.getDate()-29); $("#spTo").value = iso(t); $("#spFrom").value = iso(f); }
+    renderChart();
+  });
+  ["#spFrom","#spTo"].forEach(id=>$(id).addEventListener("change", ()=>{ spendSel = null; renderChart(); }));
 
   function detail(e){
     if (e.kind==="fuel"){
@@ -673,8 +756,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function renderList(){
     const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
     if (!entries.length){
-      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span><button class="btn small ghost" type="button" id="loadSamples">Show example entries</button></div>`;
-      $("#loadSamples").onclick = loadSamples; return;
+      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span>${isCloud() ? "" : '<button class="btn small ghost" type="button" id="loadSamples">Show example entries</button>'}</div>`;
+      if (!isCloud()) $("#loadSamples").onclick = loadSamples; return;
     }
     if (!rows.length){ $("#list").innerHTML = `<div class="empty">Nothing logged under ${esc(KINDS[filter])} yet.</div>`; return; }
     $("#list").innerHTML = rows.map(e=>{
@@ -773,8 +856,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const bikeLabel = (b, i) => b.name || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
   function renderBikes(){
     const sw = $("#bikeSwitch");
-    sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("");
-    $("#switchWrap").hidden = bikes.length < 2;
+    sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("") + `<option value="__add">+ Add another bike</option>`;
+    $("#switchWrap").hidden = bikes.length < 1;
     const ownedCount = bikes.filter(b=>ownsBike(b)).length;
     $("#bikeList").innerHTML = bikes.length ? bikes.map((b,i)=>{
       const es = allEntries.filter(e=>e.bikeId===b.id && !e.sample);
@@ -835,7 +918,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       else { dl.dataset.confirm="1"; dl.textContent = n ? `Tap again: deletes ${n} entries too` : "Tap again to delete"; setTimeout(()=>{ if(dl.isConnected){ delete dl.dataset.confirm; dl.textContent="Delete"; } }, 4000); }
     }
   });
-  $("#bikeSwitch").addEventListener("change", async ev=>{ await store.setActive(ev.target.value); resetForm(); });
+  $("#bikeSwitch").addEventListener("change", async ev=>{
+    if (ev.target.value==="__add"){ ev.target.value = activeId; openBikeForm(null); $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); return; }
+    await store.setActive(ev.target.value); resetForm();
+  });
 
   // ---------- family groups ----------
   let openInvite = null;
@@ -969,7 +1055,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function useLocal(){
     store = localStore();
     $("#storeNote").textContent = "Your entries are saved on this phone only. Tap Backup now and then to keep a safe copy.";
-    $("#acctLine").hidden = true;
+    $("#acctLine").hidden = true; $("#backupPanel").hidden = false;
     store.subscribe(onData);
   }
   function showGate(){
@@ -1025,8 +1111,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       me = {uid:user.uid, name:user.displayName||"", email:user.email||""};
       $("#storeNote").textContent = "Saved to your Google account. Works offline too: entries upload when you're back online.";
       $("#acctLine").hidden = false;
-      $("#acctLine").innerHTML = `Signed in as ${esc(user.displayName||user.email||"you")}${user.email?` (${esc(user.email)})`:""} · <button class="link" type="button" id="signOutBtn">Sign out</button>`;
+      $("#backupPanel").hidden = true;
+      $("#acctLine").innerHTML = `Signed in as ${esc(user.displayName||user.email||"you")}${user.email?` (${esc(user.email)})`:""} · <button class="link" type="button" id="dlCopy">Download a copy</button> · <button class="link" type="button" id="signOutBtn">Sign out</button>`;
       $("#signOutBtn").onclick = async ()=>{ await BikeCloud.signOut(); };
+      $("#dlCopy").onclick = ()=>{ $("#backupBtn").click(); toast("Copy saved to your Downloads folder."); };
       store.subscribe(onData);
       await migrateLocal(user);
       joinIfInvited();

@@ -3,7 +3,7 @@
 // Offline: fall back to the last saved copy.
 // Only the app's own files, the Firebase library files and fonts are cached;
 // live data (Firestore, sign-in) is never touched here.
-const CACHE = "bike-logbook-2.2";
+const CACHE = "bike-logbook-2.3";
 const CORE = ["./", "index.html", "cloud.js", "firebase-config.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"];
 const CACHE_HOSTS = ["www.gstatic.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 self.addEventListener("install", e => {
