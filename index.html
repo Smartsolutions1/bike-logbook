@@ -478,6 +478,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
         <div class="field"><label for="bAh">and amp-hours (Ah)</label><input id="bAh" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 32"></div>
       </div>
       <span class="by" style="margin-top:-4px">Written on the battery sticker. Volts × Ah fills in the kWh for you (60V × 32Ah = 1.92 kWh).</span>
+      <span class="by" id="bSpecHint" style="color:var(--ink)"></span>
       <div class="row">
         <div class="field"><label for="bSvcKm">Check-up every (km)</label><input id="bSvcKm" type="number" min="100" step="100" placeholder="2500"></div>
         <div class="field"><label for="bSvcMo">…or every (months)</label><input id="bSvcMo" type="number" min="1" step="1" placeholder="3"></div>
@@ -518,7 +519,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.1" data-updated="2026-10-29T01:51:17Z">Version 3.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.2" data-updated="2026-10-29T02:00:46Z">Version 3.2</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -567,8 +568,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       "Jolta": ["JE-70D","JE-70L","JE-100L","JE-125L","Sparrow","Scooty"],
       "Evee": ["C1","C1 Air","Gen-Z","Nisa","Flipper","S1 Air","S1 Pro"],
       "Vlektra": ["Bolt","Retro","Retro 1969","Velocity 180 SE"],
-      "United": ["EV Smart","EV Revolt","EV Bullet Ultimate","EV Bullet Swap Pro","EV Bullet Swap Max"],
-      "Metro": ["Matrix","M6 Power Lithium","Thrill Lithium","E8S Mountain Climber"],
+      "United": ["Bullet","Revolt","Smart","Sharp","Classy","Smart Max","Sharp X Pro","Sharp Max","Sharp Premium Max","Sharp Super Max","Sharp Max Z1","Sharp Max Z2"],
+      "Metro": ["Matrix","M6 Empower","Thrill Pro","T9 Sport","E8S Mountain Climber"],
       "Yadea": ["T5"],
       "OKLA": ["OKT","Omax","Ovega","OKG"],
       "Crown": ["Roshni X","Raftaar","Champion"],
@@ -577,6 +578,49 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       "ELFA": ["EV-1","EV-125"]
     }
   };
+  // Battery figures as published by the makers or PakWheels/Gari.pk listings (v = volts, ah = amp-hours, kwh, range = claimed km per charge)
+  const SPECS = {
+    "United Bullet": {v:72, ah:30, range:"80–90"},
+    "United Revolt": {v:48, ah:40, range:"75"},
+    "United Smart": {v:72, ah:35.5, range:"90–100"},
+    "United Sharp": {v:72, ah:40, range:"100–110", note:"An older Sharp version had a 72V 28Ah battery."},
+    "United Classy": {v:60, ah:22.3, range:"60–65"},
+    "United Smart Max": {v:76.8, ah:30, range:"90–100"},
+    "United Sharp X Pro": {v:72, ah:28, range:"90–100", note:"Some listings show a 72V 35Ah version."},
+    "United Sharp Max": {v:76, ah:30, range:"90–100", note:"A 76V 32Ah version also exists."},
+    "United Sharp Premium Max": {v:76, ah:32, range:"90–100"},
+    "United Sharp Super Max": {v:76.8, ah:40, range:"130–135"},
+    "United Sharp Max Z1": {v:76, ah:32, range:"90–100"},
+    "United Sharp Max Z2": {v:76.8, ah:30, range:"90–100"},
+    "Jolta JE-70D": {ah:20, range:"70"},
+    "Jolta JE-70L": {ah:30, range:"80"},
+    "Jolta JE-125L": {ah:40, range:"150"},
+    "Jolta Scooty": {ah:20, range:"60"},
+    "Evee C1": {v:60, ah:26, range:"60"},
+    "Evee Gen-Z": {v:72, ah:32, range:"70–90", note:"This is the graphene battery. The lithium version is 76.8V 27Ah (2.07 kWh)."},
+    "Evee S1 Air": {v:72, ah:38, range:"90–110", note:"This is the graphene battery. The lithium version is 76.8V 35Ah (2.69 kWh)."},
+    "Evee Flipper": {kwh:1.0, range:"35"},
+    "Vlektra Bolt": {kwh:2.0, range:"150"},
+    "Vlektra Retro": {kwh:1.72, range:"100"},
+    "Vlektra Retro 1969": {kwh:1.8, range:"100"},
+    "Vlektra Velocity 180 SE": {kwh:2.59, range:"180"},
+    "Yadea T5": {v:72, ah:26, range:"100"},
+    "Metro M6 Empower": {v:72, ah:38, range:"up to 125"},
+    "Metro Thrill Pro": {v:72, ah:27, range:"up to 110"},
+    "Metro T9 Sport": {v:72, ah:27, range:"up to 110"},
+    "Metro E8S Mountain Climber": {v:72, ah:38, range:"up to 125"}
+  };
+  function applySpecs(){
+    if ($("#bType").value!=="electric") return;
+    const sp = SPECS[$("#bModel").value], hint = $("#bSpecHint");
+    if (!sp){ $("#bVolt").value = ""; $("#bAh").value = ""; $("#bKwh").value = ""; hint.textContent = $("#bModel").value && $("#bModel").value!=="__other" ? "We don't have battery figures for this model yet. They're on the battery sticker or in the bike's papers." : ""; return; }
+    $("#bVolt").value = sp.v || ""; $("#bAh").value = sp.ah || "";
+    $("#bKwh").value = sp.kwh ? sp.kwh : (sp.v && sp.ah ? (sp.v*sp.ah/1000).toFixed(2) : "");
+    const parts = [];
+    if (sp.v && sp.ah) parts.push(`${sp.v}V ${sp.ah}Ah battery`); else if (sp.ah) parts.push(`${sp.ah}Ah battery (volts not published, so kWh is left for you to add)`); else if (sp.kwh) parts.push(`${sp.kwh} kWh battery`);
+    if (sp.range) parts.push(`maker's claimed range ${sp.range} km per charge`);
+    hint.textContent = "Filled in: " + parts.join(", ") + ". " + (sp.note ? sp.note + " " : "") + "If your battery sticker says something different, change it.";
+  }
   function fillModels(type, selected){
     const groups = MODELS[type] || {};
     let html = `<option value="">Choose a model…</option>`;
@@ -1120,7 +1164,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const bikeLabel = (b, i) => b.name || b.model || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
   function renderBikes(){
     const sw = $("#bikeSwitch");
-    sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(bikeLabel(b,i))}</option>`).join("") + `<option value="__add">+ Add another bike</option>`;
+    sw.innerHTML = bikes.map((b,i)=>`<option value="${b.id}"${b.id===activeId?" selected":""}>${esc(b.name && b.model ? b.name+" · "+b.model : bikeLabel(b,i))}</option>`).join("") + `<option value="__add">+ Add another bike</option>`;
     $("#switchWrap").hidden = bikes.length < 1;
     const ownedCount = bikes.filter(b=>ownsBike(b)).length;
     $("#bikeList").innerHTML = bikes.length ? bikes.map((b,i)=>{
@@ -1149,7 +1193,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#bType").value = (b && b.type) || "petrol";
     fillModels($("#bType").value, b ? (b.model||"") : "");
     $("#bKwh").value = b && b.batteryKwh ? b.batteryKwh : ""; $("#bRate").value = b && b.unitRate ? b.unitRate : "";
-    $("#bVolt").value = ""; $("#bAh").value = "";
+    $("#bVolt").value = ""; $("#bAh").value = ""; $("#bSpecHint").textContent = "";
     $("#bSvcKm").value = b && b.serviceKm ? b.serviceKm : ""; $("#bSvcMo").value = b && b.serviceMonths ? b.serviceMonths : "";
     syncBikeType();
     const mine = b ? (b.groups||[]) : [];
@@ -1159,7 +1203,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
   function syncBikeType(){ const ev = $("#bType").value==="electric"; $("#bEvWrap").hidden = !ev; $("#bPetrolWrap").hidden = ev; }
   $("#bType").addEventListener("change", ()=>{ syncBikeType(); fillModels($("#bType").value, ""); });
-  $("#bModel").addEventListener("change", ()=>{ const o = $("#bModel").value==="__other"; $("#bModelOtherWrap").hidden = !o; if (o) $("#bModelOther").focus(); });
+  $("#bModel").addEventListener("change", ()=>{ const o = $("#bModel").value==="__other"; $("#bModelOtherWrap").hidden = !o; if (o) $("#bModelOther").focus(); applySpecs(); });
   ["#bVolt","#bAh"].forEach(id=>$(id).addEventListener("input", ()=>{ const v=+$("#bVolt").value, ah=+$("#bAh").value; if (v>0 && ah>0) $("#bKwh").value = (v*ah/1000).toFixed(2); }));
   $("#addBikeBtn").addEventListener("click", ()=>openBikeForm(null));
   $("#bikeCancel").addEventListener("click", ()=>{ $("#bikeForm").hidden = true; editingBikeId = null; });
