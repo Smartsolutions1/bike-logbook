@@ -205,6 +205,8 @@
         const groups = (b.groups || []).filter((g) => state.groups.has(g)).slice(0, 3);
         const body = {
           name: b.name || "", currency: b.currency || "Rs", startOdo: b.startOdo || 0,
+          type: b.type === "electric" ? "electric" : "petrol", batteryKwh: b.batteryKwh || 0, unitRate: b.unitRate || 0,
+          serviceKm: b.serviceKm || 2500, serviceMonths: b.serviceMonths || 3,
           oilKm: b.oilKm || 2000, tuneKm: b.tuneKm || 3000, tuneMonths: b.tuneMonths || 3,
           partLife: b.partLife || {}, ownerId: uid, ownerName: myName, groups,
           createdAt: (prev && prev.createdAt) || b.createdAt || now(), updatedAt: now(),

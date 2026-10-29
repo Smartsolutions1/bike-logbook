@@ -20,7 +20,7 @@
 :root{
   --bg:#dfe6ee; --panel:#ffffff; --ink:#0e1621; --muted:#424e5b; --line:#b6c1cd; --soft:#e6ecf2; --bw:1.5px; --hero-edge:transparent; --head:#13284a; --shadow:0 2px 10px rgba(16,36,70,.08);
   --accent:#1c4fc4; --accent-ink:#ffffff;
-  --fuel:#c77a06; --oil:#6b5a1e; --service:#0f7f78; --tune:#7046b8; --part:#b03a68;
+  --fuel:#c77a06; --oil:#6b5a1e; --service:#0f7f78; --tune:#7046b8; --part:#b03a68; --charge:#0a76b5;
   --ok:#23824a; --warn:#b86e00; --bad:#c2352b;
   --hero:#0e1b30; --hero-2:#16294a; --hero-ink:#eef3fa; --hero-muted:#9fb1c9; --hero-line:#2a3f60;
   --glow:#ffb02e; --h-ok:#4fd88a; --h-warn:#ffb02e; --h-bad:#ff6b5e;
@@ -31,12 +31,12 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#090d12; --panel:#1d2733; --ink:#f6f9fc; --muted:#c6d1dc; --line:#4a5c73; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#c0cfe2; --head:#ffffff; --shadow:0 2px 12px rgba(0,0,0,.35);
   --accent:#6f9bff; --accent-ink:#0b1220;
-  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
+  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6; --charge:#52c6ff;
   --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#090d12; --panel:#1d2733; --ink:#f6f9fc; --muted:#c6d1dc; --line:#4a5c73; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#c0cfe2; --head:#ffffff; --shadow:0 2px 12px rgba(0,0,0,.35);
   --accent:#6f9bff; --accent-ink:#0b1220;
-  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
+  --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6; --charge:#52c6ff;
   --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -97,8 +97,8 @@ h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:
 .main{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:20px;align-items:start}
 .panel{background:var(--panel);border:var(--bw) solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.06);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .panel h2{font-size:24px}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--soft);padding:4px;border-radius:8px}
-.tabs button{font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:8px 4px;border-radius:6px;cursor:pointer}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:8px}
+.tabs button{flex:1 1 0;min-width:0;font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:8px 4px;border-radius:6px;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--k);color:var(--panel)}
 form{display:flex;flex-direction:column;gap:12px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -147,7 +147,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .link.del{color:var(--bad)}
 .empty{padding:28px 8px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
 .empty b{color:var(--ink);font-family:var(--display);font-size:22px;font-weight:600}
-[data-k="fuel"]{--k:var(--fuel)} [data-k="oil"]{--k:var(--oil)} [data-k="service"]{--k:var(--service)} [data-k="tune"]{--k:var(--tune)} [data-k="part"]{--k:var(--part)}
+[data-k="fuel"]{--k:var(--fuel)} [data-k="oil"]{--k:var(--oil)} [data-k="service"]{--k:var(--service)} [data-k="tune"]{--k:var(--tune)} [data-k="part"]{--k:var(--part)} [data-k="charge"]{--k:var(--charge)}
 
 /* Spend chart */
 .chart{display:flex;gap:8px;align-items:stretch;height:160px;padding-top:4px;overflow-x:auto}
@@ -312,16 +312,16 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <div class="gauges">
     <div class="gauge">
-      <div class="dial"><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="oilRing" cx="32" cy="32" r="27"/></svg><span class="ico-c" data-icon="oil"></span></div>
-      <div class="gtext"><div class="label">Next oil change</div><div class="big" id="oilBig">—</div><div class="note" id="oilNote">Log an oil change to start the countdown</div></div>
+      <div class="dial"><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="oilRing" cx="32" cy="32" r="27"/></svg><span class="ico-c" data-icon="oil" id="g1Ico"></span></div>
+      <div class="gtext"><div class="label" id="g1Label">Next oil change</div><div class="big" id="oilBig">—</div><div class="note" id="oilNote">Log an oil change to start the countdown</div></div>
     </div>
     <div class="gauge">
-      <div class="dial"><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="tuneRing" cx="32" cy="32" r="27"/></svg><span class="ico-c" data-icon="tune"></span></div>
-      <div class="gtext"><div class="label">Next tuning</div><div class="big" id="tuneBig">—</div><div class="note" id="tuneNote">Log a tuning to start the countdown</div></div>
+      <div class="dial"><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="trk" cx="32" cy="32" r="27"/><circle class="val" id="tuneRing" cx="32" cy="32" r="27"/></svg><span class="ico-c" data-icon="tune" id="g2Ico"></span></div>
+      <div class="gtext"><div class="label" id="g2Label">Next tuning</div><div class="big" id="tuneBig">—</div><div class="note" id="tuneNote">Log a tuning to start the countdown</div></div>
     </div>
     <div class="gauge">
-      <div class="gico" data-k="fuel" style="--k:var(--glow)" data-icon="fuel"></div>
-      <div class="gtext"><div class="label">Fuel average</div><div class="big" id="avgBig">—</div><div class="note" id="avgNote">Needs two full-tank fills</div></div>
+      <div class="gico" data-k="fuel" style="--k:var(--glow)" data-icon="fuel" id="g3Ico"></div>
+      <div class="gtext"><div class="label" id="g3Label">Fuel average</div><div class="big" id="avgBig">—</div><div class="note" id="avgNote">Needs two full-tank fills</div></div>
     </div>
     <div class="gauge">
       <div class="gico" style="--k:var(--h-ok)" data-icon="money"></div>
@@ -339,6 +339,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <section class="panel" aria-labelledby="formTitle">
       <h2 id="formTitle">Add entry</h2>
       <div class="tabs" role="tablist" id="tabs">
+        <button type="button" role="tab" data-kind="charge" data-k="charge" aria-selected="false" hidden>Charge</button>
         <button type="button" role="tab" data-kind="fuel" data-k="fuel" aria-selected="true">Fuel</button>
         <button type="button" role="tab" data-kind="oil" data-k="oil" aria-selected="false">Oil</button>
         <button type="button" role="tab" data-kind="service" data-k="service" aria-selected="false">Service</button>
@@ -355,6 +356,14 @@ input,select,textarea{font-size:16px;padding:10px 12px}
           <div class="field"><label for="fPrice">Price per litre</label><input id="fPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="optional"></div>
         </div>
         <label class="check" data-kinds="fuel"><input id="fFull" type="checkbox" checked> Filled to full tank (needed for the average)</label>
+        <div class="row" data-kinds="charge">
+          <div class="field"><label for="fPctB">Battery % before charging</label><input id="fPctB" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="e.g. 70"></div>
+          <div class="field"><label for="fPctA">Battery % after charging</label><input id="fPctA" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="100"></div>
+        </div>
+        <div class="row" data-kinds="charge">
+          <div class="field"><label for="fWhere">Charged at</label><select id="fWhere"><option value="home">Home</option><option value="station">Charging station</option></select></div>
+          <div class="field" style="justify-content:flex-end"><span class="by" id="chargeHint">Note the % when you plug in, and the % when you unplug.</span></div>
+        </div>
         <div class="field" data-kinds="oil"><label for="fOil">Oil brand and grade</label><input id="fOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
         <div class="field" data-kinds="service"><label for="fWork">Work done</label><input id="fWork" type="text" placeholder="e.g. Brake shoes replaced, chain tightened"></div>
         <div class="row" data-kinds="part">
@@ -417,6 +426,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
           <h2 id="histTitle">History</h2>
           <div class="filters" id="filters">
             <button type="button" data-f="all" aria-pressed="true">All</button>
+            <button type="button" data-f="charge" aria-pressed="false" hidden>Charge</button>
             <button type="button" data-f="fuel" aria-pressed="false">Fuel</button>
             <button type="button" data-f="oil" aria-pressed="false">Oil</button>
             <button type="button" data-f="service" aria-pressed="false">Service</button>
@@ -440,15 +450,36 @@ input,select,textarea{font-size:16px;padding:10px 12px}
         <div class="field"><label for="bCur">Currency label</label><input id="bCur" type="text" placeholder="Rs"></div>
       </div>
       <div class="row">
+        <div class="field"><label for="bType">Type of bike</label><select id="bType"><option value="petrol">Petrol</option><option value="electric">Electric</option></select></div>
+        <div class="field" style="justify-content:flex-end"><span class="by">Electric bikes log charging instead of fuel, oil and tuning.</span></div>
+      </div>
+      <div class="row">
         <div class="field"><label for="bOdo" id="bOdoLabel">Current odometer (km)</label><input id="bOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 18500"></div>
         <div class="field" style="justify-content:flex-end"><span class="by" id="bOdoHint">What the meter shows today. Leave blank for a new bike.</span></div>
       </div>
+      <div id="bPetrolWrap" style="display:flex;flex-direction:column;gap:12px">
       <div class="row">
         <div class="field"><label for="bOil">Oil change every (km)</label><input id="bOil" type="number" min="100" step="50" placeholder="2000"></div>
         <div class="field"><label for="bTuneKm">Tuning every (km)</label><input id="bTuneKm" type="number" min="100" step="100" placeholder="3000"></div>
       </div>
       <div class="row">
         <div class="field"><label for="bTuneMo">…or every (months), whichever first</label><input id="bTuneMo" type="number" min="1" step="1" placeholder="3"></div>
+      </div>
+      </div>
+      <div id="bEvWrap" style="display:flex;flex-direction:column;gap:12px" hidden>
+      <div class="row">
+        <div class="field"><label for="bKwh">Battery size (kWh)</label><input id="bKwh" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 1.92"></div>
+        <div class="field"><label for="bRate">Electricity rate (Rs per unit)</label><input id="bRate" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 60"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="bVolt">…or battery volts</label><input id="bVolt" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 60"></div>
+        <div class="field"><label for="bAh">and amp-hours (Ah)</label><input id="bAh" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 32"></div>
+      </div>
+      <span class="by" style="margin-top:-4px">Written on the battery sticker. Volts × Ah fills in the kWh for you (60V × 32Ah = 1.92 kWh).</span>
+      <div class="row">
+        <div class="field"><label for="bSvcKm">Check-up every (km)</label><input id="bSvcKm" type="number" min="100" step="100" placeholder="2500"></div>
+        <div class="field"><label for="bSvcMo">…or every (months)</label><input id="bSvcMo" type="number" min="1" step="1" placeholder="3"></div>
+      </div>
       </div>
       <div class="field" id="bShareWrap" hidden><span style="font-size:13px;font-weight:500;color:var(--muted)">Share this bike with</span><div class="chips" id="bShare"></div></div>
       <div class="actions"><button class="btn" type="submit" id="bikeSave">Save bike</button><button class="btn ghost" type="button" id="bikeCancel">Cancel</button></div>
@@ -485,7 +516,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.8" data-updated="2026-10-29T01:32:31Z">Version 2.8</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.0" data-updated="2026-10-29T01:43:26Z">Version 3.0</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -499,18 +530,26 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 <script>
 (function(){
   const $ = s => document.querySelector(s);
-  const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part"};
+  const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part", charge:"Charge"};
+  // for: p = petrol bikes, e = electric bikes
   const PARTS = [
-    {key:"chain", label:"Chain"},
-    {key:"sprocket", label:"Sprocket set"},
-    {key:"tyreF", label:"Front tyre"},
-    {key:"tyreR", label:"Rear tyre"},
-    {key:"brakeF", label:"Front brake shoes/pads"},
-    {key:"brakeR", label:"Rear brake shoes"},
-    {key:"clutch", label:"Clutch plates"},
-    {key:"battery", label:"Battery", months:true},
-    {key:"other", label:"Other part"}
+    {key:"pack", label:"Battery pack", months:true, for:"e"},
+    {key:"chain", label:"Chain", for:"pe"},
+    {key:"belt", label:"Drive belt", for:"e"},
+    {key:"sprocket", label:"Sprocket set", for:"pe"},
+    {key:"tyreF", label:"Front tyre", for:"pe"},
+    {key:"tyreR", label:"Rear tyre", for:"pe"},
+    {key:"brakeF", label:"Front brake shoes/pads", for:"pe"},
+    {key:"brakeR", label:"Rear brake shoes", for:"pe"},
+    {key:"clutch", label:"Clutch plates", for:"p"},
+    {key:"battery", label:"Battery", months:true, for:"p"},
+    {key:"charger", label:"Charger", for:"e"},
+    {key:"controller", label:"Controller", for:"e"},
+    {key:"bearings", label:"Motor bearings", for:"e"},
+    {key:"throttle", label:"Throttle", for:"e"},
+    {key:"other", label:"Other part", for:"pe"}
   ];
+  const TYPE_KINDS = {petrol:["fuel","oil","service","tune","part"], electric:["charge","service","part"]};
   const SV = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const ICONS = {
     fuel: SV('<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M3.5 20h12M7.5 8h4M14 9h2a1 1 0 0 1 1 1v5.5a1.5 1.5 0 0 0 3 0V8l-3-3"/>'),
@@ -518,7 +557,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     service: SV('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>'),
     tune: SV('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
     part: SV('<rect x="2.5" y="9" width="11" height="6" rx="3"/><rect x="10.5" y="9" width="11" height="6" rx="3"/>'),
-    money: SV('<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v5M17.5 9.5v5"/>')
+    money: SV('<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v5M17.5 9.5v5"/>'),
+    charge: SV('<path d="M13 2.5L4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/>'),
+    health: SV('<rect x="2.5" y="7" width="16.5" height="10" rx="2"/><path d="M21.5 10.5v3"/><path d="M6 10.5v3M9.5 10.5v3M13 10.5v3"/>')
   };
   document.querySelectorAll("[data-icon]").forEach(el=>el.innerHTML = ICONS[el.dataset.icon]);
   // ---------- light / dark mode ----------
@@ -543,7 +584,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   });
   const PDEF = Object.fromEntries(PARTS.map(p=>[p.key,p]));
   const defLife = () => ({});
-  const DEF = {name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, partLife:defLife()};
+  const DEF = {name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, partLife:defLife(), type:"petrol", batteryKwh:0, unitRate:0, serviceKm:2500, serviceMonths:3};
+  const isEV = () => settings.type === "electric";
   let entries = [];          // active bike's entries {id, bikeId, kind, date, odo, cost, ...}
   let allEntries = [];
   let trash = [];            // deleted entries of the active bike (recoverable)
@@ -562,7 +604,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     toastTimer=setTimeout(()=>{ el.hidden=true; }, actionLabel ? 8000 : 4500);
   }
   const myName = () => (me && me.name) ? me.name : "you";
-  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes"];
+  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes","pctBefore","pctAfter","where"];
   function snapshotOf(e){ const d={}; ENTRY_FIELDS.forEach(k=>{ if (e[k]!==undefined && e[k]!==null) d[k]=e[k]; }); return d; }
   function withoutDeleted(e){ const c={...e}; ["deleted","deletedAt","deletedBy","deletedByName"].forEach(k=>delete c[k]); return c; }
   const isCloud = () => !!(store && store.mode==="cloud");
@@ -631,22 +673,73 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     return {avg: lit? km/lit : null, last, samples: lit};
   }
 
+  function evStats(){
+    const c = entries.filter(e=>e.kind==="charge" && e.pctAfter>0).sort(byOdo);
+    const kwh = +settings.batteryKwh || 0, samples = [];
+    let km = 0, frac = 0;
+    for (let i=1;i<c.length;i++){
+      const dist = c[i].odo - c[i-1].odo, used = (c[i-1].pctAfter - (c[i].pctBefore||0)) / 100;
+      if (dist>0 && used>=0.05){ km += dist; frac += used; samples.push(dist/used); }
+    }
+    const avg = frac ? km/frac : null;
+    const median = a => { const x=a.slice().sort((p,q)=>p-q); return x.length ? x[Math.floor(x.length/2)] : null; };
+    let health = null, base = null, recent = null;
+    if (samples.length >= 4){ base = median(samples.slice(0,3)); recent = median(samples.slice(-3)); health = Math.min(100, Math.round(recent/base*100)); }
+    return {avg, last: samples.length ? samples[samples.length-1] : null, perUnit: (avg && kwh) ? avg/kwh : null, health, base, recent, count: samples.length};
+  }
+  function applyBikeType(){
+    const ev = isEV(), allowed = TYPE_KINDS[ev ? "electric" : "petrol"];
+    document.querySelectorAll("#tabs button").forEach(b=>{ b.hidden = !allowed.includes(b.dataset.kind); });
+    document.querySelectorAll("#filters button").forEach(b=>{ const f=b.dataset.f; if (f!=="all" && f!=="deleted") b.hidden = !allowed.includes(f); });
+    if (filter!=="all" && filter!=="deleted" && !allowed.includes(filter)){ filter="all"; document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x.dataset.f==="all"))); }
+    const cur = $("#fPart").value;
+    $("#fPart").innerHTML = PARTS.filter(p=>p.for.includes(ev?"e":"p")).map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
+    if ([...$("#fPart").options].some(o=>o.value===cur)) $("#fPart").value = cur;
+    $("#g1Label").textContent = ev ? "Next check-up" : "Next oil change";
+    $("#g2Label").textContent = ev ? "Battery health" : "Next tuning";
+    $("#g3Label").textContent = ev ? "Range per full charge" : "Fuel average";
+    $("#g1Ico").innerHTML = ICONS[ev ? "service" : "oil"]; $("#g2Ico").innerHTML = ICONS[ev ? "health" : "tune"]; $("#g3Ico").innerHTML = ICONS[ev ? "charge" : "fuel"];
+    if (!allowed.includes(kind) && !editingId) setKind(allowed[0]);
+  }
+
   // ---------- render ----------
   function render(){
+    applyBikeType();
     const odo = currentOdo();
     $("#fOdo").placeholder = odo ? `now ${fmt(odo)}` : "e.g. 12450";
     $("#bikeName").textContent = settings.name || (bikes.length>1 ? "Bike " + (bikes.findIndex(b=>b.id===activeId)+1) : "My Bike");
     const dg = String(Math.round(odo)).padStart(6,"0").split("");
     $("#digits").innerHTML = dg.map(d=>`<span>${d}</span>`).join("") + `<span class="unit">km</span>`;
     $("#sampleBanner").hidden = !entries.some(e=>e.sample);
-    $("#subline").textContent = entries.length ? `${entries.length} entr${entries.length===1?"y":"ies"} logged` : "Fuel, oil changes, service and tuning in one place";
+    $("#subline").textContent = entries.length ? `${entries.length} entr${entries.length===1?"y":"ies"} logged${isEV()?" · electric":""}` : (isEV() ? "Charging, check-ups and parts in one place" : "Fuel, oil changes, service and tuning in one place");
 
+    if (isEV()){
+      // Check-up countdown
+      const lastSvc = entries.filter(e=>e.kind==="service").sort(byOdo).pop();
+      setGauge("oil", lastSvc, settings.serviceKm||2500, settings.serviceMonths||3, odo, "Log a service to start the countdown");
+      // Battery health and range
+      const st = evStats();
+      const ring = $("#tuneRing");
+      if (st.health!==null){
+        const cls = st.health>=85 ? "ok" : st.health>=70 ? "warn" : "bad";
+        $("#tuneBig").innerHTML = `${st.health}<small>% of its range when new</small>`;
+        ring.style.strokeDashoffset = (169.6*(1-st.health/100)).toFixed(1); ring.style.stroke = `var(--h-${cls})`;
+        $("#tuneNote").textContent = `Recent range ${fmt(st.recent)} km per charge, was ${fmt(st.base)} km` + (cls==="bad" ? " · the battery is weakening" : "");
+      } else {
+        $("#tuneBig").textContent = "—"; ring.style.strokeDashoffset = "169.6";
+        $("#tuneNote").textContent = st.count ? `Needs ${4-st.count} more charge${4-st.count===1?"":"s"} to measure` : "Measured from your charging history";
+      }
+      if (st.avg){
+        $("#avgBig").innerHTML = `${fmt(st.avg)}<small>km</small>`;
+        $("#avgNote").textContent = st.perUnit ? `About ${st.perUnit.toFixed(0)} km per unit (kWh)` : `Last charge: ${fmt(st.last)} km · add battery size for km per unit`;
+      } else { $("#avgBig").textContent = "—"; $("#avgNote").textContent = "Needs two charges with battery %"; }
+    } else {
     // Oil
     const lastOil = entries.filter(e=>e.kind==="oil").sort(byOdo).pop();
-    setGauge("oil", lastOil, settings.oilKm, null, odo);
+    setGauge("oil", lastOil, settings.oilKm, null, odo, "Log an oil change to start the countdown");
     // Tune
     const lastTune = entries.filter(e=>e.kind==="tune").sort(byOdo).pop();
-    setGauge("tune", lastTune, settings.tuneKm, settings.tuneMonths, odo);
+    setGauge("tune", lastTune, settings.tuneKm, settings.tuneMonths, odo, "Log a tuning to start the countdown");
 
     // Fuel
     const fs = fuelStats();
@@ -654,6 +747,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       $("#avgBig").innerHTML = `${fs.avg.toFixed(1)}<small>km/L</small>`;
       $("#avgNote").textContent = `Last tank: ${fs.last.toFixed(1)} km/L`;
     } else { $("#avgBig").textContent = "—"; $("#avgNote").textContent = "Needs two full-tank fills"; }
+    }
 
     // Month spend + cost per km
     const now = new Date(); const ym = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
@@ -668,9 +762,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     renderList();
   }
 
-  function setGauge(key, last, kmInt, months, odo){
+  function setGauge(key, last, kmInt, months, odo, emptyText){
     const big = $("#"+key+"Big"), ring = $("#"+key+"Ring"), note = $("#"+key+"Note");
-    if (!last){ big.textContent="—"; ring.style.strokeDashoffset="169.6"; note.textContent = key==="oil" ? "Log an oil change to start the countdown" : "Log a tuning to start the countdown"; return; }
+    if (!last){ big.textContent="—"; ring.style.strokeDashoffset="169.6"; note.textContent = emptyText; return; }
     const left = last.odo + kmInt - odo;
     let frac = Math.min(1, Math.max(0, (odo-last.odo)/kmInt));
     let dueBy = `at ${fmt(last.odo+kmInt)} km`;
@@ -699,7 +793,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       if (!latest[k] || byOdo(latest[k], e) < 0) latest[k] = e;
     });
     const keys = Object.keys(latest).sort((a,b)=>{ const ia=PARTS.findIndex(p=>p.key===a), ib=PARTS.findIndex(p=>p.key===b); return (ia<0?99:ia)-(ib<0?99:ib); });
-    if (!keys.length){ $("#parts").innerHTML = `<div class="empty" style="padding:12px 8px">Log a chain, tyre, brake or battery change under <b style="font-size:inherit;font-family:inherit">Parts</b> and its wear shows here.</div>`; return; }
+    if (!keys.length){ $("#parts").innerHTML = `<div class="empty" style="padding:12px 8px">Log a part replacement (tyres, brakes, chain, battery…) under <b style="font-size:inherit;font-family:inherit">Parts</b> and its wear shows here.</div>`; return; }
     $("#parts").innerHTML = keys.map(k=>{
       const e = latest[k], def = PDEF[e.part] || {};
       const byMonths = !!def.months;
@@ -732,8 +826,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 
   // ---------- spending ----------
   let spendSel = null;     // index of the tapped bar, or null for the whole period
-  const KORDER = ["fuel","oil","service","tune","part"];
-  const KLABEL = {fuel:"Fuel", oil:"Oil changes", service:"Service & repairs", tune:"Tuning", part:"Parts"};
+  const KORDER = ["charge","fuel","oil","service","tune","part"];
+  const KLABEL = {charge:"Charging", fuel:"Fuel", oil:"Oil changes", service:"Service & repairs", tune:"Tuning", part:"Parts"};
   const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   const short = n => n>=100000 ? (n/1000).toFixed(0)+"k" : n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"k" : String(Math.round(n));
   const dShort = d => d.getDate()+" "+MON[d.getMonth()];
@@ -810,6 +904,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       return `${e.liters} L${p?` · ${settings.currency} ${p.toFixed(0)}/L`:""}${e.full?" · full tank":" · partial"}`;
     }
     if (e.kind==="oil") return [e.oil, e.filter?"filter changed":""].filter(Boolean).join(" · ");
+    if (e.kind==="charge"){
+      const kwh = +settings.batteryKwh || 0, added = (e.pctAfter||0) - (e.pctBefore||0);
+      return [`${e.pctBefore??"?"}% → ${e.pctAfter??"?"}%`, e.where==="station" ? "charging station" : "home", (kwh && added>0) ? `≈ ${(added/100*kwh).toFixed(2)} units` : ""].filter(Boolean).join(" · ");
+    }
     if (e.kind==="service") return [e.work, e.shop].filter(Boolean).join(" · ");
     if (e.kind==="tune") return [(e.items||[]).join(", "), e.shop].filter(Boolean).join(" · ");
     if (e.kind==="part") return [e.brand, e.shop].filter(Boolean).join(" · ");
@@ -836,7 +934,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (filter==="deleted"){ renderTrash(); return; }
     const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
     if (!entries.length){
-      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span></div>`; return;
+      $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>${isEV() ? "Log your first charge on the left. Your odometer, range and reminders fill in as you go." : "Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go."}</span></div>`; return;
     }
     if (!rows.length){ $("#list").innerHTML = `<div class="empty">Nothing logged under ${esc(KINDS[filter])} yet.</div>`; return; }
     $("#list").innerHTML = rows.map(e=>{
@@ -871,11 +969,18 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const dv = (settings.partLife||{})[$("#fPart").value];
     $("#fLife").placeholder = dv ? `your setting: ${fmt(dv)}` : "optional";
   }
-  $("#fPart").innerHTML = PARTS.map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
+  $("#fPart").innerHTML = PARTS.filter(p=>p.for.includes("p")).map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
+  function chargeCost(){
+    const b=+$("#fPctB").value, a=+$("#fPctA").value || 100, kwh=+settings.batteryKwh||0, rate=+settings.unitRate||0;
+    if ($("#fWhere").value==="home" && kwh && rate && a>b && $("#fPctB").value!==""){ $("#fCost").value = Math.round((a-b)/100*kwh*rate); $("#chargeHint").textContent = `Home cost worked out from ${kwh} kWh × Rs ${rate}/unit. Change it if needed.`; }
+    else $("#chargeHint").textContent = $("#fWhere").value==="station" ? "Enter what the station charged you." : "Note the % when you plug in, and the % when you unplug.";
+  }
+  ["#fPctB","#fPctA","#fWhere"].forEach(id=>$(id).addEventListener("input", chargeCost));
+  $("#fWhere").addEventListener("change", chargeCost);
   $("#fPart").addEventListener("change", syncPart);
   $("#fTuneOtherChk").addEventListener("change", ()=>{ $("#tuneOtherWrap").hidden = !$("#fTuneOtherChk").checked; if ($("#fTuneOtherChk").checked) $("#fTuneOther").focus(); });
   function resetForm(){
-    editingId = null; $("#entryForm").reset(); $("#tuneOtherWrap").hidden = true; $("#fDate").value = today(); $("#fFull").checked = true;
+    editingId = null; $("#entryForm").reset(); $("#tuneOtherWrap").hidden = true; $("#fDate").value = today(); $("#fFull").checked = true; $("#fPctA").value = 100;
     $("#cancelEdit").hidden = true; $("#formTitle").textContent = "Add entry"; setKind(kind);
   }
   function fillForm(e){
@@ -883,6 +988,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#fDate").value=e.date; $("#fOdo").value=e.odo; $("#fCost").value=e.cost||""; $("#fNotes").value=e.notes||"";
     $("#fLiters").value=e.liters||""; $("#fPrice").value=""; $("#fFull").checked=!!e.full;
     $("#fOil").value=e.oil||""; $("#fWork").value=e.work||""; $("#fShop").value=e.shop||"";
+    $("#fPctB").value = e.pctBefore ?? ""; $("#fPctA").value = e.pctAfter ?? ""; $("#fWhere").value = e.where || "home";
     $("#fPart").value=e.part||"chain"; $("#fBrand").value=e.brand||""; $("#fPartName").value=e.partName||""; $("#fLife").value=e.life||"";
     const chipVals = [...document.querySelectorAll("#tuneChips input")].map(c=>c.value).filter(Boolean);
     if (Array.isArray(e.items)) e = {...e, items: e.items.map(x=>x==="Valve clearance" ? "Tappets set" : x)};
@@ -908,6 +1014,12 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (kind==="fuel"){ e.liters = parseFloat($("#fLiters").value)||0; e.full = $("#fFull").checked;
       if (!(e.liters>0)){ msg.className="msg err"; msg.textContent="Enter how many litres you filled."; return; } }
     if (kind==="oil"){ e.oil=$("#fOil").value.trim(); }
+    if (kind==="charge"){
+      const b = $("#fPctB").value, a = $("#fPctA").value;
+      e.pctBefore = b==="" ? null : Math.round(+b); e.pctAfter = a==="" ? 100 : Math.round(+a); e.where = $("#fWhere").value;
+      if (e.pctBefore===null){ msg.className="msg err"; msg.textContent="Enter the battery % before charging (what it showed when you plugged in)."; return; }
+      if (e.pctBefore<0 || e.pctAfter>100 || e.pctAfter<=e.pctBefore){ msg.className="msg err"; msg.textContent="Battery % after charging should be higher than before, and no more than 100."; return; }
+    }
     if (kind==="service"){ e.work=$("#fWork").value.trim(); e.shop=$("#fShop").value.trim();
       if (!e.work){ msg.className="msg err"; msg.textContent="Describe the work done."; return; } }
     if (kind==="part"){ e.part=$("#fPart").value; e.brand=$("#fBrand").value.trim(); e.shop=$("#fShop").value.trim();
@@ -979,7 +1091,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const gnames = (b.groups||[]).map(g=>(groups.find(x=>x.id===g)||{}).name).filter(Boolean);
       const shareTxt = !own ? ` · shared by ${esc(b.ownerName||"family")}` : (gnames.length ? ` · shared with ${esc(gnames.join(", "))}` : "");
       return `<div class="brow">
-        <div class="bn"><b>${esc(bikeLabel(b,i))}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""}${shareTxt}</span></div>
+        <div class="bn"><b>${esc(bikeLabel(b,i))}${b.type==="electric"?' <span class="by" style="font-family:var(--body);font-weight:600;color:var(--charge)">⚡ Electric</span>':""}</b><span>${es.length} entr${es.length===1?"y":"ies"}${odo?` · ${fmt(odo)} km`:""}${shareTxt}</span></div>
         <div class="bact">${cur?'<span class="current">Showing now</span>':`<button class="btn small" type="button" data-open="${b.id}">Open</button>`}
           ${own?`<button class="btn small ghost" type="button" data-bedit="${b.id}">Edit</button>`:""}
           ${own && (ownedCount>1 || isCloud())?`<button class="btn small danger" type="button" data-bdel="${b.id}">Delete</button>`:""}</div>
@@ -995,11 +1107,19 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#bOdoLabel").textContent = b ? "Odometer when added (km)" : "Current odometer (km)";
     $("#bOdoHint").textContent = b ? "The reading you started the logbook from. New entries keep the odometer up to date." : "What the meter shows today. Leave blank for a new bike.";
     $("#bOil").value = b ? (b.oilKm||"") : ""; $("#bTuneKm").value = b ? (b.tuneKm||"") : ""; $("#bTuneMo").value = b ? (b.tuneMonths||"") : "";
+    $("#bType").value = (b && b.type) || "petrol";
+    $("#bKwh").value = b && b.batteryKwh ? b.batteryKwh : ""; $("#bRate").value = b && b.unitRate ? b.unitRate : "";
+    $("#bVolt").value = ""; $("#bAh").value = "";
+    $("#bSvcKm").value = b && b.serviceKm ? b.serviceKm : ""; $("#bSvcMo").value = b && b.serviceMonths ? b.serviceMonths : "";
+    syncBikeType();
     const mine = b ? (b.groups||[]) : [];
     $("#bShareWrap").hidden = !(isCloud() && groups.length);
     $("#bShare").innerHTML = groups.map(g=>`<label><input type="checkbox" value="${esc(g.id)}"${mine.includes(g.id)?" checked":""}> ${esc(g.name||"Family")}</label>`).join("");
     $("#bikeForm").hidden = false; $("#bikeMsg").textContent = ""; $("#bName").focus();
   }
+  function syncBikeType(){ const ev = $("#bType").value==="electric"; $("#bEvWrap").hidden = !ev; $("#bPetrolWrap").hidden = ev; }
+  $("#bType").addEventListener("change", syncBikeType);
+  ["#bVolt","#bAh"].forEach(id=>$(id).addEventListener("input", ()=>{ const v=+$("#bVolt").value, ah=+$("#bAh").value; if (v>0 && ah>0) $("#bKwh").value = (v*ah/1000).toFixed(2); }));
   $("#addBikeBtn").addEventListener("click", ()=>openBikeForm(null));
   $("#bikeCancel").addEventListener("click", ()=>{ $("#bikeForm").hidden = true; editingBikeId = null; });
   $("#bikeForm").addEventListener("submit", async ev=>{
@@ -1011,7 +1131,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const b = {...old, id: editingBikeId || ("b-"+uid()), name, currency: $("#bCur").value.trim()||"Rs",
       startOdo: Math.max(0, parseInt($("#bOdo").value)||0),
       oilKm: Math.max(100, parseInt($("#bOil").value)||2000), tuneKm: Math.max(100, parseInt($("#bTuneKm").value)||3000),
-      tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3)};
+      tuneMonths: Math.max(1, parseInt($("#bTuneMo").value)||3),
+      type: $("#bType").value, batteryKwh: Math.max(0, parseFloat($("#bKwh").value)||0), unitRate: Math.max(0, parseFloat($("#bRate").value)||0),
+      serviceKm: Math.max(100, parseInt($("#bSvcKm").value)||2500), serviceMonths: Math.max(1, parseInt($("#bSvcMo").value)||3)};
     if (isCloud()) b.groups = [...document.querySelectorAll("#bShare input:checked")].map(c=>c.value).slice(0,3);
     const isNew = !editingBikeId;
     try {
