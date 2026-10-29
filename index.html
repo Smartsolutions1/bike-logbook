@@ -220,11 +220,21 @@ details.settings form{margin-top:12px}
 .by{font-size:12px;color:var(--muted)}
 .lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 
+/* Section headings: glowing badges with an icon (not buttons) */
+.panel h2{display:inline-flex;align-items:center;gap:10px;width:fit-content;max-width:100%;font-size:23px;line-height:1.1;color:var(--head);padding:5px 18px 5px 5px;border:2px solid var(--glow);border-radius:999px;background:linear-gradient(90deg,rgba(255,176,46,.20),rgba(255,176,46,.06));box-shadow:0 0 0 3px rgba(255,176,46,.08),0 0 16px rgba(255,176,46,.22);letter-spacing:.015em}
+.panel h2::before{content:"";flex:none;width:34px;height:34px;border-radius:50%;background:var(--hicon) center/19px 19px no-repeat,radial-gradient(circle at 35% 30%,#ffd27a 0%,var(--glow) 60%,#e08a00 100%);box-shadow:0 0 10px rgba(255,176,46,.45)}
+#formTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228.5%22%2F%3E%3Cpath%20d%3D%22M12%208v8M8%2012h8%22%2F%3E%3C%2Fsvg%3E")}
+#partsTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.5%22%20y%3D%229%22%20width%3D%2211%22%20height%3D%226%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%2210.5%22%20y%3D%229%22%20width%3D%2211%22%20height%3D%226%22%20rx%3D%223%22%2F%3E%3C%2Fsvg%3E")}
+#spendTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%2218%22%20height%3D%2212%22%20rx%3D%222%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M6.5%209.5v5M17.5%209.5v5%22%2F%3E%3C%2Fsvg%3E")}
+#histTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228.5%22%2F%3E%3Cpath%20d%3D%22M12%207.5V12l3%202%22%2F%3E%3C%2Fsvg%3E")}
+#bikesTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%225.5%22%20cy%3D%2216%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%2218.5%22%20cy%3D%2216%22%20r%3D%223.5%22%2F%3E%3Cpath%20d%3D%22M5.5%2016l3.5-6h5l4.5%206%22%2F%3E%3Cpath%20d%3D%22M10%2010l2.5%206h-3%22%2F%3E%3Cpath%20d%3D%22M14%2010l1.5-3h2.5%22%2F%3E%3Cpath%20d%3D%22M8.5%208.5h4.5%22%20stroke-width%3D%222.6%22%2F%3E%3C%2Fsvg%3E")}
+#famTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%228.5%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M3%2019c0-3.3%202.7-5.5%206-5.5s6%202.2%206%205.5%22%2F%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M15.5%2014c3%200%205.5%201.8%205.5%205%22%2F%3E%3C%2Fsvg%3E")}
+#bkTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%204v11M7.5%2010.5L12%2015l4.5-4.5%22%2F%3E%3Cpath%20d%3D%22M4.5%2019.5h15%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
 .label{font-size:12.5px}
 .panel{box-shadow:var(--shadow)}
-.panel h2{font-size:28px;color:var(--head)}
+.panel h2{font-size:23px;color:var(--head)}
 .top .sub{font-size:15.5px}
 .digits span{font-size:30px}
 .gauge .big{font-size:34px}
@@ -473,7 +483,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.5" data-updated="2026-10-29T01:08:48Z">Version 2.5</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.6" data-updated="2026-10-29T01:11:39Z">Version 2.6</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
