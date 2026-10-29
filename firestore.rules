@@ -71,8 +71,12 @@ service cloud.firestore {
         function bike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
         allow read: if signedIn() && canAccess(bike());
         allow create: if signedIn() && canAccess(bike()) && request.resource.data.addedBy == me();
+        // Deleting is a soft delete (kept for restoring). Only the bike's owner or the
+        // entry's author may delete; anyone with access may edit or restore.
         allow update: if signedIn() && canAccess(bike())
-          && request.resource.data.addedBy == resource.data.addedBy;
+          && request.resource.data.addedBy == resource.data.addedBy
+          && (!(request.resource.data.get('deleted', false) == true && resource.data.get('deleted', false) != true)
+              || bike().ownerId == me() || resource.data.addedBy == me());
         allow delete: if signedIn() && (bike().ownerId == me() || resource.data.addedBy == me());
       }
     }

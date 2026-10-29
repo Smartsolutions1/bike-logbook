@@ -18,7 +18,7 @@
 <style>
 /* Layout: instrument-cluster header (odometer + due gauges), then entry form beside a dated service history; stacks on phones. */
 :root{
-  --bg:#e9edf2; --panel:#ffffff; --ink:#17202a; --muted:#56636f; --line:#c3ccd6; --soft:#e2e8ee; --bw:1.5px; --hero-edge:transparent;
+  --bg:#dfe6ee; --panel:#ffffff; --ink:#0e1621; --muted:#424e5b; --line:#b6c1cd; --soft:#e6ecf2; --bw:1.5px; --hero-edge:transparent; --head:#13284a; --shadow:0 2px 10px rgba(16,36,70,.08);
   --accent:#1c4fc4; --accent-ink:#ffffff;
   --fuel:#c77a06; --oil:#6b5a1e; --service:#0f7f78; --tune:#7046b8; --part:#b03a68;
   --ok:#23824a; --warn:#b86e00; --bad:#c2352b;
@@ -29,12 +29,12 @@
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#090d12; --panel:#1d2733; --ink:#f0f4f8; --muted:#b0bdca; --line:#43546a; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#b3c3d8;
+  --bg:#090d12; --panel:#1d2733; --ink:#f6f9fc; --muted:#c6d1dc; --line:#4a5c73; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#c0cfe2; --head:#ffffff; --shadow:0 2px 12px rgba(0,0,0,.35);
   --accent:#6f9bff; --accent-ink:#0b1220;
   --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
   --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#090d12; --panel:#1d2733; --ink:#f0f4f8; --muted:#b0bdca; --line:#43546a; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#b3c3d8;
+  --bg:#090d12; --panel:#1d2733; --ink:#f6f9fc; --muted:#c6d1dc; --line:#4a5c73; --soft:#2a3646; --hero-edge:#3b5a88; --hero-line:#3a5580; --hero-muted:#c0cfe2; --head:#ffffff; --shadow:0 2px 12px rgba(0,0,0,.35);
   --accent:#6f9bff; --accent-ink:#0b1220;
   --fuel:#f0a73a; --oil:#cdb666; --service:#3ec2b8; --tune:#a888ea; --part:#f07aa6;
   --ok:#4fc27c; --warn:#f0a73a; --bad:#f07068; color-scheme:dark}
@@ -205,7 +205,8 @@ details.settings form{margin-top:12px}
 .gbtn svg{width:20px;height:20px}
 .gate .link{color:var(--hero-muted);font-size:13.5px;text-decoration:underline}
 .gate .msg{color:var(--h-bad)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.toastBtn{margin-left:12px;background:none;border:var(--bw) solid currentColor;color:inherit;border-radius:999px;padding:3px 12px;font:700 14px var(--body);cursor:pointer}
+.toast{display:flex;align-items:center;justify-content:space-between;gap:6px;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .groups{display:flex;flex-direction:column;gap:12px}
 .grp{border:var(--bw) solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .grp .gh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:baseline}
@@ -219,6 +220,46 @@ details.settings form{margin-top:12px}
 .by{font-size:12px;color:var(--muted)}
 .lifegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 
+/* Readability: larger type and clearer controls */
+body{font-size:16px;line-height:1.55}
+.label{font-size:12.5px}
+.panel{box-shadow:var(--shadow)}
+.panel h2{font-size:28px;color:var(--head)}
+.top .sub{font-size:15.5px}
+.digits span{font-size:30px}
+.gauge .big{font-size:34px}
+.gauge .big small{font-size:14.5px}
+.gauge .note{font-size:14px}
+.tabs button{font-size:14.5px;padding:10px 4px}
+.field label{font-size:14.5px;font-weight:600}
+input,select,textarea{font-size:16px;padding:10px 12px}
+.check{font-size:15px}
+.chips label{font-size:14.5px;padding:6px 12px;border-width:var(--bw)}
+.btn{font-size:15.5px;padding:11px 16px}
+.btn.small{font-size:14.5px;padding:8px 12px}
+.btn.ghost,.btn.danger{border-width:var(--bw)}
+.msg,.foot{font-size:14.5px}
+.filters button{font-size:14.5px;padding:7px 14px;border-width:var(--bw)}
+.item{grid-template-columns:42px minmax(0,1fr) auto}
+.ico{width:42px;height:42px}
+.ico svg{width:22px;height:22px}
+.item .what .t{font-size:16.5px}
+.item .meta{font-size:14px}
+.item .what .d{font-size:14.5px}
+.item .side .num{font-size:16px}
+.by{font-size:13.5px}
+.link{font-size:14.5px;font-weight:600}
+.col .amt{font-size:12px}
+.col .lab{font-size:12.5px}
+.spd .spr{font-size:15px}
+.prow .pn{font-size:16px}
+.prow .pd{font-size:14px}
+.pill{font-size:12.5px;padding:3px 10px}
+.brow .bn b{font-size:22px}
+.brow .bn span{font-size:14px}
+.grp .gh span,.mem{font-size:14px}
+.switch select{font-size:16px}
+.themeBtn{font-size:13.5px}
 @media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:440px){.hero{padding:18px 16px}.top h1{font-size:36px}.odo{align-items:flex-start}.digits span{font-size:22px}.gauge .big{font-size:26px}.row{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}.ring .val{transition:stroke-dashoffset .8s ease}}
@@ -369,6 +410,7 @@ details.settings form{margin-top:12px}
             <button type="button" data-f="service" aria-pressed="false">Service</button>
             <button type="button" data-f="tune" aria-pressed="false">Tuning</button>
             <button type="button" data-f="part" aria-pressed="false">Parts</button>
+            <button type="button" data-f="deleted" aria-pressed="false" id="trashBtn">Deleted</button>
           </div>
         </div>
         <div class="list" id="list"></div>
@@ -431,7 +473,7 @@ details.settings form{margin-top:12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.4" data-updated="2026-10-29T00:59:32Z">Version 2.4</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="2.5" data-updated="2026-10-29T01:08:48Z">Version 2.5</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -492,6 +534,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const DEF = {name:"", currency:"Rs", oilKm:2000, tuneKm:3000, tuneMonths:3, partLife:defLife()};
   let entries = [];          // active bike's entries {id, bikeId, kind, date, odo, cost, ...}
   let allEntries = [];
+  let trash = [];            // deleted entries of the active bike (recoverable)
   let bikes = [];            // {id, name, currency, oilKm, tuneKm, tuneMonths}
   let activeId = null;
   let settings = {...DEF};
@@ -501,7 +544,15 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const lsGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
   const lsSet = (k,v) => { try { localStorage.setItem(k, v); } catch(e){} };
   let toastTimer = null;
-  function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{ el.hidden=true; }, 4500); }
+  function toast(t, actionLabel, action){
+    const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toastTimer);
+    if (actionLabel){ const b=document.createElement("button"); b.type="button"; b.className="toastBtn"; b.textContent=actionLabel; b.onclick=()=>{ el.hidden=true; action(); }; el.appendChild(b); }
+    toastTimer=setTimeout(()=>{ el.hidden=true; }, actionLabel ? 8000 : 4500);
+  }
+  const myName = () => (me && me.name) ? me.name : "you";
+  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes"];
+  function snapshotOf(e){ const d={}; ENTRY_FIELDS.forEach(k=>{ if (e[k]!==undefined && e[k]!==null) d[k]=e[k]; }); return d; }
+  function withoutDeleted(e){ const c={...e}; ["deleted","deletedAt","deletedBy","deletedByName"].forEach(k=>delete c[k]); return c; }
   const isCloud = () => !!(store && store.mode==="cloud");
   const ownsBike = b => !b || !b.ownerId || !me || b.ownerId===me.uid;
   let filter = "all";
@@ -753,7 +804,24 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     return "";
   }
 
+  function renderTrash(){
+    $("#trashBtn").textContent = trash.length ? `Deleted (${trash.length})` : "Deleted";
+    if (!trash.length){ $("#list").innerHTML = `<div class="empty">Nothing deleted. When an entry is deleted it waits here, so it can be restored.</div>`; return; }
+    $("#list").innerHTML = `<p class="by" style="margin:0 0 6px">Deleted entries stay here until the bike's owner or the person who added them deletes them for good. Anyone can restore them.</p>` + trash.map(e=>{
+      const d = parseD(e.date), ab = bikes.find(b=>b.id===e.bikeId);
+      const canForever = !isCloud() || ownsBike(ab) || e.addedBy===me.uid;
+      const when = e.deletedAt ? new Date(e.deletedAt) : null;
+      return `<div class="item" data-k="${e.kind}" style="opacity:.92">
+        <div class="ico">${ICONS[e.kind]}</div>
+        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>
+          <div class="by">Deleted by ${esc(e.deletedByName||"someone")}${when?` on ${when.getDate()} ${MON[when.getMonth()]}, ${when.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"})}`:""}</div></div>
+        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-restore="${e.id}" type="button">Restore</button>${canForever?` · <button class="link del" data-forever="${e.id}" type="button">Delete forever</button>`:""}</span></div>
+      </div>`;
+    }).join("");
+  }
   function renderList(){
+    $("#trashBtn").textContent = trash.length ? `Deleted (${trash.length})` : "Deleted";
+    if (filter==="deleted"){ renderTrash(); return; }
     const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
     if (!entries.length){
       $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go.</span></div>`; return;
@@ -764,7 +832,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const extra = [detail(e), e.notes].filter(Boolean).map(esc).join(" — ");
       const ab = bikes.find(b=>b.id===e.bikeId);
       const canDel = !isCloud() || ownsBike(ab) || e.addedBy===me.uid;
-      const by = isCloud() && e.addedBy && ((ab && (ab.groups||[]).length) || e.addedBy!==me.uid) ? `<div class="by">Added by ${e.addedBy===me.uid?"you":esc(e.addedByName||"family member")}</div>` : "";
+      const showBy = isCloud() && e.addedBy && ((ab && (ab.groups||[]).length) || e.addedBy!==me.uid);
+      const edited = (e.history||[]).length ? `${showBy?" · ":""}Edited by ${e.editedByName===myName()?"you":esc(e.editedByName||"someone")} · <button class="link" type="button" data-undoedit="${e.id}">Undo last edit</button>` : "";
+      const by = (showBy || edited) ? `<div class="by">${showBy?`Added by ${e.addedBy===me.uid?"you":esc(e.addedByName||"family member")}`:""}${edited}</div>` : "";
       return `<div class="item" data-k="${e.kind}">
         <div class="ico">${ICONS[e.kind]}</div>
         <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}${by}</div>
@@ -835,17 +905,48 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       if ($("#fTuneOtherChk").checked && !$("#fTuneOther").value.trim()){ msg.className="msg err"; msg.textContent="Type what else was done, or untick Other."; return; } e.shop=$("#fShop").value.trim(); }
     if (!activeId && isCloud()){ msg.className="msg err"; msg.textContent="Add a bike first (in My bikes below), then log entries for it."; return; }
     const wasEdit = !!editingId;
+    if (wasEdit){
+      const prev = allEntries.find(x=>x.id===editingId);
+      if (prev){
+        ["addedBy","addedByName","createdAt","sample"].forEach(k=>{ if (prev[k]!==undefined) e[k]=prev[k]; });
+        e.history = [...(prev.history||[]), {at:new Date().toISOString(), byName: myName(), data: snapshotOf(prev)}].slice(-5);
+        e.editedByName = myName(); e.editedAt = new Date().toISOString();
+      }
+    }
     try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : `${KINDS[kind]} saved.`; resetForm(); }
     catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
   });
 
+  function twoTap(btn, label, armedLabel, fn){
+    if (btn.dataset.confirm){ fn(); return; }
+    btn.dataset.confirm="1"; btn.textContent=armedLabel;
+    setTimeout(()=>{ if(btn.isConnected){ delete btn.dataset.confirm; btn.textContent=label; } }, 3500);
+  }
   $("#list").addEventListener("click", async ev=>{
-    const ed = ev.target.closest("[data-edit]"), dl = ev.target.closest("[data-del]");
+    const ed = ev.target.closest("[data-edit]"), dl = ev.target.closest("[data-del]"), ue = ev.target.closest("[data-undoedit]"),
+          rs = ev.target.closest("[data-restore]"), fv = ev.target.closest("[data-forever]");
     if (ed){ const e = entries.find(x=>x.id===ed.dataset.edit); if(e) fillForm(e); }
-    if (dl){
-      if (dl.dataset.confirm){ try{ await store.remove(dl.dataset.del); if(editingId===dl.dataset.del) resetForm(); }catch(e){} }
-      else { dl.dataset.confirm="1"; dl.textContent="Tap again to delete"; setTimeout(()=>{ if(dl.isConnected){ delete dl.dataset.confirm; dl.textContent="Delete"; } }, 3000); }
-    }
+    if (dl){ twoTap(dl, "Delete", "Tap again to delete", async ()=>{
+      const e = entries.find(x=>x.id===dl.dataset.del); if (!e) return;
+      try {
+        await store.put({...e, deleted:true, deletedAt:new Date().toISOString(), deletedBy: me ? me.uid : "", deletedByName: myName()});
+        if (editingId===e.id) resetForm();
+        toast("Entry deleted. You can restore it from Deleted.", "Undo", ()=>store.put(withoutDeleted(e)));
+      } catch(err){ toast("Couldn't delete. Only the bike's owner or the person who added it can delete an entry."); }
+    }); }
+    if (ue){ twoTap(ue, "Undo last edit", "Tap again to undo", async ()=>{
+      const e = entries.find(x=>x.id===ue.dataset.undoedit); if (!e || !(e.history||[]).length) return;
+      const hist = e.history.slice(), last = hist.pop();
+      const keep = {}; ["id","bikeId","addedBy","addedByName","createdAt","sample"].forEach(k=>{ if (e[k]!==undefined) keep[k]=e[k]; });
+      const restored = {...keep, ...last.data, history: hist};
+      if (hist.length){ restored.editedByName = hist[hist.length-1].byName; }
+      await store.put(restored);
+      toast("Edit undone. The entry is back to how it was before.", "Redo", ()=>store.put(e));
+    }); }
+    if (rs){ const e = trash.find(x=>x.id===rs.dataset.restore); if (e){ await store.put(withoutDeleted(e)); toast("Entry restored."); } }
+    if (fv){ twoTap(fv, "Delete forever", "Tap again: can't be undone", async ()=>{
+      try { await store.remove(fv.dataset.forever); toast("Entry permanently deleted."); } catch(err){ toast("Couldn't delete it permanently."); }
+    }); }
   });
   $("#parts").addEventListener("click", ev=>{ const b=ev.target.closest("[data-life]"); if(!b) return; const e=entries.find(x=>x.id===b.dataset.life); if(!e) return; fillForm(e); setTimeout(()=>$("#fLife").focus(), 400); });
   $("#filters").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(!b) return; filter=b.dataset.f;
@@ -1035,7 +1136,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       autoBikeMade = true;
       setTimeout(()=>{ openBikeForm(null); $("#bikeMsg").textContent = "Add your bike to start: its name and what the odometer shows today."; $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); }, 50);
     }
-    allEntries = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
+    const every = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
+    allEntries = every.filter(e=>!e.deleted);
+    trash = every.filter(e=>e.deleted && e.bikeId===data.active).sort((a,b)=>String(b.deletedAt||"").localeCompare(String(a.deletedAt||"")));
     entries = allEntries.filter(e=>e.bikeId===activeId);
     const ab = bikes.find(b=>b.id===activeId) || {};
     settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
