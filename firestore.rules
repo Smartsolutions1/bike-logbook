@@ -1,0 +1,78 @@
+rules_version = '2';
+
+// Bike Logbook security rules.
+// - Every bike has an owner. The owner can share it with up to 3 groups (e.g. "Family").
+// - People in a group can see the group's bikes and add entries to them.
+// - Only the owner can change a bike's settings, share/unshare it, or delete it.
+// - People join a group with the invite code from the owner's invite link.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function groupDoc(gid) { return get(/databases/$(database)/documents/groups/$(gid)); }
+    function isGroupMember(gid) {
+      return exists(/databases/$(database)/documents/groups/$(gid)/members/$(me()));
+    }
+    function inGroup(gs, i) { return gs.size() > i && isGroupMember(gs[i]); }
+    function canAccess(b) {
+      let gs = b.get('groups', []);
+      return b.ownerId == me()
+        || (gs is list && (inGroup(gs, 0) || inGroup(gs, 1) || inGroup(gs, 2)));
+    }
+    function validGroups(b) {
+      let gs = b.get('groups', []);
+      return gs is list && gs.size() <= 3
+        && (gs.size() < 1 || isGroupMember(gs[0]))
+        && (gs.size() < 2 || isGroupMember(gs[1]))
+        && (gs.size() < 3 || isGroupMember(gs[2]));
+    }
+
+    // Public display names, so family members see who added an entry.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && me() == uid;
+    }
+
+    match /groups/{gid} {
+      allow read: if signedIn() && (resource.data.ownerId == me() || isGroupMember(gid));
+      allow create: if signedIn() && request.resource.data.ownerId == me();
+      allow update: if signedIn() && (
+        (resource.data.ownerId == me() && request.resource.data.ownerId == me())
+        || (isGroupMember(gid)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bikeIds'])));
+      allow delete: if signedIn() && resource.data.ownerId == me();
+
+      match /members/{uid} {
+        allow read: if signedIn() && (groupDoc(gid).data.ownerId == me() || isGroupMember(gid));
+        allow create: if signedIn() && uid == me() && request.resource.data.uid == me()
+          && (groupDoc(gid).data.ownerId == me()
+              || request.resource.data.code == groupDoc(gid).data.inviteCode);
+        allow delete: if signedIn() && (uid == me() || groupDoc(gid).data.ownerId == me());
+      }
+    }
+
+    // Lets a person find the groups they belong to.
+    match /{path=**}/members/{uid} {
+      allow read: if signedIn() && resource.data.uid == me();
+    }
+
+    match /bikes/{bikeId} {
+      allow read: if signedIn() && canAccess(resource.data);
+      allow create: if signedIn() && request.resource.data.ownerId == me()
+        && validGroups(request.resource.data);
+      allow update: if signedIn() && resource.data.ownerId == me()
+        && request.resource.data.ownerId == me() && validGroups(request.resource.data);
+      allow delete: if signedIn() && resource.data.ownerId == me();
+
+      match /entries/{eid} {
+        function bike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
+        allow read: if signedIn() && canAccess(bike());
+        allow create: if signedIn() && canAccess(bike()) && request.resource.data.addedBy == me();
+        allow update: if signedIn() && canAccess(bike())
+          && request.resource.data.addedBy == resource.data.addedBy;
+        allow delete: if signedIn() && (bike().ownerId == me() || resource.data.addedBy == me());
+      }
+    }
+  }
+}
