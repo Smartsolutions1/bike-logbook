@@ -297,9 +297,25 @@
     "e.g. Clutch cable adjusted, new fuel pipe": "مثلاً کلچ کی تار سیٹ کی، نیا فیول پائپ",
     "e.g. Abu's Pridor": "مثلاً ابو کی پرائیڈر",
     "e.g. Shell Advance 20W-50, 1 L": "مثلاً Shell Advance 20W-50، 1 لیٹر",
+    "+ Add another part": "+ ایک اور پرزہ شامل کریں",
+    "Part price": "پرزے کی قیمت",
+    "Mechanic / labour cost": "مستری / مزدوری کا خرچ",
+    "Mechanic / labour": "مستری / مزدوری",
+    "Remove": "ہٹائیں",
+    "Remove this part": "یہ پرزہ ہٹائیں",
+    "Total cost fills in from the part prices and labour.": "کل خرچ پرزوں کی قیمت اور مزدوری سے خود بن جاتا ہے۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
+
+  // Part names inside longer text (e.g. "Chain + Sprocket set", "Chain Rs 3,000")
+  const PART_UR = {
+    "Front brake shoes/pads": "اگلے بریک شو / پیڈ", "Rear brake shoes": "پچھلے بریک شو", "Sprocket set": "اسپراکٹ سیٹ",
+    "Front tyre": "اگلا ٹائر", "Rear tyre": "پچھلا ٹائر", "Clutch plates": "کلچ پلیٹس", "Battery pack": "بیٹری پیک",
+    "Drive belt": "ڈرائیو بیلٹ", "Motor bearings": "موٹر کے بیئرنگ", "Other part": "کوئی اور پرزہ",
+    "Controller": "کنٹرولر", "Charger": "چارجر", "Throttle": "ریس (تھروٹل)", "Battery": "بیٹری", "Chain": "چین"
+  };
+  const PART_RE = new RegExp("\\b(" + Object.keys(PART_UR).map(k => k.replace(/[/]/g, "\\/")).join("|") + ")\\b", "g");
 
   // Phrases inside longer text (applied in order). $1, $2 = the numbers or names kept from the English.
   const FRAG = [
@@ -333,7 +349,13 @@
     [/Edited by you/g, "آپ نے ترمیم کی"],
     [/Edited by (.+?)(?= · |$)/g, "$1 نے ترمیم کی"],
     [/Deleted by (.+?) on /g, "$1 نے حذف کیا، "],
-    [/^(Charging|Fuel|Oil changes|Service & repairs|Tuning|Parts) · (\d+) entr(?:y|ies)$/, (m, k, n) => ({ "Charging": "چارجنگ", "Fuel": "پیٹرول", "Oil changes": "آئل چینج", "Service & repairs": "سروس اور مرمت", "Tuning": "ٹیوننگ", "Parts": "پرزے" }[k] + " · " + n + " اندراجات")],
+    [/^(Charging|Fuel|Oil changes|Service & repairs|Tuning|Parts|Mechanic \/ labour) · (\d+) entr(?:y|ies)$/, (m, k, n) => ({ "Charging": "چارجنگ", "Fuel": "پیٹرول", "Oil changes": "آئل چینج", "Service & repairs": "سروس اور مرمت", "Tuning": "ٹیوننگ", "Parts": "پرزے", "Mechanic / labour": "مستری / مزدوری" }[k] + " · " + n + " اندراجات")],
+    [/^Part (\d+)$/, "پرزہ $1"],
+    [/^Parts (\S+) ([\d,]+) \+ labour (\S+) ([\d,]+) = (\S+) ([\d,]+)$/, "پرزے $1 $2 + مزدوری $3 $4 = $5 $6"],
+    [/^Name the part you replaced \(part (\d+)\)\.$/, "جو پرزہ بدلا اس کا نام لکھیں (پرزہ $1)۔"],
+    [/\bLabour (\S+) ([\d,]+)/g, "مزدوری $1 $2"],
+    [/ \+ (\d+) more$/, " + $1 اور"],
+    [PART_RE, (m) => PART_UR[m]],
     [/(\d[\d,]*) entr(?:y|ies)/g, "$1 اندراجات"],
     [/ · shared with (.+)$/g, " · $1 کے ساتھ شیئر"],
     [/ · shared by (.+)$/g, " · $1 نے شیئر کی"],
