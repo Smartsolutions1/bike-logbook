@@ -209,6 +209,12 @@ details.settings form{margin-top:12px}
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font:600 16px var(--body);background:#fff;color:#1f2937;border:0;border-radius:999px;padding:13px 18px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.25)}
 .gbtn svg{width:20px;height:20px}
 .gate .link{color:var(--hero-muted);font-size:13.5px;text-decoration:underline}
+.installCard{display:flex;flex-direction:column;gap:6px;text-align:start;background:var(--panel);color:var(--ink);border:2px solid var(--glow);border-radius:12px;padding:12px 14px;box-shadow:0 0 14px rgba(255,176,46,.2)}
+.gate .installCard{width:100%}
+.installCard b{font-weight:700}
+.installCard ol{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.installCard .ins-auto{font-size:14px;color:var(--muted)}
+.shareRow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .gate .msg{color:var(--h-bad)}
 .toastBtn{margin-inline-start:12px;background:none;border:var(--bw) solid currentColor;color:inherit;border-radius:999px;padding:3px 12px;font:700 14px var(--body);cursor:pointer}
 .toast{display:flex;align-items:center;justify-content:space-between;gap:6px;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
@@ -322,13 +328,24 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <div class="join" id="gateJoin" hidden></div>
     <button class="gbtn" type="button" id="signInBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
     <div class="msg" id="gateMsg" role="status"></div>
+    <div class="installCard" id="gateInstall" hidden>
+      <b>Install Bike Log on your phone</b>
+      <span class="ins-auto">Tap Install to add it to your home screen like a normal app.</span>
+      <ol class="ins-steps">
+        <li class="ins-wa">Opened from WhatsApp? Tap <b>⋮</b> (top right) → <b>Open in Chrome</b> first.</li>
+        <li class="ins-android">In Chrome, tap <b>⋮</b> (top right) → <b>Install app</b> or <b>Add to Home screen</b>.</li>
+        <li class="ins-ios">On iPhone, open in Safari → tap <b>Share</b> → <b>Add to Home Screen</b>.</li>
+        <li>Open Bike Log from your home screen and sign in with Google.</li>
+      </ol>
+      <div class="actions"><button class="btn small" type="button" data-install>Install</button><button class="btn small ghost" type="button" data-install-hide>Not now</button></div>
+    </div>
     <button class="link" type="button" id="localBtn">Use without an account (this phone only)</button>
   </div>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="wrap">
   <section class="hero" aria-label="Bike status">
-  <div class="topBtns"><button class="themeBtn langBtn" type="button" id="langBtn" aria-label="Change language" data-noi18n></button><button class="themeBtn" type="button" id="themeBtn" aria-label="Change light or dark mode"></button></div>
+  <div class="topBtns"><button class="themeBtn langBtn" type="button" id="langBtn" aria-label="Change language" data-noi18n></button><button class="themeBtn" type="button" id="themeBtn" aria-label="Change light or dark mode"></button><button class="themeBtn" type="button" id="shareTopBtn" aria-label="Share this app"></button></div>
   <header class="top">
     <div class="brand">
       <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"> <g stroke-width="2.4"> <path d="M7 20.5v-4.3c0-1 .7-1.7 1.6-1.9l3.6-.8 3.4-4.6c.4-.5 1-.8 1.6-.8h12.1c.7 0 1.3.3 1.7.9l3.3 4.5 4.3.9c.9.2 1.5 1 1.5 1.9v4.2"/> <path d="M12.6 13.5h23.2"/><path d="M23.6 9v4.5"/> <path d="M17.6 20.5h12.8"/> <circle cx="14" cy="21" r="2.9"/><circle cx="34" cy="21" r="2.9"/> </g> <g stroke-width="2.2"> <circle cx="8" cy="38.5" r="3.6"/><circle cx="21" cy="38.5" r="3.6"/> <path d="M8 38.5l3.7-6.3h5.2l4.1 6.3"/><path d="M13.2 32.2l2.6 6.3h-3"/> <path d="M17 32.2l1.6-3.2h2.6"/><path d="M10.6 30.3h4.8" stroke-width="2.8"/> </g> <g stroke-width="2.2" transform="translate(2.4 0)"> <path d="M27.4 37.6v-7.2c0-2.5 2-4.4 4.5-4.4h10.6v11.6"/> <path d="M23.6 37.6l1.4-4.6h2.4"/> <path d="M23.6 37.6h20.6"/> <path d="M27.4 31.4h4.2"/> <circle cx="27.6" cy="39.8" r="2.3" fill="var(--glow)"/><circle cx="40" cy="39.8" r="2.3" fill="var(--glow)"/> </g> </g></svg></div>
@@ -364,6 +381,18 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     </div>
   </div>
   </section>
+
+  <div class="installCard" id="mainInstall" hidden>
+      <b>Install Bike Log on your phone</b>
+      <span class="ins-auto">Tap Install to add it to your home screen like a normal app.</span>
+      <ol class="ins-steps">
+        <li class="ins-wa">Opened from WhatsApp? Tap <b>⋮</b> (top right) → <b>Open in Chrome</b> first.</li>
+        <li class="ins-android">In Chrome, tap <b>⋮</b> (top right) → <b>Install app</b> or <b>Add to Home screen</b>.</li>
+        <li class="ins-ios">On iPhone, open in Safari → tap <b>Share</b> → <b>Add to Home Screen</b>.</li>
+        <li>Open Bike Log from your home screen and sign in with Google.</li>
+      </ol>
+      <div class="actions"><button class="btn small" type="button" data-install>Install</button><button class="btn small ghost" type="button" data-install-hide>Not now</button></div>
+    </div>
 
   <div class="banner" id="sampleBanner" hidden>
     <span>You're looking at <b>example entries</b>. Add your own, then remove these.</span>
@@ -571,7 +600,8 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.7" data-updated="2026-11-01T10:18:47Z">Version 3.7</p>
+  <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.8" data-updated="2026-11-01T11:23:42Z">Version 3.8</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -728,6 +758,58 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   let theme = (()=>{ try { const t = localStorage.getItem("bike-logbook-theme"); return t==="light"||t==="dark" ? t : "auto"; } catch(e){ return "auto"; } })();
   applyTheme(theme);
   paintLangBtns();
+  // ---------- share the app + install guide ----------
+  const APP_URL = "https://smartsolutions1.github.io/bike-logbook/";
+  const SHARE_ICON = SV('<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>');
+  $("#shareTopBtn").innerHTML = SHARE_ICON;
+  const SHARE_TEXT = [
+    "Bike Log: keep your bike's fuel, oil change, tuning and parts record on your phone, and see when the next oil change and tuning are due. Free.",
+    "",
+    "1. Open this link in Chrome: " + APP_URL,
+    "2. Tap ⋮ (top right) → Install app (or Add to Home screen). iPhone: open in Safari → Share → Add to Home Screen.",
+    "3. Open Bike Log and sign in with Google.",
+    "",
+    "بائیک لاگ: اپنی بائیک کے پیٹرول، آئل چینج، ٹیوننگ اور پرزوں کا ریکارڈ فون پر رکھیں، اور دیکھیں کہ اگلا آئل چینج اور ٹیوننگ کب ہے۔ مفت۔",
+    "1۔ یہ لنک کروم میں کھولیں: " + APP_URL,
+    "2۔ اوپر دائیں ⋮ دبائیں ← Install app (یا Add to Home screen)۔ آئی فون: سفاری میں کھولیں ← Share ← Add to Home Screen۔",
+    "3۔ بائیک لاگ کھولیں اور گوگل سے سائن ان کریں۔"
+  ].join("\n");
+  async function shareApp(){
+    const m = $("#shareMsg");
+    try {
+      if (navigator.share){ await navigator.share({title:"Bike Log", text: SHARE_TEXT}); m.textContent = ""; return; }
+    } catch(e){ if (e && e.name==="AbortError") return; }
+    // no share sheet (e.g. on a computer): offer WhatsApp and copy
+    window.open("https://wa.me/?text=" + encodeURIComponent(SHARE_TEXT), "_blank", "noopener");
+    try { await navigator.clipboard.writeText(SHARE_TEXT); m.textContent = "Message copied too, so you can paste it anywhere."; } catch(e){ m.textContent = ""; }
+  }
+  $("#shareBtn").addEventListener("click", shareApp);
+  $("#shareTopBtn").addEventListener("click", shareApp);
+
+  let installEvt = null;
+  const isStandalone = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPhone|iPad|iPod/i.test(ua), inWhatsApp = /WhatsApp|; wv\)/i.test(ua);
+  function paintInstall(){
+    let dismissed = false; try { dismissed = localStorage.getItem("bike-logbook-install-hide") === "1"; } catch(e){}
+    ["#gateInstall","#mainInstall"].forEach(id=>{
+      const c = $(id); if (!c) return;
+      c.hidden = isStandalone() || dismissed;
+      c.querySelector(".ins-auto").hidden = !installEvt;
+      c.querySelector(".ins-steps").hidden = !!installEvt;
+      c.querySelector("[data-install]").hidden = !installEvt;
+      c.querySelector(".ins-wa").hidden = !inWhatsApp;
+      c.querySelector(".ins-android").hidden = isIOS;
+      c.querySelector(".ins-ios").hidden = !isIOS;
+    });
+  }
+  window.addEventListener("beforeinstallprompt", ev=>{ ev.preventDefault(); installEvt = ev; paintInstall(); });
+  window.addEventListener("appinstalled", ()=>{ installEvt = null; paintInstall(); });
+  document.addEventListener("click", async ev=>{
+    if (ev.target.closest("[data-install]") && installEvt){ installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; paintInstall(); }
+    if (ev.target.closest("[data-install-hide]")){ try { localStorage.setItem("bike-logbook-install-hide","1"); } catch(e){} paintInstall(); }
+  });
+  paintInstall();
   $("#themeBtn").addEventListener("click", ()=>{
     theme = theme==="auto" ? "light" : theme==="light" ? "dark" : "auto";
     try { localStorage.setItem("bike-logbook-theme", theme); } catch(e){}
