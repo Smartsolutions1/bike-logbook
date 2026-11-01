@@ -609,7 +609,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.9" data-updated="2026-11-01T11:40:58Z">Version 3.9</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.10" data-updated="2026-11-01T11:48:21Z">Version 3.10</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1608,7 +1608,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       await store.saveDevice(devId(), {sub: JSON.stringify(sub), lang: (window.BikeI18n && BikeI18n.lang) || "en", ua: navigator.userAgent.slice(0,120), on: true});
       try { localStorage.setItem("bike-logbook-reminders","on"); } catch(e){}
       m.textContent = "Reminders turned on.";
-      try { reg.showNotification("Bike Log", {body: (window.BikeI18n && BikeI18n.lang==="ur") ? "یاد دہانیاں آن ہو گئیں۔ وقت آنے پر آپ کو یہاں اطلاع ملے گی۔" : "Reminders are on. You'll get notifications like this when something is due.", icon: "icons/icon-192.png", tag: "bike-log-welcome"}); } catch(e){}
+      try { reg.showNotification("Bike Log", {body: (window.BikeI18n && BikeI18n.lang==="ur") ? "یاد دہانیاں آن ہو گئیں۔ وقت آنے پر آپ کو یہاں اطلاع ملے گی۔\n\nReminders are on. You'll get notifications like this when something is due." : "Reminders are on. You'll get notifications like this when something is due.\n\nیاد دہانیاں آن ہو گئیں۔ وقت آنے پر آپ کو یہاں اطلاع ملے گی۔", icon: "icons/icon-192.png", tag: "bike-log-welcome"}); } catch(e){}
     } catch(err){ m.className="msg err"; m.textContent = navigator.onLine ? "Couldn't turn on reminders. Please try again." : "You're offline. Turning on reminders needs internet."; }
     renderReminders();
   }
