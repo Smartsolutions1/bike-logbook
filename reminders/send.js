@@ -63,7 +63,7 @@ async function main() {
       for (const ph of phones) {
         // Every reminder carries both languages: the phone's chosen language first, the other underneath.
         const a = result[ph.lang], b = result[ph.lang === "ur" ? "en" : "ur"];
-        const m = { title: `${a.title} · ${b.title}`, body: `${a.body}\n\n${b.body}` };
+        const m = { title: a.title, body: `${a.body}\n\n${b.title}\n${b.body}` };   // title in the phone's language only; other language kept separate below
         const payload = JSON.stringify({ title: m.title, body: m.body, lang: ph.lang, tag: `bike-${bikeId}`, url: `${APP_URL}?bike=${encodeURIComponent(bikeId)}` });
         if (DRY) { console.log(`[dry-run] ${uid.slice(0, 6)}… ${ph.lang}: ${m.title} | ${m.body}`); continue; }
         try { await webpush.sendNotification(ph.sub, payload, { TTL: 12 * 3600 }); sent++; }

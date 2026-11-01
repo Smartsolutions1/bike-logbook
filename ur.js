@@ -300,6 +300,8 @@
     "+ Add another part": "+ ایک اور پرزہ شامل کریں",
     "Phone reminders": "فون پر یاد دہانیاں",
     "Turn on reminders": "یاد دہانیاں آن کریں",
+    "Get a reminder when your next oil change or tuning is due?": "اگلا آئل چینج یا ٹیوننگ آنے پر یاد دہانی چاہیے؟",
+    "Bike Log can send a notification to this phone when it's time, with the last reading, date and shop.": "وقت آنے پر Bike Log اس فون پر اطلاع بھیج سکتا ہے، پچھلی ریڈنگ، تاریخ اور دکان کے ساتھ۔",
     "Turn off reminders": "یاد دہانیاں بند کریں",
     "Get a notification on this phone when an oil change, tuning or check-up is coming up, and a reminder to update your odometer reading.": "جب آئل چینج، ٹیوننگ یا چیک اپ کا وقت قریب ہو تو اس فون پر اطلاع پائیں، اور میٹر ریڈنگ اپ ڈیٹ کرنے کی یاد دہانی بھی۔",
     "Reminders are on for this phone. You'll get a notification when an oil change, tuning or check-up is coming up, and a nudge to update your odometer if you haven't for a while.": "اس فون پر یاد دہانیاں آن ہیں۔ آئل چینج، ٹیوننگ یا چیک اپ قریب ہونے پر اطلاع ملے گی، اور کافی دن ریڈنگ نہ لکھنے پر یاد دہانی بھی۔",

@@ -478,6 +478,11 @@ input,select,textarea{font-size:16px;padding:10px 12px}
           <button class="btn ghost" type="button" id="cancelEdit" hidden>Cancel edit</button>
         </div>
         <div class="msg" id="formMsg" role="status"></div>
+        <div class="installCard" id="remAsk" hidden>
+          <b>Get a reminder when your next oil change or tuning is due?</b>
+          <span class="ins-auto">Bike Log can send a notification to this phone when it's time, with the last reading, date and shop.</span>
+          <div class="actions"><button class="btn small" type="button" id="remAskOn">Turn on reminders</button><button class="btn small ghost" type="button" id="remAskLater">Not now</button></div>
+        </div>
       </form>
     </section>
 
@@ -609,7 +614,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.10" data-updated="2026-11-01T11:48:21Z">Version 3.10</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.11" data-updated="2026-11-01T12:01:46Z">Version 3.11</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1452,7 +1457,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
         e.editedByName = myName(); e.editedAt = new Date().toISOString();
       }
     }
-    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : multi ? "Visit saved." : `${KINDS[kind]} saved.`; resetForm(); }
+    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : multi ? "Visit saved." : `${KINDS[kind]} saved.`; resetForm(); if (!wasEdit) maybeAskReminders(); }
     catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
   });
 
@@ -1597,8 +1602,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     btn.textContent = on ? "Turn off reminders" : "Turn on reminders";
     btn.className = on ? "btn ghost" : "btn";
   }
-  async function enableReminders(){
-    const m = $("#remMsg"); m.className = "msg";
+  async function enableReminders(m){
+    m = m || $("#remMsg"); m.className = "msg";
     try {
       const perm = await Notification.requestPermission();
       if (perm!=="granted"){ m.className="msg err"; m.textContent = "Reminders need permission to show notifications. Tap Allow when your phone asks."; renderReminders(); return; }
@@ -1624,6 +1629,18 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     renderReminders();
   }
   $("#remBtn").addEventListener("click", ()=>{ if (remOn() && Notification.permission==="granted") disableReminders(); else enableReminders(); });
+  // Smart banner: after someone saves an entry, offer reminders. "Not now" hides it for 7 days, then it can come back.
+  const REMASK_KEY = "bike-logbook-remask-until";
+  function maybeAskReminders(){
+    const box = $("#remAsk"); box.hidden = true;
+    if (!isCloud() || !pushOK() || Notification.permission==="denied") return;
+    if (remOn() && Notification.permission==="granted") return;
+    let until = 0; try { until = +localStorage.getItem(REMASK_KEY) || 0; } catch(e){}
+    if (Date.now() < until) return;
+    box.hidden = false;
+  }
+  $("#remAskOn").addEventListener("click", async ()=>{ $("#remAsk").hidden = true; await enableReminders($("#formMsg")); });
+  $("#remAskLater").addEventListener("click", ()=>{ $("#remAsk").hidden = true; try { localStorage.setItem(REMASK_KEY, String(Date.now() + 7*864e5)); } catch(e){} });
   // keep the reminder language in step with the app language
   document.addEventListener("bike-lang", ()=>{ if (isCloud() && remOn() && pushOK() && Notification.permission==="granted") store.saveDevice(devId(), {lang: BikeI18n.lang}).catch(()=>{}); });
 
