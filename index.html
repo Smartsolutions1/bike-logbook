@@ -250,6 +250,12 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 [dir="rtl"] .panel h2{line-height:1.6}
 [dir="rtl"] .tabs button,[dir="rtl"] .filters button{line-height:1.8}
 .langBtn b{font-weight:700}
+/* Workshop visit: several jobs in one entry */
+.sect-h{font:700 14px var(--body);color:var(--k,var(--ink));border-top:var(--bw) solid var(--line);padding-top:10px;margin-top:2px;text-transform:uppercase;letter-spacing:.08em}
+.sect-h[data-kinds="oil"]{--k:var(--oil)} .sect-h[data-kinds="tune"]{--k:var(--tune)} .sect-h[data-kinds="service"]{--k:var(--service)} .sect-h[data-kinds="part"]{--k:var(--part)}
+.also{background:var(--soft);border-radius:10px;padding:10px 12px}
+.also .chips label{background:var(--panel)}
+.also .chips label:has(input:checked){border-color:var(--ink);font-weight:600}
 /* Parts entry: one card per part */
 .partRows{display:flex;flex-direction:column;gap:10px}
 .prt{border:var(--bw) solid var(--line);border-radius:10px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
@@ -393,16 +399,16 @@ input,select,textarea{font-size:16px;padding:10px 12px}
           <div class="field"><label for="fWhere">Charged at</label><select id="fWhere"><option value="home">Home</option><option value="station">Charging station</option></select></div>
           <div class="field" style="justify-content:flex-end"><span class="by" id="chargeHint">Note the % when you plug in, and the % when you unplug.</span></div>
         </div>
-        <div class="field" data-kinds="oil"><label for="fOil">Oil brand and grade</label><input id="fOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
-        <div class="field" data-kinds="service"><label for="fWork">Work done</label><input id="fWork" type="text" placeholder="e.g. Brake shoes replaced, chain tightened"></div>
-        <div class="field" data-kinds="part" style="gap:10px">
-          <div class="partRows" id="partRows"></div>
-          <button class="btn small ghost" type="button" id="addPartBtn" style="align-self:flex-start">+ Add another part</button>
+        <div class="field also" id="alsoWrap" hidden>
+          <span class="label" style="text-transform:none;letter-spacing:0;font-size:14px;font-weight:600">Also done on this visit</span>
+          <div class="chips" id="alsoChips"></div>
         </div>
-        <div class="row" data-kinds="part">
-          <div class="field"><label for="fLabour">Mechanic / labour cost</label><input id="fLabour" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
-          <div class="field" style="justify-content:flex-end"><span class="by" id="partSum"></span></div>
+        <div class="sect-h combo" data-kinds="oil">Oil change</div>
+        <div class="row" data-kinds="oil">
+          <div class="field"><label for="fOil">Oil brand and grade</label><input id="fOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+          <div class="field combo"><label for="fOilCost">Oil cost</label><input id="fOilCost" class="ccost" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
         </div>
+        <div class="sect-h combo" data-kinds="tune">Tuning</div>
         <div class="field" data-kinds="tune"><span class="label" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:500">What was done</span>
           <div class="chips" id="tuneChips">
             <label><input type="checkbox" value="Carburetor cleaned"> Carburetor</label>
@@ -415,8 +421,25 @@ input,select,textarea{font-size:16px;padding:10px 12px}
           </div>
           <div class="field" id="tuneOtherWrap" hidden><label for="fTuneOther">What else was done? Separate items with commas</label><input id="fTuneOther" type="text" placeholder="e.g. Clutch cable adjusted, new fuel pipe"></div>
         </div>
+        <div class="row combo" data-kinds="tune">
+          <div class="field"><label for="fTuneCost">Tuning cost</label><input id="fTuneCost" class="ccost" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        </div>
+        <div class="sect-h combo" data-kinds="service" id="svcHead">Repairs</div>
+        <div class="row" data-kinds="service">
+          <div class="field"><label for="fWork">Work done</label><input id="fWork" type="text" placeholder="e.g. Puncture fixed, brakes adjusted"></div>
+          <div class="field combo"><label for="fSvcCost" id="fSvcCostLabel">Repairs cost</label><input id="fSvcCost" class="ccost" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        </div>
+        <div class="sect-h combo" data-kinds="part">Parts</div>
+        <div class="field" data-kinds="part" style="gap:10px">
+          <div class="partRows" id="partRows"></div>
+          <button class="btn small ghost" type="button" id="addPartBtn" style="align-self:flex-start">+ Add another part</button>
+        </div>
+        <div class="row" data-kinds="labour">
+          <div class="field"><label for="fLabour">Mechanic / labour cost</label><input id="fLabour" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+          <div class="field" style="justify-content:flex-end"><span class="by" id="partSum"></span></div>
+        </div>
         <div class="row">
-          <div class="field" data-kinds="service tune part"><label for="fShop">Workshop / mechanic</label><input id="fShop" type="text" placeholder="optional"></div>
+          <div class="field" data-kinds="service tune part oil"><label for="fShop">Workshop / mechanic</label><input id="fShop" type="text" placeholder="optional"></div>
           <div class="field"><label for="fCost">Total cost</label><input id="fCost" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
         </div>
         <div class="field"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Anything to remember next time"></textarea></div>
@@ -548,7 +571,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.6" data-updated="2026-11-01T10:03:47Z">Version 3.6</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.7" data-updated="2026-11-01T10:18:47Z">Version 3.7</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -732,7 +755,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     toastTimer=setTimeout(()=>{ el.hidden=true; }, actionLabel ? 8000 : 4500);
   }
   const myName = () => (me && me.name) ? me.name : "you";
-  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes","pctBefore","pctAfter","where","parts","labour"];
+  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes","pctBefore","pctAfter","where","parts","labour","kinds","costs"];
   function snapshotOf(e){ const d={}; ENTRY_FIELDS.forEach(k=>{ if (e[k]!==undefined && e[k]!==null) d[k]=e[k]; }); return d; }
   function withoutDeleted(e){ const c={...e}; ["deleted","deletedAt","deletedBy","deletedByName"].forEach(k=>delete c[k]); return c; }
   const isCloud = () => !!(store && store.mode==="cloud");
@@ -821,6 +844,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     document.querySelectorAll("#filters button").forEach(b=>{ const f=b.dataset.f; if (f!=="all" && f!=="deleted") b.hidden = !allowed.includes(f); });
     if (filter!=="all" && filter!=="deleted" && !allowed.includes(filter)){ filter="all"; document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x.dataset.f==="all"))); }
     syncPart();
+    KINDS.service = ev ? "Service" : "Repairs";
+    const svcTab = document.querySelector('#tabs button[data-kind="service"]'); if (svcTab) svcTab.textContent = KINDS.service;
+    const svcFlt = document.querySelector('#filters button[data-f="service"]'); if (svcFlt) svcFlt.textContent = KINDS.service;
+    $("#svcHead").textContent = KINDS.service; $("#fSvcCostLabel").textContent = `${KINDS.service} cost`;
     $("#g1Label").textContent = ev ? "Next check-up" : "Next oil change";
     $("#g2Label").textContent = ev ? "Battery health" : "Next tuning";
     $("#g3Label").textContent = ev ? "Range per full charge" : "Fuel average";
@@ -841,7 +868,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 
     if (isEV()){
       // Check-up countdown
-      const lastSvc = entries.filter(e=>e.kind==="service").sort(byOdo).pop();
+      const lastSvc = entries.filter(e=>has(e,"service")).sort(byOdo).pop();
       setGauge("oil", lastSvc, settings.serviceKm||2500, settings.serviceMonths||3, odo, "Log a service to start the countdown");
       // Battery health and range
       const st = evStats();
@@ -861,10 +888,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       } else { $("#avgBig").textContent = "—"; $("#avgNote").textContent = "Needs two charges with battery %"; }
     } else {
     // Oil
-    const lastOil = entries.filter(e=>e.kind==="oil").sort(byOdo).pop();
+    const lastOil = entries.filter(e=>has(e,"oil")).sort(byOdo).pop();
     setGauge("oil", lastOil, settings.oilKm, null, odo, "Log an oil change to start the countdown");
     // Tune
-    const lastTune = entries.filter(e=>e.kind==="tune").sort(byOdo).pop();
+    const lastTune = entries.filter(e=>has(e,"tune")).sort(byOdo).pop();
     setGauge("tune", lastTune, settings.tuneKm, settings.tuneMonths, odo, "Log a tuning to start the countdown");
 
     // Fuel
@@ -911,6 +938,31 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     note.textContent = `Last done at ${fmt(last.odo)} km · due ${dueBy}` + (daysLeft!==null && !overdue ? ` (${daysLeft} days)` : "");
   }
 
+  // An entry can cover several jobs from one workshop visit (e.g. oil change + tuning + parts)
+  const VISIT_KINDS = ["oil","tune","service","part"];
+  const kindsOf = e => (Array.isArray(e.kinds) && e.kinds.length) ? e.kinds : [e.kind];
+  const has = (e, k) => e.kind===k || (Array.isArray(e.kinds) && e.kinds.includes(k));
+  function entryTitle(e){
+    const ks = kindsOf(e);
+    if (ks.length<2) return e.kind==="part" ? partLabel(e) : KINDS[e.kind];
+    return ks.map(k=> k==="part" ? partLabel(e) : KINDS[k]).join(" + ");
+  }
+  // How an entry's money splits across fuel, oil, tuning, repairs, parts and labour
+  function costSplit(e){
+    const out = {}, add = (k,v)=>{ if (v>0) out[k] = (out[k]||0) + v; };
+    const total = e.cost||0, ks = kindsOf(e);
+    if (ks.length<2 && e.kind!=="part"){ add(e.kind, total); return out; }
+    const c = e.costs || {};
+    if (ks.includes("oil")) add("oil", +c.oil||0);
+    if (ks.includes("tune")) add("tune", +c.tune||0);
+    if (ks.includes("service")) add("service", +c.service||0);
+    if (ks.includes("part")) add("part", partsOf(e).reduce((a,x)=>a+(+x.price||0),0));
+    add("labour", Math.min(e.labour||0, total));
+    const known = Object.values(out).reduce((a,b)=>a+b,0);
+    if (known > total && total>0){ const f = total/known; Object.keys(out).forEach(k=>out[k]=out[k]*f); }   // older part entries had no price split
+    else if (total > known) add(e.kind, total-known);
+    return out;
+  }
   // A parts entry holds a list of parts (newer entries) or a single part (older entries)
   function partsOf(e){
     if (Array.isArray(e.parts) && e.parts.length) return e.parts;
@@ -925,7 +977,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
   function renderParts(odo){
     const latest = {};
-    entries.filter(e=>e.kind==="part").forEach(en=>{
+    entries.filter(e=>has(e,"part")).forEach(en=>{
       partsOf(en).forEach((it, idx)=>{
         const k = it.part==="other" ? "other:"+(it.partName||"").trim().toLowerCase() : it.part;
         const cand = {...it, id: en.id, idx, date: en.date, odo: en.odo, sample: en.sample};
@@ -1000,10 +1052,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       }
     }
     out.forEach(bk=>{ KORDER.forEach(k=>{ bk[k]=0; bk["n_"+k]=0; }); });
-    entries.forEach(e=>{ const bk = out.find(x=>e.date>=x.from && e.date<=x.to); if (!bk || !(e.kind in bk)) return;
-      const lab = e.kind==="part" ? Math.min(e.labour||0, e.cost||0) : 0;
-      bk[e.kind] += (e.cost||0) - lab; bk["n_"+e.kind]++;
-      if (lab){ bk.labour += lab; bk.n_labour++; } });
+    entries.forEach(e=>{ const bk = out.find(x=>e.date>=x.from && e.date<=x.to); if (!bk) return;
+      const split = costSplit(e);
+      Object.keys(split).forEach(k=>{ if (k in bk) bk[k] += split[k]; });
+      new Set([...kindsOf(e), ...(split.labour ? ["labour"] : [])]).forEach(k=>{ if (("n_"+k) in bk) bk["n_"+k]++; }); });
     out.forEach(bk=>{ bk.total = KORDER.reduce((s,k)=>s+bk[k],0); });
     const label = p==="custom" ? `${dShort(from)} ${from.getFullYear()} – ${dShort(to)} ${to.getFullYear()}` : $("#spendPeriod").selectedOptions[0].textContent;
     return {buckets: out, label};
@@ -1046,26 +1098,27 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const p = e.liters ? (e.cost/e.liters) : 0;
       return `${e.liters} L${p?` · ${settings.currency} ${p.toFixed(0)}/L`:""}${e.full?" · full tank":" · partial"}`;
     }
-    if (e.kind==="oil") return [e.oil, e.filter?"filter changed":""].filter(Boolean).join(" · ");
     if (e.kind==="charge"){
       const kwh = +settings.batteryKwh || 0, added = (e.pctAfter||0) - (e.pctBefore||0);
       return [`${e.pctBefore??"?"}% → ${e.pctAfter??"?"}%`, e.where==="station" ? "charging station" : "home", (kwh && added>0) ? `≈ ${(added/100*kwh).toFixed(2)} units` : ""].filter(Boolean).join(" · ");
     }
-    if (e.kind==="service") return [e.work, e.shop].filter(Boolean).join(" · ");
-    if (e.kind==="tune") return [(e.items||[]).join(", "), e.shop].filter(Boolean).join(" · ");
-    if (e.kind==="part"){
-      const ps = partsOf(e), bits = [];
+    const ks = kindsOf(e), multi = ks.length>1, c = e.costs || {}, cur = settings.currency, bits = [];
+    const priced = (label, txt, amt) => [multi ? label : "", txt, (multi && amt) ? `${cur} ${fmt(amt)}` : ""].filter(Boolean).join(" ");
+    if (ks.includes("oil")){ const t = priced("Oil change:", [e.oil, e.filter?"filter changed":""].filter(Boolean).join(", "), +c.oil||0); if (t) bits.push(t); }
+    if (ks.includes("tune")){ const t = priced("Tuning:", (e.items||[]).join(", "), +c.tune||0); if (t) bits.push(t); }
+    if (ks.includes("service")){ const t = priced(KINDS.service+":", e.work||"", +c.service||0); if (t) bits.push(t); }
+    if (ks.includes("part")){
+      const ps = partsOf(e);
       ps.forEach(it=>{
-        const nm = ps.length>1 ? itemLabel(it) : "";
-        const pr = it.price ? `${settings.currency} ${fmt(it.price)}` : "";
+        const nm = (ps.length>1 || multi) ? itemLabel(it) : "";
+        const pr = it.price ? `${cur} ${fmt(it.price)}` : "";
         const txt = [nm, it.brand, pr].filter(Boolean).join(" ");
         if (txt) bits.push(txt);
       });
-      if (e.labour) bits.push(`Labour ${settings.currency} ${fmt(e.labour)}`);
-      if (e.shop) bits.push(e.shop);
-      return bits.join(" · ");
     }
-    return "";
+    if (e.labour) bits.push(`Labour ${cur} ${fmt(e.labour)}`);
+    if (e.shop) bits.push(e.shop);
+    return bits.join(" · ");
   }
 
   function renderTrash(){
@@ -1077,7 +1130,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const when = e.deletedAt ? new Date(e.deletedAt) : null;
       return `<div class="item" data-k="${e.kind}" style="opacity:.92">
         <div class="ico">${ICONS[e.kind]}</div>
-        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>
+        <div class="what"><div class="t">${esc(entryTitle(e))}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>
           <div class="by">Deleted by ${esc(e.deletedByName||"someone")}${when?` on ${when.getDate()} ${MON[when.getMonth()]}, ${when.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"})}`:""}</div></div>
         <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-restore="${e.id}" type="button">Restore</button>${canForever?` · <button class="link del" data-forever="${e.id}" type="button">Delete forever</button>`:""}</span></div>
       </div>`;
@@ -1086,7 +1139,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function renderList(){
     $("#trashBtn").textContent = trash.length ? `Deleted (${trash.length})` : "Deleted";
     if (filter==="deleted"){ renderTrash(); return; }
-    const rows = entries.filter(e=>filter==="all"||e.kind===filter).sort(byNewest);
+    const rows = entries.filter(e=>filter==="all"||has(e,filter)).sort(byNewest);
     if (!entries.length){
       $("#list").innerHTML = `<div class="empty"><b>No entries yet</b><span>${isEV() ? "Log your first charge on the left. Your odometer, range and reminders fill in as you go." : "Add your first fill-up or oil change on the left. Your odometer, reminders and fuel average fill in as you go."}</span></div>`; return;
     }
@@ -1101,21 +1154,42 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       const by = (showBy || edited) ? `<div class="by">${showBy?`Added by ${e.addedBy===me.uid?"you":esc(e.addedByName||"family member")}`:""}${edited}</div>` : "";
       return `<div class="item" data-k="${e.kind}">
         <div class="ico">${ICONS[e.kind]}</div>
-        <div class="what"><div class="t">${e.kind==="part"?esc(partLabel(e)):KINDS[e.kind]}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}${by}</div>
+        <div class="what"><div class="t">${esc(entryTitle(e))}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}${by}</div>
         <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button>${canDel?` · <button class="link del" data-del="${e.id}" type="button">Delete</button>`:""}</span></div>
       </div>`;
     }).join("");
   }
 
   // ---------- form ----------
-  function setKind(k){
-    kind = k;
-    document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.kind===k)));
-    document.querySelectorAll("#entryForm [data-kinds]").forEach(el=>{ el.style.display = el.dataset.kinds.split(" ").includes(k) ? (el.classList.contains("row")?"grid":"flex") : "none"; });
-    syncPart(); if (k==="part") sumParts();
-    $("#saveBtn").dataset.k = k;
-    $("#saveBtn").textContent = editingId ? "Save changes" : `Save ${KINDS[k].toLowerCase()}`;
+  let also = new Set();      // extra jobs done on the same visit as the selected tab
+  const visitKinds = () => [kind, ...VISIT_KINDS.filter(k=>k!==kind && also.has(k))];
+  function renderAlso(){
+    const allowed = TYPE_KINDS[isEV() ? "electric" : "petrol"].filter(k=>VISIT_KINDS.includes(k) && k!==kind);
+    $("#alsoWrap").hidden = !VISIT_KINDS.includes(kind) || !allowed.length;
+    $("#alsoChips").innerHTML = allowed.map(k=>`<label><input type="checkbox" value="${k}"${also.has(k)?" checked":""}> ${KINDS[k]==="Part"?"Parts":KINDS[k]}</label>`).join("");
   }
+  function applyVisibility(){
+    const vk = visitKinds(), multi = vk.length>1;
+    const showLabour = vk.includes("part") || multi;
+    document.querySelectorAll("#entryForm [data-kinds]").forEach(el=>{
+      const list = el.dataset.kinds.split(" ");
+      let on = list.some(x=>vk.includes(x)) || (list.includes("labour") && showLabour);
+      if (el.classList.contains("combo") && !multi) on = false;
+      el.style.display = on ? (el.classList.contains("row")?"grid":"flex") : "none";
+    });
+    document.querySelectorAll("#entryForm .field.combo").forEach(el=>{ el.style.display = multi ? "flex" : "none"; });
+    $("#saveBtn").dataset.k = kind;
+    $("#saveBtn").textContent = editingId ? "Save changes" : multi ? "Save visit" : `Save ${KINDS[kind].toLowerCase()}`;
+    sumParts();
+  }
+  function setKind(k, keepAlso){
+    kind = k;
+    if (!keepAlso) also = new Set();
+    also.delete(k);
+    document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.kind===k)));
+    syncPart(); renderAlso(); applyVisibility();
+  }
+  $("#alsoChips").addEventListener("change", ev=>{ const c = ev.target.closest("input"); if (!c) return; if (c.checked) also.add(c.value); else also.delete(c.value); applyVisibility(); });
   // ---------- parts rows ----------
   let partSeq = 0;
   const partOptions = () => PARTS.filter(p=>p.for.includes(isEV()?"e":"p")).map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
@@ -1159,12 +1233,21 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     rows.forEach((r,i)=>{ r.querySelector(".prt-t").textContent = rows.length>1 ? `Part ${i+1}` : "Part"; r.querySelector(".prt-x").hidden = rows.length<2; });
   }
   function sumParts(){
-    if (kind!=="part") return;
-    const prices = [...document.querySelectorAll("#partRows .pc")].map(x=>+x.value||0);
-    const labour = +$("#fLabour").value||0, parts = prices.reduce((a,b)=>a+b,0);
-    if (parts || labour) $("#fCost").value = Math.round(parts+labour);
-    $("#partSum").textContent = (parts || labour) ? `Parts ${settings.currency} ${fmt(parts)} + labour ${settings.currency} ${fmt(labour)} = ${settings.currency} ${fmt(parts+labour)}` : "Total cost fills in from the part prices and labour.";
+    const vk = visitKinds(), multi = vk.length>1;
+    if (!vk.includes("part") && !multi) return;
+    const cur = settings.currency, pieces = [];
+    const add = (label, v) => { if (v) pieces.push([label, v]); };
+    if (multi && vk.includes("oil")) add("Oil change", +$("#fOilCost").value||0);
+    if (multi && vk.includes("tune")) add("Tuning", +$("#fTuneCost").value||0);
+    if (multi && vk.includes("service")) add(KINDS.service, +$("#fSvcCost").value||0);
+    if (vk.includes("part")) add("Parts", [...document.querySelectorAll("#partRows .pc")].map(x=>+x.value||0).reduce((a,b)=>a+b,0));
+    add("Labour", +$("#fLabour").value||0);
+    const total = pieces.reduce((a,p)=>a+p[1],0);
+    if (total) $("#fCost").value = Math.round(total);
+    $("#partSum").textContent = total ? pieces.map(([l,v])=>`${l} ${cur} ${fmt(v)}`).join(" + ") + ` = ${cur} ${fmt(total)}`
+      : (multi ? "Total cost fills in from each job's cost and labour." : "Total cost fills in from the part prices and labour.");
   }
+  document.querySelectorAll("#entryForm .ccost").forEach(x=>x.addEventListener("input", sumParts));
   function resetPartRows(list){
     $("#partRows").innerHTML = ""; partSeq = 0;
     (list && list.length ? list : [{}]).forEach(it=>addPartRow(it));
@@ -1195,13 +1278,16 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#fOil").value=e.oil||""; $("#fWork").value=e.work||""; $("#fShop").value=e.shop||"";
     $("#fPctB").value = e.pctBefore ?? ""; $("#fPctA").value = e.pctAfter ?? ""; $("#fWhere").value = e.where || "home";
     $("#fLabour").value = e.labour || "";
-    if (e.kind==="part"){ const ps = partsOf(e); resetPartRows(ps.length===1 && !ps[0].price && !e.labour ? [{...ps[0], price: e.cost||""}] : ps); } else resetPartRows();
+    const cc = e.costs || {}; $("#fOilCost").value = cc.oil || ""; $("#fTuneCost").value = cc.tune || ""; $("#fSvcCost").value = cc.service || "";
+    if (has(e,"part")){ const ps = partsOf(e); resetPartRows(ps.length===1 && !ps[0].price && !e.labour ? [{...ps[0], price: e.cost||""}] : ps); } else resetPartRows();
     const chipVals = [...document.querySelectorAll("#tuneChips input")].map(c=>c.value).filter(Boolean);
     if (Array.isArray(e.items)) e = {...e, items: e.items.map(x=>x==="Valve clearance" ? "Tappets set" : x)};
     document.querySelectorAll("#tuneChips input").forEach(c=>c.checked=!!c.value && (e.items||[]).includes(c.value));
     const extra = (e.items||[]).filter(x=>!chipVals.includes(x));
     $("#fTuneOtherChk").checked = extra.length>0; $("#fTuneOther").value = extra.join(", "); $("#tuneOtherWrap").hidden = !extra.length;
-    $("#cancelEdit").hidden=false; $("#formTitle").textContent = "Edit entry"; setKind(kind);
+    also = new Set(kindsOf(e).filter(k=>k!==e.kind));
+    $("#cancelEdit").hidden=false; $("#formTitle").textContent = "Edit entry"; setKind(kind, true);
+    $("#fCost").value = e.cost || "";
     $("#formMsg").textContent=""; $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
   }
 
@@ -1219,16 +1305,18 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const e = {id: editingId || uid(), kind, date, odo, cost: parseFloat($("#fCost").value)||0, notes: $("#fNotes").value.trim()};
     if (kind==="fuel"){ e.liters = parseFloat($("#fLiters").value)||0; e.full = $("#fFull").checked;
       if (!(e.liters>0)){ msg.className="msg err"; msg.textContent="Enter how many litres you filled."; return; } }
-    if (kind==="oil"){ e.oil=$("#fOil").value.trim(); }
+    const vk = VISIT_KINDS.includes(kind) ? visitKinds() : [kind], multi = vk.length>1;
+    if (multi){ e.kinds = vk; e.costs = {}; }
+    if (vk.includes("oil")){ e.oil=$("#fOil").value.trim(); e.shop=$("#fShop").value.trim(); if (multi) e.costs.oil = Math.max(0, +$("#fOilCost").value||0); }
     if (kind==="charge"){
       const b = $("#fPctB").value, a = $("#fPctA").value;
       e.pctBefore = b==="" ? null : Math.round(+b); e.pctAfter = a==="" ? 100 : Math.round(+a); e.where = $("#fWhere").value;
       if (e.pctBefore===null){ msg.className="msg err"; msg.textContent="Enter the battery % before charging (what it showed when you plugged in)."; return; }
       if (e.pctBefore<0 || e.pctAfter>100 || e.pctAfter<=e.pctBefore){ msg.className="msg err"; msg.textContent="Battery % after charging should be higher than before, and no more than 100."; return; }
     }
-    if (kind==="service"){ e.work=$("#fWork").value.trim(); e.shop=$("#fShop").value.trim();
-      if (!e.work){ msg.className="msg err"; msg.textContent="Describe the work done."; return; } }
-    if (kind==="part"){
+    if (vk.includes("service")){ e.work=$("#fWork").value.trim(); e.shop=$("#fShop").value.trim(); if (multi) e.costs.service = Math.max(0, +$("#fSvcCost").value||0);
+      if (!e.work){ msg.className="msg err"; msg.textContent="Describe the work done."; $("#fWork").focus(); return; } }
+    if (vk.includes("part")){
       const rows = [...document.querySelectorAll("#partRows .prt")];
       e.parts = rows.map(row=>{
         const part = row.querySelector(".pp").value;
@@ -1237,15 +1325,17 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       });
       const missing = rows.findIndex((row,i)=>e.parts[i].part==="other" && !e.parts[i].partName);
       if (missing>=0){ msg.className="msg err"; msg.textContent = rows.length>1 ? `Name the part you replaced (part ${missing+1}).` : "Name the part you replaced."; rows[missing].querySelector(".pn").focus(); return; }
-      e.labour = Math.max(0, parseFloat($("#fLabour").value)||0);
       e.shop = $("#fShop").value.trim();
-      if (!$("#fCost").value) e.cost = e.parts.reduce((a,x)=>a+x.price,0) + e.labour;
       // keep the first part in the older single-part fields too, so earlier app versions still read it
       e.part = e.parts[0].part; e.partName = e.parts[0].partName; e.brand = e.parts[0].brand; e.life = e.parts[0].life;
     }
-    if (kind==="tune"){ e.items=[...document.querySelectorAll("#tuneChips input:checked")].map(c=>c.value).filter(Boolean);
+    if (vk.includes("tune")){ e.items=[...document.querySelectorAll("#tuneChips input:checked")].map(c=>c.value).filter(Boolean); if (multi) e.costs.tune = Math.max(0, +$("#fTuneCost").value||0);
       if ($("#fTuneOtherChk").checked) e.items.push(...$("#fTuneOther").value.split(",").map(x=>x.trim()).filter(Boolean));
       if ($("#fTuneOtherChk").checked && !$("#fTuneOther").value.trim()){ msg.className="msg err"; msg.textContent="Type what else was done, or untick Other."; return; } e.shop=$("#fShop").value.trim(); }
+    if (vk.includes("part") || multi){
+      e.labour = Math.max(0, parseFloat($("#fLabour").value)||0);
+      if (!$("#fCost").value) e.cost = (e.parts||[]).reduce((a,x)=>a+x.price,0) + e.labour + Object.values(e.costs||{}).reduce((a,b)=>a+b,0);
+    }
     if (!activeId && isCloud()){ msg.className="msg err"; msg.textContent="Add a bike first (in My bikes below), then log entries for it."; return; }
     const wasEdit = !!editingId;
     if (wasEdit){
@@ -1256,7 +1346,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
         e.editedByName = myName(); e.editedAt = new Date().toISOString();
       }
     }
-    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : `${KINDS[kind]} saved.`; resetForm(); }
+    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : multi ? "Visit saved." : `${KINDS[kind]} saved.`; resetForm(); }
     catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
   });
 
