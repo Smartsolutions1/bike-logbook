@@ -1,0 +1,24 @@
+name: Daily reminders
+
+on:
+  schedule:
+    - cron: "37 13 * * *"   # every day at 6:37 pm Pakistan time
+  workflow_dispatch: {}      # also runnable by hand from the Actions tab
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: reminders
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund
+      - run: node send.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}

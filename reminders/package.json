@@ -1,0 +1,7 @@
+{
+  "name": "bike-log-reminders",
+  "private": true,
+  "description": "Daily reminder job for Bike Log",
+  "scripts": { "send": "node send.js" },
+  "dependencies": { "firebase-admin": "12.7.0", "web-push": "3.6.7" }
+}

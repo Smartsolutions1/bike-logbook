@@ -263,6 +263,16 @@
       async removeMember(gid, memberUid) {
         await db.collection("groups").doc(gid).collection("members").doc(memberUid).delete();
       },
+      // ---------- phone reminders ----------
+      async saveDevice(id, data) {
+        await db.collection("users").doc(uid).collection("devices").doc(id).set({ ...data, updatedAt: now() }, { merge: true });
+      },
+      async deleteDevice(id) {
+        await db.collection("users").doc(uid).collection("devices").doc(id).delete();
+      },
+      writeStats(bikeId, stats) {
+        db.collection("bikeStats").doc(bikeId).set({ ...stats, updatedAt: now() }).catch(() => {});
+      },
       async renameGroup(gid, name) {
         await db.collection("groups").doc(gid).update({ name });
       },

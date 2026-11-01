@@ -34,6 +34,17 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if signedIn();
       allow write: if signedIn() && me() == uid;
+      // Phones where this person turned on reminders. Private to them; the daily reminder job reads them with admin access.
+      match /devices/{deviceId} {
+        allow read, write: if signedIn() && me() == uid;
+      }
+    }
+
+    // A short summary of each bike (last oil change, tuning, odometer, km per day) for the daily reminder job.
+    // Anyone who can see the bike can update it, so family members' entries count too.
+    match /bikeStats/{bikeId} {
+      function statsBike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
+      allow read, write: if signedIn() && exists(/databases/$(database)/documents/bikes/$(bikeId)) && canAccess(statsBike());
     }
 
     match /groups/{gid} {

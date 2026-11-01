@@ -272,6 +272,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .prt .field label{font-size:13px}
 .prt input,.prt select{padding:8px 10px}
 .toast{min-width:min(88vw,320px)}
+#remTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2016.5V11a6%206%200%200%201%2012%200v5.5l1.5%202h-15z%22%2F%3E%3Cpath%20d%3D%22M10%2020.5a2%202%200%200%200%204%200%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
 .label{font-size:12.5px}
@@ -571,6 +572,13 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <div class="msg" id="bikeMsg" role="status"></div>
   </section>
 
+  <section class="panel" aria-labelledby="remTitle" id="remPanel">
+    <h2 id="remTitle">Phone reminders</h2>
+    <p class="foot" style="margin:0" id="remText">Get a notification on this phone when an oil change, tuning or check-up is coming up, and a reminder to update your odometer reading.</p>
+    <div class="actions"><button class="btn" type="button" id="remBtn">Turn on reminders</button></div>
+    <div class="msg" id="remMsg" role="status"></div>
+  </section>
+
   <section class="panel" aria-labelledby="famTitle" id="familyPanel">
     <h2 id="famTitle">Family &amp; sharing</h2>
     <div id="famLocal" hidden>
@@ -601,7 +609,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
   <p class="foot" id="storeNote">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.8" data-updated="2026-11-01T11:23:42Z">Version 3.8</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.9" data-updated="2026-11-01T11:40:58Z">Version 3.9</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -997,6 +1005,16 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     renderList();
   }
 
+  // Average km per day from the readings in the last 90 days (or all, if fewer)
+  function kmPerDayOf(list, startOdo){
+    const pts = list.filter(e=>e.odo>0).map(e=>({t: parseD(e.date).getTime(), o: e.odo})).sort((a,b)=>a.t-b.t);
+    if (pts.length<2) return 0;
+    const cut = Date.now() - 90*864e5, recent = pts.filter(p=>p.t>=cut), use = recent.length>=2 ? recent : pts;
+    const days = (use[use.length-1].t - use[0].t)/864e5, km = Math.max(...use.map(p=>p.o)) - Math.min(...use.map(p=>p.o));
+    return days>=7 && km>0 ? km/days : 0;
+  }
+  const kmPerDay = () => kmPerDayOf(entries, settings.startOdo||0);
+
   function setGauge(key, last, kmInt, months, odo, emptyText){
     const big = $("#"+key+"Big"), ring = $("#"+key+"Ring"), note = $("#"+key+"Note");
     if (!last){ big.textContent="—"; ring.style.strokeDashoffset="169.6"; note.textContent = emptyText; return; }
@@ -1017,7 +1035,13 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     big.innerHTML = overdue ? `<span class="st-bad">Overdue</span>` : `${fmt(left)}<small>km left</small>`;
     ring.style.strokeDashoffset = (169.6*(1-frac)).toFixed(1);
     ring.style.stroke = `var(--h-${cls})`;
-    note.textContent = `Last done at ${fmt(last.odo)} km · due ${dueBy}` + (daysLeft!==null && !overdue ? ` (${daysLeft} days)` : "");
+    // estimate from today: km left ÷ usual km per day, minus the days since the last reading
+    const kpd = kmPerDay(), lastRead = entries.slice().sort(byOdo).pop();
+    const quiet = lastRead ? Math.max(0, Math.floor((Date.now() - parseD(lastRead.date).getTime())/864e5)) : 0;
+    const estDays = (!overdue && kpd>0) ? Math.round(left/kpd) - quiet : null;
+    note.textContent = `Last done at ${fmt(last.odo)} km · due ${dueBy}` + (daysLeft!==null && !overdue ? ` (${daysLeft} days)` : "")
+      + (estDays===null ? "" : estDays<=0 ? " · at your usual riding it may already be due, check your reading"
+         : (daysLeft===null || estDays < daysLeft) ? ` · at your usual riding, about ${estDays} days` : "");
   }
 
   // An entry can cover several jobs from one workshop visit (e.g. oil change + tuning + parts)
@@ -1554,6 +1578,81 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     await store.setActive(ev.target.value); resetForm();
   });
 
+  // ---------- phone reminders ----------
+  const VAPID_PUBLIC = "BM5NQ-LbSR3qXeSiyUgk__EBRcAOlN9tEDf8MJtO7rYXeMvi20IjYqhNmKh2gfOhWxfEZ1cooO4h92korfXwdio";
+  const pushOK = () => ("serviceWorker" in navigator) && ("PushManager" in window) && ("Notification" in window);
+  const devId = () => { let d = null; try { d = localStorage.getItem("bike-logbook-device"); if (!d){ d = "d-" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); localStorage.setItem("bike-logbook-device", d); } } catch(e){ d = "d-anon"; } return d; };
+  const remOn = () => { try { return localStorage.getItem("bike-logbook-reminders")==="on"; } catch(e){ return false; } };
+  function b64ToBytes(b){ const p = "=".repeat((4 - b.length % 4) % 4), s = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from([...s].map(c=>c.charCodeAt(0))); }
+  function renderReminders(){
+    const btn = $("#remBtn"), txt = $("#remText");
+    if (!isCloud()){ btn.hidden = true; txt.textContent = "Sign in with Google to get reminders on this phone."; return; }
+    if (!pushOK()){ btn.hidden = true; txt.textContent = "This browser can't show notifications. On Android, open Bike Log in Chrome. On iPhone, add it to the Home Screen first."; return; }
+    btn.hidden = false;
+    const blocked = Notification.permission==="denied";
+    if (blocked){ btn.hidden = true; txt.textContent = "Notifications are blocked for Bike Log. Allow them in your phone's settings (Chrome → Site settings → Notifications), then come back."; return; }
+    const on = remOn() && Notification.permission==="granted";
+    txt.textContent = on ? "Reminders are on for this phone. You'll get a notification when an oil change, tuning or check-up is coming up, and a nudge to update your odometer if you haven't for a while."
+                         : "Get a notification on this phone when an oil change, tuning or check-up is coming up, and a reminder to update your odometer reading.";
+    btn.textContent = on ? "Turn off reminders" : "Turn on reminders";
+    btn.className = on ? "btn ghost" : "btn";
+  }
+  async function enableReminders(){
+    const m = $("#remMsg"); m.className = "msg";
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm!=="granted"){ m.className="msg err"; m.textContent = "Reminders need permission to show notifications. Tap Allow when your phone asks."; renderReminders(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey: b64ToBytes(VAPID_PUBLIC)});
+      await store.saveDevice(devId(), {sub: JSON.stringify(sub), lang: (window.BikeI18n && BikeI18n.lang) || "en", ua: navigator.userAgent.slice(0,120), on: true});
+      try { localStorage.setItem("bike-logbook-reminders","on"); } catch(e){}
+      m.textContent = "Reminders turned on.";
+      try { reg.showNotification("Bike Log", {body: (window.BikeI18n && BikeI18n.lang==="ur") ? "یاد دہانیاں آن ہو گئیں۔ وقت آنے پر آپ کو یہاں اطلاع ملے گی۔" : "Reminders are on. You'll get notifications like this when something is due.", icon: "icons/icon-192.png", tag: "bike-log-welcome"}); } catch(e){}
+    } catch(err){ m.className="msg err"; m.textContent = navigator.onLine ? "Couldn't turn on reminders. Please try again." : "You're offline. Turning on reminders needs internet."; }
+    renderReminders();
+  }
+  async function disableReminders(){
+    const m = $("#remMsg"); m.className = "msg";
+    try {
+      const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+      await store.deleteDevice(devId());
+      try { localStorage.setItem("bike-logbook-reminders","off"); } catch(e){}
+      m.textContent = "Reminders turned off for this phone.";
+    } catch(err){ m.className="msg err"; m.textContent = "Couldn't turn off reminders. Check your internet and try again."; }
+    renderReminders();
+  }
+  $("#remBtn").addEventListener("click", ()=>{ if (remOn() && Notification.permission==="granted") disableReminders(); else enableReminders(); });
+  // keep the reminder language in step with the app language
+  document.addEventListener("bike-lang", ()=>{ if (isCloud() && remOn() && pushOK() && Notification.permission==="granted") store.saveDevice(devId(), {lang: BikeI18n.lang}).catch(()=>{}); });
+
+  // A small summary of each bike that the daily reminder job reads (one read per bike)
+  let statsTimer = null;
+  function syncStats(){
+    if (!isCloud() || !store.writeStats) return;
+    clearTimeout(statsTimer);
+    statsTimer = setTimeout(()=>{
+      bikes.forEach((b,i)=>{
+        const es = allEntries.filter(e=>e.bikeId===b.id && !e.sample);
+        const lastOf = k => { const x = es.filter(e=>has(e,k)).sort(byOdo).pop(); return x ? {odo:x.odo, date:x.date, shop:x.shop||""} : null; };
+        const latest = es.slice().sort(byOdo).pop();
+        const st = {
+          label: b.name && b.model ? `${b.name} (${b.model})` : bikeLabel(b,i),
+          type: b.type==="electric" ? "electric" : "petrol",
+          oilKm: b.oilKm||2000, tuneKm: b.tuneKm||3000, tuneMonths: b.tuneMonths||3,
+          serviceKm: b.serviceKm||2500, serviceMonths: b.serviceMonths||3,
+          lastOil: lastOf("oil"), lastTune: lastOf("tune"), lastService: lastOf("service"),
+          lastEntry: latest ? {odo: latest.odo, date: latest.date} : (b.startOdo ? {odo:b.startOdo, date:(b.createdAt||"").slice(0,10)} : null),
+          kmPerDay: Math.round(kmPerDayOf(es, b.startOdo||0)*10)/10
+        };
+        const key = "bike-logbook-stats-" + b.id, js = JSON.stringify(st);
+        let prev = null; try { prev = localStorage.getItem(key); } catch(e){}
+        if (prev !== js){ store.writeStats(b.id, st); try { localStorage.setItem(key, js); } catch(e){} }
+      });
+    }, 2500);
+  }
+
   // ---------- family groups ----------
   let openInvite = null;
   function renderGroups(){
@@ -1673,7 +1772,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     entries = allEntries.filter(e=>e.bikeId===activeId);
     const ab = bikes.find(b=>b.id===activeId) || {};
     settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
-    render(); renderBikes(); renderGroups();
+    render(); renderBikes(); renderGroups(); renderReminders(); syncStats();
   }
   // invite links: ?join=<group>&code=<code>&g=<name>
   (function(){
@@ -1683,6 +1782,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       try { history.replaceState(null, "", location.pathname); } catch(e){}
     }
   })();
+  (function(){ const q = new URLSearchParams(location.search); const b = q.get("bike"); if (b){ try { localStorage.setItem("bike-logbook-active", b); } catch(e){} try { history.replaceState(null, "", location.pathname); } catch(e){} } })();
   function pendingJoin(){ try { return JSON.parse(lsGet("bike-logbook-join")||"null"); } catch(e){ return null; } }
 
   function useLocal(){
