@@ -53,6 +53,19 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.ownerId == me();
       allow update: if signedIn() && resource.data.ownerId == me() && request.resource.data.ownerId == me();
       allow delete: if signedIn() && resource.data.ownerId == me();
+
+      // Bikes whose owners let this shop add jobs (copied here by the bike's owner so the shop can list them).
+      match /customers/{bikeId} {
+        function custBike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
+        allow read: if signedIn() && (get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me()
+          || resource.data.ownerId == me());
+        allow create, update: if signedIn() && request.resource.data.ownerId == me()
+          && exists(/databases/$(database)/documents/bikes/$(bikeId))
+          && custBike().ownerId == me()
+          && exists(/databases/$(database)/documents/bikes/$(bikeId)/links/$(sid));
+        allow delete: if signedIn() && (resource.data.ownerId == me()
+          || get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me());
+      }
     }
 
     match /groups/{gid} {
@@ -97,8 +110,19 @@ service cloud.firestore {
 
       match /entries/{eid} {
         function bike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
-        allow read: if signedIn() && canAccess(bike());
-        allow create: if signedIn() && canAccess(bike()) && request.resource.data.addedBy == me();
+        // A job added by a shop the bike's owner linked (4.2): only that shop's owner, while the link exists.
+        function shopJob(d) {
+          return d.get('shopId', '') is string && d.get('shopId', '') != ''
+            && exists(/databases/$(database)/documents/bikes/$(bikeId)/links/$(d.shopId))
+            && get(/databases/$(database)/documents/shops/$(d.shopId)).data.ownerId == me();
+        }
+        allow read: if signedIn() && (canAccess(bike()) || shopJob(resource.data));
+        allow create: if signedIn() && request.resource.data.addedBy == me()
+          && (canAccess(bike()) || shopJob(request.resource.data));
+        // The shop may correct or delete only the jobs it added itself.
+        allow update: if signedIn() && resource.data.addedBy == me() && request.resource.data.addedBy == me()
+          && request.resource.data.get('shopId', '') == resource.data.get('shopId', '')
+          && shopJob(resource.data);
         // Deleting is a soft delete (kept for restoring). Only the bike's owner or the
         // entry's author may delete; anyone with access may edit or restore.
         allow update: if signedIn() && canAccess(bike())

@@ -64,6 +64,8 @@
       loaded: { own: false, groups: false },
       shops: new Map(),         // shopId -> shop (my own shop + shops I saved)
       myShopId: null, savedShops: [],
+      links: new Map(),         // my own bikeId -> Map(shopId -> link): shops allowed to add jobs to that bike
+      customers: [],            // bikes linked to my own shop (4.2)
     };
     const unsubs = { entries: new Map(), sharedBike: new Map(), group: new Map(), groupMembers: new Map() };
     let cb = () => {};
@@ -91,6 +93,8 @@
           ready,
           myShop: state.myShopId ? (state.shops.get(state.myShopId) || null) : null,
           savedShops: state.savedShops.map((id) => state.shops.get(id)).filter(Boolean),
+          links: [...state.links.values()].flatMap((m) => [...m.values()]),
+          customers: state.customers,
         });
       });
     }
@@ -115,12 +119,50 @@
       state.entriesByBike.delete(bikeId);
     }
 
+    // Shops linked to my own bikes (4.2). Also copies each link into the shop's customer list.
+    const linkUnsubs = new Map();
+    function watchLinks(bikeId) {
+      if (linkUnsubs.has(bikeId)) return;
+      const m = new Map(); state.links.set(bikeId, m);
+      linkUnsubs.set(bikeId, db.collection("bikes").doc(bikeId).collection("links").onSnapshot((snap) => {
+        snap.docChanges().forEach((ch) => {
+          if (ch.type === "removed") { m.delete(ch.doc.id); return; }
+          const l = { ...ch.doc.data(), shopId: ch.doc.id, bikeId };
+          m.set(ch.doc.id, l);
+          if (!l.listed) writeCustomer(bikeId, ch.doc.id).catch(() => {});
+        });
+        emit();
+      }, () => {}));
+    }
+    function unwatchLinks(bikeId) {
+      const u = linkUnsubs.get(bikeId); if (u) u(); linkUnsubs.delete(bikeId); state.links.delete(bikeId);
+    }
+    async function writeCustomer(bikeId, shopId) {
+      const b = state.ownBikes.get(bikeId); if (!b) return;
+      await db.collection("shops").doc(shopId).collection("customers").doc(bikeId).set({
+        bikeId, bikeLabel: [b.model, b.name].filter(Boolean).join(" · "), type: b.type === "electric" ? "electric" : "petrol",
+        ownerId: uid, ownerName: myName, at: now() });
+      await db.collection("bikes").doc(bikeId).collection("links").doc(shopId).set({ listed: true }, { merge: true });
+    }
+    let unCustomers = null, customersOf = null;
+    function watchCustomers(shopId) {
+      if (customersOf === shopId) return;
+      if (unCustomers) { unCustomers(); unCustomers = null; }
+      customersOf = shopId; state.customers = [];
+      if (!shopId) return;
+      unCustomers = db.collection("shops").doc(shopId).collection("customers").onSnapshot((snap) => {
+        state.customers = snap.docs.map((d) => ({ ...d.data(), bikeId: d.id }))
+          .sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+        emit();
+      }, () => { state.customers = []; emit(); });
+    }
+
     // My own bikes
     const unOwn = db.collection("bikes").where("ownerId", "==", uid).onSnapshot((snap) => {
       snap.docChanges().forEach((ch) => {
         const id = ch.doc.id;
-        if (ch.type === "removed") { state.ownBikes.delete(id); unwatchEntriesIfGone(id); }
-        else { state.ownBikes.set(id, { ...ch.doc.data(), id }); watchEntries(id); }
+        if (ch.type === "removed") { state.ownBikes.delete(id); unwatchEntriesIfGone(id); unwatchLinks(id); }
+        else { state.ownBikes.set(id, { ...ch.doc.data(), id }); watchEntries(id); watchLinks(id); }
       });
       state.loaded.own = true;
       emit();
@@ -166,7 +208,7 @@
     }
     const unMemberships = db.collection("users").doc(uid).onSnapshot((d) => {
       const ud = d.exists ? d.data() : {};
-      state.myShopId = ud.shopId || null; watchShop(state.myShopId);
+      state.myShopId = ud.shopId || null; watchShop(state.myShopId); watchCustomers(state.myShopId);
       state.savedShops = Array.isArray(ud.myShops) ? ud.myShops.slice(-20) : []; state.savedShops.forEach(watchShop);
       const list = (d.exists && Array.isArray(d.data().groups)) ? d.data().groups : [];
       const gids = new Set(list);
@@ -315,7 +357,35 @@
         await db.collection("bikes").doc(bikeId).collection("links").doc(shop.id).set({
           shopId: shop.id, shopName: shop.name || "", bikeLabel: [b.model, b.name].filter(Boolean).join(" · "),
           ownerId: uid, ownerName: myName, status: "active", at: now() });
+        await writeCustomer(bikeId, shop.id).catch(() => {});
         return true;
+      },
+      // The bike's owner stops a shop from adding jobs. Jobs it already added stay in the bike's history.
+      async unlinkBikeFromShop(bikeId, shopId) {
+        const b = state.ownBikes.get(bikeId); if (!b) return false;
+        await db.collection("shops").doc(shopId).collection("customers").doc(bikeId).delete().catch(() => {});
+        await db.collection("bikes").doc(bikeId).collection("links").doc(shopId).delete();
+        return true;
+      },
+      // ---------- my shop's customers (4.2) ----------
+      async shopJobs(bikeId) {
+        if (!state.myShopId) return [];
+        const snap = await db.collection("bikes").doc(bikeId).collection("entries").where("shopId", "==", state.myShopId).get();
+        return snap.docs.map((d) => ({ ...d.data(), id: d.id, bikeId })).filter((e) => !e.deleted)
+          .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || (b.odo || 0) - (a.odo || 0));
+      },
+      async addShopJob(bikeId, e) {
+        const shop = state.myShopId && state.shops.get(state.myShopId);
+        if (!shop) throw new Error("no shop");
+        const { id, ...body } = e;
+        Object.assign(body, { bikeId, shop: shop.name || "", shopId: shop.id, addedBy: uid, addedByName: shop.name || myName,
+          byShop: true, createdAt: now(), updatedAt: now() });
+        Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+        await db.collection("bikes").doc(bikeId).collection("entries").doc(id).set(body);
+      },
+      async deleteShopJob(job) {
+        const { id, bikeId, ...body } = job;
+        await db.collection("bikes").doc(bikeId).collection("entries").doc(id).set({ ...body, bikeId, deleted: true, deletedAt: now(), deletedBy: uid, deletedByName: body.shop || myName, updatedAt: now() });
       },
       shopLink(id) { return `${location.origin}${location.pathname}?shop=${encodeURIComponent(id)}`; },
       async renameGroup(gid, name) {
@@ -323,6 +393,7 @@
       },
       stop() {
         unOwn(); unMemberships(); shopUnsubs.forEach((u) => u()); shopUnsubs.clear();
+        linkUnsubs.forEach((u) => u()); linkUnsubs.clear(); if (unCustomers) unCustomers();
         [unsubs.entries, unsubs.sharedBike, unsubs.group, unsubs.groupMembers].forEach((m) => { m.forEach((u) => u()); m.clear(); });
       },
     };

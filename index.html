@@ -340,6 +340,10 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 .shopForm{display:flex;flex-direction:column;gap:12px}
 .shopForm .lbl{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
 .shopCard{display:flex;flex-direction:column;gap:6px}.shopCard b{font-size:20px}
+.custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
+.custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
+.linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
+#jobForm .prt{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .qrOverlay{position:fixed;inset:0;z-index:60;background:rgba(5,10,18,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:auto}
 .poster{background:#fff;color:#0e1621;border-radius:16px;width:min(360px,100%);padding:22px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;border:3px solid #ffb02e}
 .pBrand{font:800 15px var(--body);letter-spacing:.08em;text-transform:uppercase;color:#13284a}
@@ -636,6 +640,38 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
     </form>
     <div id="shopCard" class="shopCard" hidden></div>
     <div class="msg" id="shopMsg" role="status"></div>
+    <div id="custWrap" hidden>
+      <h3 class="subh">My customers</h3>
+      <p class="foot" style="margin:0" id="custEmpty">When a customer scans your QR code and lets your shop add jobs, their bike shows here.</p>
+      <div class="shopList" id="custList"></div>
+    </div>
+    <form id="jobForm" class="shopForm" hidden>
+      <h3 class="subh">Add a job for this bike</h3>
+      <span class="by" id="jobBike" data-noi18n></span>
+      <div class="row">
+        <div class="field"><label for="jDate">Date</label><input id="jDate" type="date" required></div>
+        <div class="field"><label for="jOdo">Odometer (km)</label><input id="jOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 12450"></div>
+      </div>
+      <div class="field"><span class="lbl">What was done?</span>
+        <div class="chips" id="jKinds">
+          <label data-fuel><input type="checkbox" value="oil"> <span>Oil change</span></label>
+          <label data-fuel><input type="checkbox" value="tune"> <span>Tuning</span></label>
+          <label><input type="checkbox" value="service"> <span>Repairs</span></label>
+          <label><input type="checkbox" value="part"> <span>Parts</span></label>
+        </div></div>
+      <div class="field" id="jOilWrap" hidden><label for="jOil">Oil brand and grade</label><input id="jOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+      <div class="field" id="jWorkWrap" hidden><label for="jWork">Work done</label><input id="jWork" type="text" placeholder="e.g. Puncture fixed, brakes adjusted"></div>
+      <div class="field" id="jPartsWrap" hidden><span class="lbl">Parts</span><div id="jParts"></div>
+        <div class="actions"><button class="btn small ghost" type="button" id="jAddPart">+ Add another part</button></div></div>
+      <div class="row">
+        <div class="field"><label for="jLabour">Mechanic / labour cost</label><input id="jLabour" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="jTotal">Total bill</label><input id="jTotal" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+      </div>
+      <p class="foot" style="margin:0">Leave the total empty and it adds up the parts and labour.</p>
+      <div class="field"><label for="jNotes">Notes</label><input id="jNotes" type="text" placeholder="Anything to remember next time"></div>
+      <div class="actions"><button class="btn" type="submit">Save job</button><button class="btn ghost" type="button" id="jCancel">Cancel</button></div>
+      <div class="msg" id="jobMsg" role="status"></div>
+    </form>
   </section>
 
   <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel" data-page="more">
@@ -725,7 +761,7 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.1" data-updated="2026-11-02T03:25:22Z">Version 4.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2" data-updated="2026-11-02T03:48:08Z">Version 4.2</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -1821,6 +1857,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       <span class="by">${esc([sh.owner, shopWhere(sh)].filter(Boolean).join(" · "))}</span>
       ${(sh.services||[]).length ? `<span class="by">${(sh.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>` : ""}
       ${shopButtons(sh, true)}
+      ${linkControls(sh)}
       <div class="actions"><button class="btn small ghost" type="button" data-forget="${esc(sh.id)}">Remove</button></div></div>`).join("");
     $("#myShopsEmpty").hidden = savedShops.length > 0;
     // More tab: my own shop
@@ -1832,8 +1869,132 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       <span class="by">${esc([myShop.owner, shopWhere(myShop)].filter(Boolean).join(" · "))}</span>
       <span class="by">${(myShop.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>
       <div class="actions"><button class="btn" type="button" id="shopQrBtn">Show my QR code</button><button class="btn ghost" type="button" id="shopEditBtn">Edit shop</button></div>
-      <p class="foot" style="margin:0">Print the QR poster and put it where customers wait. Coming next: add jobs and bills for your customers' bikes.</p>`;
+      <p class="foot" style="margin:0">Print the QR poster and put it where customers wait. Customers who let your shop add jobs show below.</p>`;
+    renderCustomers();
   }
+  // ---------- 4.2: bikes linked to shops ----------
+  let shopLinks = [], customers = [];
+  function activeOwnBike(){
+    const i = bikes.findIndex(b=>b.id===activeId);
+    return (i>=0 && store && store.isOwner && store.isOwner(activeId)) ? {b: bikes[i], label: bikeLabel(bikes[i], i)} : null;
+  }
+  function linkControls(sh){
+    const ab = activeOwnBike(); if (!ab || !store.unlinkBikeFromShop) return "";
+    const linked = shopLinks.some(l=>l.bikeId===ab.b.id && l.shopId===sh.id);
+    return linked
+      ? `<span class="linkNote"><span>This shop can add jobs to:</span> <b data-noi18n>${esc(ab.label)}</b></span>
+         <div class="actions"><button class="btn small ghost" type="button" data-unlink="${esc(sh.id)}">Stop this shop adding jobs</button></div>`
+      : `<div class="actions"><button class="btn small ghost" type="button" data-link="${esc(sh.id)}">Let this shop add jobs to my bike</button></div>`;
+  }
+
+  // ---------- 4.2: my shop's customers and their jobs ----------
+  let jobFor = null, jpSeq = 0;
+  const openJobs = new Map(); // bikeId -> jobs list once loaded
+  const KIND_WORD = {oil:"Oil change", tune:"Tuning", service:"Repairs", part:"Parts"};
+  const jobKinds = e => Array.isArray(e.kinds) && e.kinds.length ? e.kinds : [e.kind];
+  function renderCustomers(){
+    const wrap = $("#custWrap"); if (!wrap) return;
+    wrap.hidden = !(isCloud() && myShop);
+    if (wrap.hidden) return;
+    $("#custEmpty").hidden = customers.length > 0;
+    $("#custList").innerHTML = customers.map(c=>{
+      const jobs = openJobs.get(c.bikeId);
+      const jobsHtml = jobs === undefined ? "" : jobs === null ? `<div class="custJobs"><span class="by">Loading jobs…</span></div>`
+        : jobs === "err" ? `<div class="custJobs"><span class="by">Couldn't load the jobs. Check your connection and try again.</span></div>`
+        : !jobs.length ? `<div class="custJobs"><span class="by">No jobs from your shop yet.</span></div>`
+        : `<div class="custJobs">${jobs.map(j=>`<div class="custJob"><span>${jobKinds(j).map(k=>`<span>${esc(KIND_WORD[k]||k)}</span>`).join(" · ")}</span>
+            <span class="by"><bdi dir="ltr" data-noi18n>${esc(j.date)} · ${fmt(j.odo||0)} km · Rs ${fmt(j.cost||0)}</bdi>${(j.parts||[]).length ? ` · <bdi>${esc(j.parts.map(p=>p.partName||(PDEF[p.part]||{}).label||p.part).join(", "))}</bdi>` : ""}</span>
+            <div class="actions"><button class="btn small ghost" type="button" data-jdel="${esc(c.bikeId)}|${esc(j.id)}">Delete job</button></div></div>`).join("")}</div>`;
+      return `<div class="shopItem"><b data-noi18n>${esc(c.bikeLabel || "Bike")}</b>
+        <span class="by"><span>Owner:</span> <span data-noi18n>${esc(c.ownerName || "")}</span>${c.type==="electric" ? ` · <span>Electric</span>` : ""}</span>
+        <div class="actions"><button class="btn small" type="button" data-job="${esc(c.bikeId)}">Add job</button>
+          <button class="btn small ghost" type="button" data-jobs="${esc(c.bikeId)}">${jobs === undefined ? "Show jobs" : "Hide jobs"}</button></div>
+        ${jobsHtml}</div>`;
+    }).join("");
+  }
+  async function loadJobs(bikeId){
+    openJobs.set(bikeId, null); renderCustomers();
+    try { openJobs.set(bikeId, await store.shopJobs(bikeId)); } catch(e){ console.error(e); openJobs.set(bikeId, "err"); }
+    renderCustomers();
+  }
+  function jobPartOptions(){ const t = jobFor && jobFor.type==="electric" ? "e" : "p"; return PARTS.filter(p=>p.for.includes(t)).map(p=>`<option value="${p.key}">${p.label}</option>`).join(""); }
+  function addJobPart(){
+    const n = ++jpSeq, row = document.createElement("div"); row.className = "prt";
+    row.innerHTML = `<div class="prt-h"><span class="prt-t">Part</span><button type="button" class="prt-x" aria-label="Remove this part">Remove</button></div>
+      <div class="row">
+        <div class="field"><label for="jp-${n}">Part replaced</label><select id="jp-${n}" class="jp">${jobPartOptions()}</select></div>
+        <div class="field"><label for="jc-${n}">Part price</label><input id="jc-${n}" class="jc" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="field jnw" hidden><label for="jn-${n}">Part name</label><input id="jn-${n}" class="jn" type="text" placeholder="e.g. Clutch cable"></div>`;
+    $("#jParts").appendChild(row);
+    const syncName = ()=>{ row.querySelector(".jnw").hidden = row.querySelector(".jp").value !== "other"; };
+    row.querySelector(".jp").addEventListener("change", syncName); syncName();
+    row.querySelector(".prt-x").addEventListener("click", ()=>{ if ($("#jParts").children.length > 1) row.remove(); });
+  }
+  function syncJobForm(){
+    const on = k => !!document.querySelector(`#jKinds input[value="${k}"]:checked`);
+    $("#jOilWrap").hidden = !on("oil"); $("#jWorkWrap").hidden = !on("service"); $("#jPartsWrap").hidden = !on("part");
+    if (on("part") && !$("#jParts").children.length) addJobPart();
+  }
+  function openJobForm(c){
+    jobFor = c; const f = $("#jobForm");
+    f.reset(); $("#jParts").innerHTML = ""; $("#jobMsg").textContent = ""; $("#jobMsg").className = "msg";
+    $("#jobBike").textContent = [c.bikeLabel, c.ownerName].filter(Boolean).join(" · ");
+    $("#jDate").value = today();
+    document.querySelectorAll("#jKinds [data-fuel]").forEach(l=>{ l.hidden = c.type==="electric"; });
+    syncJobForm(); f.hidden = false; f.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  function closeJobForm(){ $("#jobForm").hidden = true; jobFor = null; }
+  $("#jKinds").addEventListener("change", syncJobForm);
+  $("#jAddPart").addEventListener("click", addJobPart);
+  $("#jCancel").addEventListener("click", closeJobForm);
+  $("#jobForm").addEventListener("submit", async ev=>{
+    ev.preventDefault();
+    const m = $("#jobMsg"); m.className = "msg err";
+    if (!jobFor){ return; }
+    const date = $("#jDate").value, odo = parseFloat($("#jOdo").value);
+    const vk = [...document.querySelectorAll("#jKinds input:checked")].filter(i=>!i.closest("label").hidden).map(i=>i.value);
+    if (!date){ m.textContent = "Pick the date of this entry."; return; }
+    if (!(odo>=0)){ m.textContent = "Enter the odometer reading in km."; $("#jOdo").focus(); return; }
+    if (!vk.length){ m.textContent = "Tick what was done on this bike."; return; }
+    const e = { id: uid(), kind: vk[0], date, odo, notes: $("#jNotes").value.trim() };
+    if (vk.length > 1){ e.kinds = vk; e.costs = {}; }
+    if (vk.includes("oil")) e.oil = $("#jOil").value.trim();
+    if (vk.includes("tune")) e.items = [];
+    if (vk.includes("service")){ e.work = $("#jWork").value.trim(); if (!e.work){ m.textContent = "Describe the work done."; $("#jWork").focus(); return; } }
+    if (vk.includes("part")){
+      const rows = [...document.querySelectorAll("#jParts .prt")];
+      e.parts = rows.map(r=>{ const part = r.querySelector(".jp").value;
+        return {part, partName: part==="other" ? r.querySelector(".jn").value.trim() : "", brand: "", price: Math.max(0, parseFloat(r.querySelector(".jc").value)||0), life: 0}; });
+      const miss = e.parts.findIndex(x=>x.part==="other" && !x.partName);
+      if (miss>=0){ m.textContent = "Name the part you replaced."; rows[miss].querySelector(".jn").focus(); return; }
+      e.part = e.parts[0].part; e.partName = e.parts[0].partName; e.brand = ""; e.life = 0;
+    }
+    e.labour = Math.max(0, parseFloat($("#jLabour").value)||0);
+    const total = $("#jTotal").value;
+    e.cost = total !== "" ? Math.max(0, +total||0) : (e.parts||[]).reduce((a,x)=>a+x.price,0) + e.labour;
+    m.className = "msg"; m.textContent = "Saving…";
+    const bikeId = jobFor.bikeId;
+    try {
+      await store.addShopJob(bikeId, e);
+      closeJobForm(); $("#shopMsg").className = "msg"; $("#shopMsg").textContent = "Job saved. The bike's owner sees it in their history.";
+      loadJobs(bikeId);
+    } catch(err){
+      console.error(err); m.className = "msg err";
+      m.textContent = !navigator.onLine ? "You're offline. Saving a job for a customer needs internet."
+        : "Couldn't save the job. The owner may have stopped your shop adding jobs to this bike.";
+    }
+  });
+  $("#custList").addEventListener("click", ev=>{
+    const a = ev.target.closest("[data-job]"); if (a){ const c = customers.find(x=>x.bikeId===a.dataset.job); if (c) openJobForm(c); return; }
+    const s = ev.target.closest("[data-jobs]"); if (s){ const id = s.dataset.jobs; if (openJobs.has(id)){ openJobs.delete(id); renderCustomers(); } else loadJobs(id); return; }
+    const d = ev.target.closest("[data-jdel]"); if (d){ twoTap(d, "Delete job", "Tap again to delete", async ()=>{
+      const [bikeId, id] = d.dataset.jdel.split("|"); const list = openJobs.get(bikeId); const j = Array.isArray(list) && list.find(x=>x.id===id);
+      if (!j) return;
+      try { await store.deleteShopJob(j); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
+    }); }
+  });
+
   function fillShopForm(sh){
     sh = sh || {};
     $("#spName").value = sh.name || ""; $("#spOwner").value = sh.owner || (myShop ? "" : (me && me.name) || "");
@@ -1937,10 +2098,15 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   $("#myShopsList").addEventListener("click", ev=>{
     const v = ev.target.closest("[data-visit]"); if (v){ const sh = savedShops.find(x=>x.id===v.dataset.visit); if (sh) startVisitAt(sh, false); return; }
     const f = ev.target.closest("[data-forget]"); if (f) store.forgetShop(f.dataset.forget).catch(()=>{});
+    const l = ev.target.closest("[data-link]"); if (l){ const sh = savedShops.find(x=>x.id===l.dataset.link), ab = activeOwnBike();
+      if (sh && ab) store.linkBikeToShop(ab.b.id, sh).then(()=>toast("Done. This shop can now add jobs to your bike.")).catch(()=>toast("Couldn't do that. Check your connection and try again.")); return; }
+    const u = ev.target.closest("[data-unlink]"); if (u){ twoTap(u, "Stop this shop adding jobs", "Tap again to stop", ()=>{ const ab = activeOwnBike(); if (!ab) return;
+      store.unlinkBikeFromShop(ab.b.id, u.dataset.unlink).then(()=>toast("Stopped. Jobs it already added stay in your history.")).catch(()=>toast("Couldn't do that. Check your connection and try again.")); }); }
   });
   function onShopData(data){
     myShop = data.myShop || null; savedShops = data.savedShops || [];
-    renderShops();
+    shopLinks = data.links || []; customers = data.customers || [];
+    renderShops(); renderCustomers();
     if (data.ready) checkShopScan();
   }
 
