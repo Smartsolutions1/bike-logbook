@@ -386,6 +386,8 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
 .udTotal{display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--soft);border-radius:12px;padding:12px 14px}
 .udTotal b{font:700 28px var(--display);color:var(--bad);white-space:nowrap}
 .udRow .plus,.udRow .minus,.udBal{white-space:nowrap}
+.udRow b{font-size:inherit}
+.stItem bdi{white-space:nowrap}
 .udBal{flex:none;min-width:84px;text-align:center;border-radius:10px;padding:4px 8px;font:700 18px var(--display);background:#fde3e1;color:#a3261b}
 .udBal.zero{background:var(--soft);color:var(--ok)}
 .udBal small{display:block;font:500 11.5px var(--body)}
@@ -897,7 +899,7 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.7" data-updated="2026-11-02T05:32:56Z">Version 4.7</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.7.1" data-updated="2026-11-02T05:37:42Z">Version 4.7.1</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -2186,7 +2188,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
 
   // ---------- 4.6: parts stock ----------
-  let stock = [], stEditing = null;
+  let stock = [], stEditing = null, stockLog = [], stUseOpen = new Set();
   const STOCK_NAMES = ["Spark plug","Engine oil","Chain","Sprocket set","Chain + Sprocket set","Clutch plates","Clutch cable","Accelerator cable","Brake cable",
     "Front brake shoes/pads","Rear brake shoes","Front tyre","Rear tyre","Tube","Air filter","Oil filter","Battery","Head light bulb","Indicator bulb","Horn",
     "Carburetor kit","Piston ring set","Gasket set","Mirror","Seat cover","Fork oil","Brake oil","Fuse","Wire set"];
@@ -2210,9 +2212,21 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
           ${isLow ? `<span class="by" style="color:var(--bad)">${qty <= 0 ? "Out of stock" : "Running low"}</span>` : ""}</div>
         <div class="stQty${isLow ? " low" : ""}"><bdi dir="ltr" data-noi18n>${fmt(qty)}</bdi><small>in shop</small></div></div>
         <div class="stBtns"><button class="btn small ghost" type="button" data-stq="${esc(it.id)}|-1" aria-label="One less"><bdi dir="ltr">−1</bdi></button><button class="btn small ghost" type="button" data-stq="${esc(it.id)}|1" aria-label="One more"><bdi dir="ltr">+1</bdi></button>
-          <button class="btn small ghost" type="button" data-stedit="${esc(it.id)}">Edit</button></div></div>`;
+          <button class="btn small ghost" type="button" data-stedit="${esc(it.id)}">Edit</button>
+          <button class="btn small ghost" type="button" data-stuse="${esc(it.id)}">${stUseOpen.has(it.id) ? "Hide uses" : "Used in"}</button></div>
+        ${stUseOpen.has(it.id) ? usesHtml(it) : ""}</div>`;
     }).join("");
     $("#stNames").innerHTML = [...new Set([...STOCK_NAMES, ...PARTS.filter(p=>p.key!=="other").map(p=>p.label)])].map(n=>`<option value="${esc(n)}">`).join("");
+  }
+  function usesHtml(it){
+    const logs = stockLog.filter(x=>x.stockId===it.id).slice(0, 30);
+    if (!logs.length) return `<div class="udHist"><span class="by">No uses recorded yet. Uses are recorded from version 4.7.1 onwards.</span></div>`;
+    const used = logs.filter(x=>x.kind==="job").length;
+    return `<div class="udHist">${used ? `<span class="by"><span>Used in jobs:</span> <bdi dir="ltr" data-noi18n>${used}</bdi></span>` : ""}
+      ${logs.map(x=>`<div class="udRow"><span><bdi dir="ltr" data-noi18n>${esc(x.date||"")}</bdi> · ${x.kind==="job"
+          ? `<b data-noi18n>${esc(x.customer || "Customer")}</b>${x.bikeLabel ? ` · <span data-noi18n>${esc(x.bikeLabel)}</span>` : ""}`
+          : `<span>Changed by hand</span>`}</span>
+        <span class="${x.qty < 0 ? "plus" : "minus"}"><bdi dir="ltr" data-noi18n>${x.qty > 0 ? "+" : "−"}${Math.abs(x.qty)}</bdi></span></div>`).join("")}</div>`;
   }
   function openStockForm(it){
     stEditing = it || null; const f = $("#stForm"); f.reset(); $("#stMsg").textContent = "";
@@ -2240,16 +2254,27 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   });
   $("#stList").addEventListener("click", ev=>{
     const q = ev.target.closest("[data-stq]"); if (q){ const [id, d] = q.dataset.stq.split("|"); const it = stock.find(x=>x.id===id);
-      if (it && !(+d < 0 && (+it.qty||0) <= 0)) store.adjustStock(id, +d).catch(()=>toast("Couldn't update. Check your connection and try again.")); return; }
+      if (it && !(+d < 0 && (+it.qty||0) <= 0)){
+        store.adjustStock(id, +d).catch(()=>toast("Couldn't update. Check your connection and try again."));
+        store.logStock({stockId: id, itemName: it.name, qty: +d, kind: "manual", date: today()}).catch(()=>{});
+      }
+      return; }
+    const u = ev.target.closest("[data-stuse]"); if (u){ const k = u.dataset.stuse; stUseOpen.has(k) ? stUseOpen.delete(k) : stUseOpen.add(k); renderStock(); return; }
     const e = ev.target.closest("[data-stedit]"); if (e){ const it = stock.find(x=>x.id===e.dataset.stedit); if (it) openStockForm(it); }
   });
   // Everything a job took from stock: its parts and the oil
   const stockUses = j => [...(j.parts||[]), ...(j.oilStockId ? [{stockId: j.oilStockId}] : [])];
   // A job used (-1) or gave back (+1) parts from stock
-  function useStock(parts, dir){
-    (parts||[]).filter(p=>p.stockId).forEach(p=>{
+  function useStock(parts, dir, job, cust){
+    (parts||[]).filter(p=>p.stockId).forEach((p, i)=>{
       store.adjustStock(p.stockId, dir).catch(()=>{});
       const it = stock.find(x=>x.id===p.stockId);
+      if (job && job.id){
+        const logId = `${job.id}_${i}`;
+        if (dir < 0) store.logStock({stockId: p.stockId, itemName: it ? it.name : "", qty: -1, kind: "job", jobId: job.id, date: job.date,
+          customer: cust && cust.ownerName || "", bikeLabel: cust && cust.bikeLabel || "", bikeId: job.bikeId || (cust && cust.bikeId) || ""}, logId).catch(()=>{});
+        else store.unlogStock(logId).catch(()=>{});
+      }
       if (dir < 0 && it){ const left = (+it.qty||0) - 1; if (left <= (it.low ?? 2)) toast(left <= 0 ? `${it.name}: now out of stock.` : `${it.name}: only ${left} left in stock.`); }
     });
   }
@@ -2519,7 +2544,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const bikeId = jobFor.bikeId, cust = jobFor, wa = $("#jWa").value.trim();
     try {
       await store.addShopJob(bikeId, e);
-      useStock(stockUses(e), -1);
+      useStock(stockUses(e), -1, {...e, bikeId}, cust);
       if (e.paid !== undefined) store.saveLedger({person: "b_" + bikeId, name: cust.ownerName || "", phone: wa, bikeLabel: cust.bikeLabel || "",
         kind: "credit", amount: e.cost - e.paid, date: e.date, note: jobKinds(e).map(k=>KIND_WORD[k]||k).join(", "), jobId: e.id}, "job_" + e.id)
         .then(()=>toast(`Rs ${fmt(e.cost - e.paid)} added to ${cust.ownerName || "the customer"}'s udhaar.`)).catch(()=>toast("Couldn't save the udhaar. Add it from the Udhaar tab."));
@@ -2542,7 +2567,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const d = ev.target.closest("[data-jdel]"); if (d){ twoTap(d, "Delete job", "Tap again to delete", async ()=>{
       const [bikeId, id] = d.dataset.jdel.split("|"); const list = openJobs.get(bikeId); const j = Array.isArray(list) && list.find(x=>x.id===id);
       if (!j) return;
-      try { await store.deleteShopJob(j); useStock(stockUses(j), +1); if (j.paid !== undefined) store.deleteLedger("job_" + j.id).catch(()=>{}); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
+      try { await store.deleteShopJob(j); useStock(stockUses(j), +1, j); if (j.paid !== undefined) store.deleteLedger("job_" + j.id).catch(()=>{}); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
     }); }
   });
 
@@ -2792,7 +2817,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function onShopData(data){
     myShop = data.myShop || null; savedShops = data.savedShops || [];
     shopLinks = data.links || []; customers = data.customers || [];
-    stock = data.stock || []; ledger = data.ledger || [];
+    stock = data.stock || []; ledger = data.ledger || []; stockLog = data.stockLog || [];
     renderShops(); renderCustomers(); renderModeLine(); renderNear(); renderStock(); renderUdhaar();
     document.body.classList.toggle("has-shop", !!myShop);
     if (data.ready && lsGet("bike-logbook-mechsetup")){

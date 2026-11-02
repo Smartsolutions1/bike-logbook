@@ -576,6 +576,12 @@
     "Couldn't save the udhaar. Add it from the Udhaar tab.": "ادھار محفوظ نہیں ہو سکا۔ ادھار والے ٹیب سے لکھ دیں۔",
     "Total udhaar from 1 person": "ایک شخص کا کل ادھار",
     "Customer": "گاہک",
+    // 4.7.1: stock uses
+    "Used in": "کہاں لگا",
+    "Hide uses": "چھپائیں",
+    "Used in jobs:": "کاموں میں لگا:",
+    "Changed by hand": "ہاتھ سے بدلا",
+    "No uses recorded yet. Uses are recorded from version 4.7.1 onwards.": "ابھی کوئی ریکارڈ نہیں۔ ورژن 4.7.1 سے ہر استعمال کا ریکارڈ رکھا جاتا ہے۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };

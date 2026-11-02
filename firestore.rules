@@ -59,6 +59,11 @@ service cloud.firestore {
         allow read, write: if signedIn() && get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me();
       }
 
+      // Which job used which stock item (4.7.1): private to the shop's owner.
+      match /stockLog/{logId} {
+        allow read, write: if signedIn() && get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me();
+      }
+
       // The shop's udhaar khata (4.7): private to the shop's owner.
       match /ledger/{entryId} {
         allow read, write: if signedIn() && get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me();
