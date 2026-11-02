@@ -18,7 +18,11 @@ function seeded(str) {             // same shuffle result for every phone of the
 
 async function main() {
   admin.initializeApp({ credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
-  webpush.setVapidDetails("mailto:smartecomsolution@gmail.com", VAPID_PUBLIC, process.env.VAPID_PRIVATE_KEY);
+  // Tolerate spaces, line breaks or quotes pasted into the secret by mistake
+  const rawKey = process.env.VAPID_PRIVATE_KEY || "";
+  const vapidKey = rawKey.replace(/[^A-Za-z0-9_-]/g, "");
+  if (vapidKey.length !== 43) throw new Error(`VAPID_PRIVATE_KEY secret looks wrong: ${rawKey.length} characters pasted, ${vapidKey.length} usable (should be 43). Paste it again without extra text.`);
+  webpush.setVapidDetails("mailto:smartecomsolution@gmail.com", VAPID_PUBLIC, vapidKey);
   const db = admin.firestore();
   const now = new Date(), today = now.toISOString().slice(0, 10);
 
