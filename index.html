@@ -335,6 +335,16 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 /* while the app checks whether you're signed in, show only the plain background (no flash of the app) */
 html.booting .wrap,html.booting .tabbar,html.booting .toast{visibility:hidden}
 html.booting body{background:var(--hero)}
+.splash{display:none}
+html.booting .splash{display:flex;position:fixed;inset:0;z-index:70;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(120% 120% at 80% 0%,var(--hero-2) 0%,var(--hero) 60%);color:var(--hero-ink)}
+.splash img{width:96px;height:96px;border-radius:24px;box-shadow:0 0 28px rgba(255,176,46,.45)}
+.spName{font:800 34px var(--display,var(--body));letter-spacing:.04em;text-transform:uppercase;margin-top:8px}
+.spUr{font-family:"Noto Nastaliq Urdu",serif;font-size:20px;line-height:1.8;color:var(--hero-muted)}
+.spDots{display:flex;gap:8px;margin-top:10px}
+.spDots i{width:9px;height:9px;border-radius:50%;background:var(--glow);opacity:.3;animation:spd 1.2s infinite}
+.spDots i:nth-child(2){animation-delay:.2s}.spDots i:nth-child(3){animation-delay:.4s}
+@keyframes spd{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){.spDots i{animation:none;opacity:.7}}
 .gate{align-items:flex-start;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .gate .gate-in{margin:auto 0}
 body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
@@ -376,6 +386,12 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 </style>
 </head>
 <body>
+<div class="splash" id="splash" aria-hidden="true" data-noi18n>
+  <img src="icons/icon-192.png" alt="" width="96" height="96">
+  <div class="spName">Bike Log</div>
+  <div class="spUr" lang="ur" dir="rtl">بائیک لاگ</div>
+  <div class="spDots"><i></i><i></i><i></i></div>
+</div>
 <div class="gate" id="gate" hidden>
   <div class="topBtns"><button class="themeBtn langBtn" type="button" id="gateLangBtn" aria-label="Change language" data-noi18n></button></div>
   <div class="gate-in">
@@ -770,7 +786,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2.2" data-updated="2026-11-02T03:59:00Z">Version 4.2.2</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2.3" data-updated="2026-11-02T04:00:52Z">Version 4.2.3</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
