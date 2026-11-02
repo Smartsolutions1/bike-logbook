@@ -624,10 +624,14 @@ body.mode-shop .modeChip{display:inline-block}
   <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
     <h2 id="shopsTitle">Shops &amp; mechanics</h2>
     <div class="actions"><button class="btn" type="button" id="scanBtn">Scan mechanic's QR code</button></div>
+    <h3 class="subh">Mechanics on Bike Log near me</h3>
+    <div class="actions"><button class="btn ghost" type="button" id="nearBtn">Show mechanics near me</button></div>
+    <p class="foot" style="margin:0" id="nearMsg" role="status"></p>
+    <div class="shopList" id="nearList"></div>
     <h3 class="subh">My mechanics</h3>
     <div class="shopList" id="myShopsList"></div>
     <p class="foot" style="margin:0" id="myShopsEmpty">Tap Scan above and point the camera at your mechanic's Bike Log QR code to save his shop here.</p>
-    <h3 class="subh">Search on Google Maps</h3>
+    <h3 class="subh">More on Google Maps</h3>
     <div class="navLinks">
       <a class="btn" id="findMech" href="https://www.google.com/maps/search/motorcycle+mechanic/" target="_blank" rel="noopener">Find bike mechanics near me</a>
       <a class="btn ghost" id="findFuel" href="https://www.google.com/maps/search/petrol+pump/" target="_blank" rel="noopener">Find petrol pumps near me</a>
@@ -718,6 +722,7 @@ body.mode-shop .modeChip{display:inline-block}
       <div class="field"><span class="lbl">Shop location</span>
         <button class="btn ghost" type="button" id="spLocBtn">Use my current location</button>
         <span class="by" id="spLocMsg">Stand inside your shop and tap this, so customers can find you on the map.</span></div>
+      <label class="svAllow"><input type="checkbox" id="spListed" checked> <span>Show my shop in Mechanics near me</span></label>
       <div class="actions"><button class="btn" type="submit" id="spSave">Save shop</button><button class="btn ghost" type="button" id="spCancel">Cancel</button></div>
     </form>
     <div id="shopCard" class="shopCard" hidden></div>
@@ -815,7 +820,7 @@ body.mode-shop .modeChip{display:inline-block}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.4" data-updated="2026-11-02T04:38:52Z">Version 4.4</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.5" data-updated="2026-11-02T05:05:30Z">Version 4.5</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -2253,6 +2258,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     document.querySelectorAll("#spKinds input").forEach(i=>i.checked = kinds.includes(i.value));
     document.querySelectorAll("#spServices input").forEach(i=>i.checked = svc.includes(i.value));
     const f = $("#shopForm"); f.dataset.lat = sh.lat || ""; f.dataset.lng = sh.lng || "";
+    $("#spListed").checked = sh.listed !== false;
     $("#spLocMsg").textContent = sh.lat ? "Location saved." : "Stand inside your shop and tap this, so customers can find you on the map.";
   }
   function openShopForm(){ fillShopForm(myShop); $("#shopForm").hidden = false; $("#shopMsg").textContent = ""; renderShops(); $("#spName").focus(); }
@@ -2291,7 +2297,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const data = { name, owner: $("#spOwner").value.trim(), area: $("#spArea").value.trim(), city: $("#spCity").value.trim(), phone: $("#spPhone").value.trim(),
       kinds: [...document.querySelectorAll("#spKinds input:checked")].map(i=>i.value),
       services: [...document.querySelectorAll("#spServices input:checked")].map(i=>i.value),
-      lat: f.dataset.lat ? +f.dataset.lat : null, lng: f.dataset.lng ? +f.dataset.lng : null };
+      lat: f.dataset.lat ? +f.dataset.lat : null, lng: f.dataset.lng ? +f.dataset.lng : null, listed: $("#spListed").checked };
     try { const wasNew = !myShop; await store.saveShop(data); closeShopForm(); m.textContent = wasNew ? "Shop saved. Now print your QR code." : "Shop updated."; }
     catch(err){ m.className = "msg err"; m.textContent = navigator.onLine ? "Couldn't save the shop. Please try again." : "You're offline. Saving the shop needs internet."; }
   });
@@ -2368,6 +2374,60 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   $("#svAdd").addEventListener("click", ()=>{ clearPendingScan(); $("#shopVisit").hidden = true; if (scannedShop) startVisitAt(scannedShop, $("#svAllow").checked); });
   $("#svClose").addEventListener("click", ()=>{ clearPendingScan(); $("#shopVisit").hidden = true; scannedShop = null; });
 
+  // ---------- 4.5: registered mechanics near me ----------
+  let nearShops = null, nearPos = null, nearAt = 0;
+  function distKm(a, b){
+    const R = 6371, r = x => x * Math.PI / 180, dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+    const h = Math.sin(dLat/2)**2 + Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  const distLabel = km => km < 1 ? `${Math.max(50, Math.round(km*1000/50)*50)} m` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
+  function renderNear(){
+    const list = $("#nearList"); if (!nearShops){ list.innerHTML = ""; return; }
+    const savedIds = new Set(savedShops.map(x=>x.id));
+    const rows = nearShops.map(sh=>({sh, km: (nearPos && sh.lat && sh.lng) ? distKm(nearPos, {lat:+sh.lat, lng:+sh.lng}) : null}))
+      .sort((a,b)=>(a.km===null) - (b.km===null) || (a.km||0) - (b.km||0) || String(a.sh.name).localeCompare(String(b.sh.name)))
+      .slice(0, 40);
+    list.innerHTML = rows.map(({sh, km})=>{
+      const mine = myShop && myShop.id === sh.id, saved = savedIds.has(sh.id);
+      const dir = (sh.lat && sh.lng) ? `https://www.google.com/maps/dir/?api=1&destination=${sh.lat},${sh.lng}` : "";
+      const wa = waNum(sh.phone);
+      return `<div class="shopItem"><b data-noi18n>${esc(sh.name)}</b>
+        <span class="by">${km!==null ? `<bdi dir="ltr" data-noi18n>${distLabel(km)}</bdi> · ` : ""}<span data-noi18n>${esc([sh.owner, shopWhere(sh)].filter(Boolean).join(" · "))}</span>${mine ? ` · <span>Your shop</span>` : ""}</span>
+        ${(sh.services||[]).length ? `<span class="by">${(sh.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>` : ""}
+        <div class="actions">
+          ${sh.phone ? `<a class="btn small ghost" href="tel:${esc(String(sh.phone).replace(/[^\d+]/g,""))}">Call</a>` : ""}
+          ${wa ? `<a class="btn small ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+          ${dir ? `<a class="btn small ghost" href="${dir}" target="_blank" rel="noopener">Directions</a>` : ""}
+          ${mine ? "" : saved ? `<span class="by">Saved in My mechanics</span>` : `<button class="btn small" type="button" data-nsave="${esc(sh.id)}">Save to My mechanics</button>`}
+        </div></div>`;
+    }).join("");
+  }
+  async function loadNear(){
+    const m = $("#nearMsg"); m.className = "foot";
+    if (!isCloud()){ m.textContent = "Sign in with Google to see mechanics on Bike Log."; return; }
+    $("#nearBtn").disabled = true; m.textContent = "Finding your location…";
+    nearPos = await new Promise(res=>{
+      if (!navigator.geolocation) return res(null);
+      navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude, lng:p.coords.longitude}), ()=>res(null), {enableHighAccuracy:false, timeout:12000, maximumAge:300000});
+    });
+    m.textContent = "Loading mechanics…";
+    try {
+      if (!nearShops || Date.now() - nearAt > 10*60*1000){ nearShops = await store.listShops(); nearAt = Date.now(); }
+      if (!nearShops.length) m.textContent = "No mechanics have joined Bike Log yet. Send the setup link to your mechanic from the More tab.";
+      else if (!nearPos) m.textContent = "Location is off, so the list isn't sorted by distance. Allow location for Bike Log to see the nearest first.";
+      else m.textContent = "Nearest first.";
+      renderNear(); $("#nearBtn").textContent = "Refresh";
+    } catch(e){ console.error(e); m.textContent = navigator.onLine ? "Couldn't load mechanics. Please try again." : "You're offline. Connect to the internet to see mechanics."; }
+    $("#nearBtn").disabled = false;
+  }
+  $("#nearBtn").addEventListener("click", loadNear);
+  $("#nearList").addEventListener("click", ev=>{
+    const b = ev.target.closest("[data-nsave]"); if (!b) return;
+    b.disabled = true;
+    store.saveShopToMine(b.dataset.nsave).then(()=>toast("Saved in My mechanics.")).catch(()=>{ b.disabled = false; toast("Couldn't save. Check your connection and try again."); });
+  });
+
   // ---------- 4.3.1: QR scanner inside the app ----------
   let scanStream = null, scanTimer = null, jsQRLib = null;
   function loadJsQR(){
@@ -2436,7 +2496,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function onShopData(data){
     myShop = data.myShop || null; savedShops = data.savedShops || [];
     shopLinks = data.links || []; customers = data.customers || [];
-    renderShops(); renderCustomers(); renderModeLine();
+    renderShops(); renderCustomers(); renderModeLine(); renderNear();
     if (data.ready && lsGet("bike-logbook-mechsetup")){
       try { localStorage.removeItem("bike-logbook-mechsetup"); } catch(e){}
       if (!myShop && isCloud()){ goPage("sshop"); openShopForm(); }

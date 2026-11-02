@@ -345,6 +345,12 @@
         const d = await db.collection("shops").doc(id).get();
         return d.exists ? { ...d.data(), id } : null;
       },
+      // Registered shops for "Mechanics near me" (4.5). Fine while there are a few hundred shops;
+      // past that this should filter by area (e.g. geohash) instead of reading every shop.
+      async listShops() {
+        const snap = await db.collection("shops").limit(400).get();
+        return snap.docs.map((d) => ({ ...d.data(), id: d.id })).filter((sh) => sh.listed !== false && sh.name);
+      },
       async saveShopToMine(id) {
         await db.collection("users").doc(uid).set({ myShops: firebase.firestore.FieldValue.arrayUnion(id) }, { merge: true });
       },
