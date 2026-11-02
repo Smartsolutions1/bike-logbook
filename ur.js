@@ -582,6 +582,14 @@
     "Used in jobs:": "کاموں میں لگا:",
     "Changed by hand": "ہاتھ سے بدلا",
     "No uses recorded yet. Uses are recorded from version 4.7.1 onwards.": "ابھی کوئی ریکارڈ نہیں۔ ورژن 4.7.1 سے ہر استعمال کا ریکارڈ رکھا جاتا ہے۔",
+    // 4.7.2: centre scan button, odometer update
+    "Scan": "اسکین",
+    "Update km": "کلومیٹر لکھیں",
+    "Update odometer": "میٹر ریڈنگ لکھیں",
+    "Reading now (km)": "ابھی کی ریڈنگ (کلومیٹر)",
+    "Save reading": "ریڈنگ محفوظ کریں",
+    "Odometer reading": "میٹر ریڈنگ",
+    "Add a bike first (in My bikes), then update its km.": "پہلے بائیک شامل کریں (میری بائیکس میں)، پھر اس کے کلومیٹر لکھیں۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
@@ -597,6 +605,9 @@
 
   // Phrases inside longer text (applied in order). $1, $2 = the numbers or names kept from the English.
   const FRAG = [
+    [/^Last reading: ([\d,]+) km$/, "پچھلی ریڈنگ: $1 کلومیٹر"],
+    [/^Odometer updated to ([\d,]+) km\.$/, "میٹر ریڈنگ $1 کلومیٹر ہو گئی۔"],
+    [/^That's lower than ([\d,]+) km logged on ([\d-]+)\. Check the reading\.$/, "یہ $2 کو درج $1 کلومیٹر سے کم ہے۔ ریڈنگ دوبارہ دیکھیں۔"],
     [/(\d[\d,]*) entr(?:y|ies) logged/g, "$1 اندراجات"],
     [/ · electric\b/g, " · الیکٹرک"],
     [/^Bike (\d+)$/, "بائیک $1"],

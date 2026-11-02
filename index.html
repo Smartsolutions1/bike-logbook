@@ -394,6 +394,17 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
 .udHist{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px;font-size:14px}
 .udRow{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .udRow .plus{color:var(--bad);font-weight:600}.udRow .minus{color:var(--ok);font-weight:600}
+.tabbar .scanTab{position:relative;overflow:visible;justify-content:flex-end}
+.scanCircle{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:60px;height:60px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#ffd27a 0%,var(--glow) 55%,#d9730a 100%);box-shadow:0 6px 16px rgba(217,115,10,.45),0 0 0 5px var(--panel)}
+.tabbar .scanCircle svg{width:30px;height:30px;color:#0e1b30;stroke:#0e1b30;stroke-width:2.2}
+.tabbar .scanTab:active .scanCircle{transform:translateX(-50%) scale(.94)}
+.tabbar .scanTab>span:last-child{margin-top:34px}
+body.has-shop:not(.mode-shop) .tabbar button span:last-child{font-size:11.5px}
+.odoBtn{background:rgba(255,255,255,.12);color:inherit;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 12px;font:600 13px var(--body);cursor:pointer}
+.odoSheet{background:var(--panel);color:var(--ink);border-radius:16px;padding:18px;width:min(92vw,380px);display:flex;flex-direction:column;gap:12px}
+.odoSheet h3{margin:0;font:700 22px var(--display)}
+[data-k="odo"]{--k:var(--labour)}
 .custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
 .linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
@@ -467,6 +478,7 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
     <div class="odo">
       <div class="label">Odometer</div>
       <div class="digits" id="digits" aria-label="Current odometer"></div>
+      <button class="odoBtn" type="button" id="odoBtn">Update km</button>
     </div>
   </header>
 
@@ -899,7 +911,7 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.7.1" data-updated="2026-11-02T05:37:42Z">Version 4.7.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.7.2" data-updated="2026-11-02T05:47:16Z">Version 4.7.2</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -913,6 +925,19 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
     <div class="pUr" dir="rtl" lang="ur" data-noi18n>پہلے سے Bike Log ہے؟ ایپ کھولیں، دکانیں میں جا کر اسکین دبائیں۔</div>
   </div>
   <div class="actions noprint"><button class="btn" type="button" id="qrPrint">Print poster</button><button class="btn ghost" type="button" id="qrShare">Send link on WhatsApp</button><button class="btn ghost" type="button" id="qrClose">Close</button></div>
+</div>
+<div class="qrOverlay" id="odoOverlay" hidden>
+  <form class="odoSheet" id="odoForm">
+    <h3>Update odometer</h3>
+    <span class="by" id="odoBike" data-noi18n></span>
+    <div class="row">
+      <div class="field"><label for="odoVal">Reading now (km)</label><input id="odoVal" type="number" inputmode="numeric" min="0" step="1" required></div>
+      <div class="field"><label for="odoDate">Date</label><input id="odoDate" type="date" required></div>
+    </div>
+    <span class="by" id="odoLast"></span>
+    <div class="actions"><button class="btn" type="submit">Save reading</button><button class="btn ghost" type="button" id="odoCancel">Cancel</button></div>
+    <div class="msg" id="odoMsg" role="status"></div>
+  </form>
 </div>
 <div class="qrOverlay" id="billOverlay" hidden>
   <p class="scanMsg" id="billOvMsg" role="status">Making the bill…</p>
@@ -928,6 +953,7 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <button type="button" data-go="home" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
   <button type="button" data-go="history" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg><span>History</span></button>
+  <button type="button" class="scanTab" data-scan data-r aria-label="Scan mechanic's QR code"><span class="scanCircle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8"/><path d="M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8"/><path d="M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16"/><path d="M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M8 8h3v3H8zM13 13h3v3h-3zM13 8h3M8 13v3M16 10.5v.5"/></svg></span><span>Scan</span></button>
   <button type="button" data-go="shops" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.3-.5-.5-2.3z"/></svg><span>Shops</span></button>
   <button type="button" data-go="more" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
   <button type="button" data-mode="shop" data-r data-shoponly><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>Shop mode</span></button>
@@ -992,8 +1018,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   window.addEventListener("popstate", ()=>{ showPage(pageFromHash()); window.scrollTo(0,0); });
   document.querySelectorAll("#tabbar [data-go]").forEach(b=>b.addEventListener("click", ()=>goPage(b.dataset.go)));
   document.querySelectorAll("#tabbar [data-mode]").forEach(b=>b.addEventListener("click", ()=>setMode(b.dataset.mode)));
+  document.querySelectorAll("#tabbar [data-scan]").forEach(b=>b.addEventListener("click", ()=>openScanner()));
   showPage(pageFromHash());
-  const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part", charge:"Charge"};
+  const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part", charge:"Charge", odo:"Odometer reading"};
   // for: p = petrol bikes, e = electric bikes
   const PARTS = [
     {key:"pack", label:"Battery pack", months:true, for:"e"},
@@ -1095,6 +1122,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const bikeModel = () => $("#bModel").value==="__other" ? $("#bModelOther").value.trim() : $("#bModel").value;
   const SV = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const ICONS = {
+    odo: SV('<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l3.5-4.5"/><circle cx="12" cy="15" r="1.3"/><path d="M5 19h14"/>'),
     fuel: SV('<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M3.5 20h12M7.5 8h4M14 9h2a1 1 0 0 1 1 1v5.5a1.5 1.5 0 0 0 3 0V8l-3-3"/>'),
     oil: SV('<path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/>'),
     service: SV('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>'),
@@ -1609,7 +1637,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
         <div class="ico">${ICONS[e.kind]}</div>
         <div class="what"><div class="t">${esc(entryTitle(e))}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>
           <div class="by">Deleted by ${esc(e.deletedByName||"someone")}${when?` on ${when.getDate()} ${MON[when.getMonth()]}, ${when.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"})}`:""}</div></div>
-        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-restore="${e.id}" type="button">Restore</button>${canForever?` · <button class="link del" data-forever="${e.id}" type="button">Delete forever</button>`:""}</span></div>
+        <div class="side"><span class="num">${e.kind==="odo" ? "" : esc(money(e.cost))}</span><span><button class="link" data-restore="${e.id}" type="button">Restore</button>${canForever?` · <button class="link del" data-forever="${e.id}" type="button">Delete forever</button>`:""}</span></div>
       </div>`;
     }).join("");
   }
@@ -1632,7 +1660,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       return `<div class="item" data-k="${e.kind}">
         <div class="ico">${ICONS[e.kind]}</div>
         <div class="what"><div class="t">${esc(entryTitle(e))}${e.sample?'<span class="ex">Example</span>':""}</div><div class="meta num">${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${fmt(e.odo)} km</div>${extra?`<div class="d">${extra}</div>`:""}${by}</div>
-        <div class="side"><span class="num">${esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button>${canDel?` · <button class="link del" data-del="${e.id}" type="button">Delete</button>`:""}</span></div>
+        <div class="side"><span class="num">${e.kind==="odo" ? "" : esc(money(e.cost))}</span><span><button class="link" data-edit="${e.id}" type="button">Edit</button>${canDel?` · <button class="link del" data-del="${e.id}" type="button">Delete</button>`:""}</span></div>
       </div>`;
     }).join("");
   }
@@ -1841,7 +1869,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   $("#list").addEventListener("click", async ev=>{
     const ed = ev.target.closest("[data-edit]"), dl = ev.target.closest("[data-del]"), ue = ev.target.closest("[data-undoedit]"),
           rs = ev.target.closest("[data-restore]"), fv = ev.target.closest("[data-forever]");
-    if (ed){ const e = entries.find(x=>x.id===ed.dataset.edit); if(e) fillForm(e); }
+    if (ed){ const e = entries.find(x=>x.id===ed.dataset.edit); if (e && e.kind==="odo") openOdo(e); else if (e) fillForm(e); }
     if (dl){ twoTap(dl, "Delete", "Tap again to delete", async ()=>{
       const e = entries.find(x=>x.id===dl.dataset.del); if (!e) return;
       try {
@@ -1868,6 +1896,34 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     setTimeout(()=>{ const row = document.querySelectorAll("#partRows .prt")[+idx||0]; if (row) row.querySelector(".pl").focus(); }, 400); });
   $("#filters").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(!b) return; filter=b.dataset.f;
     document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); renderList(); });
+
+  // ---------- 4.7.2: update the odometer ----------
+  let odoEditing = null;
+  function openOdo(e){
+    if (!activeId && isCloud()){ toast("Add a bike first (in My bikes), then update its km."); return; }
+    odoEditing = e || null;
+    const cur = currentOdo();
+    $("#odoBike").textContent = $("#bikeName").textContent;
+    $("#odoVal").value = e ? e.odo : ""; $("#odoVal").placeholder = cur ? String(Math.round(cur)) : "e.g. 12450";
+    $("#odoDate").value = e ? e.date : today(); $("#odoMsg").textContent = "";
+    $("#odoLast").textContent = cur ? `Last reading: ${fmt(cur)} km` : "";
+    $("#odoOverlay").hidden = false; setTimeout(()=>$("#odoVal").focus(), 50);
+  }
+  $("#odoBtn").addEventListener("click", ()=>openOdo(null));
+  $("#odoCancel").addEventListener("click", ()=>{ $("#odoOverlay").hidden = true; });
+  $("#odoForm").addEventListener("submit", async ev=>{
+    ev.preventDefault(); const m = $("#odoMsg"); m.className = "msg err";
+    const odo = parseFloat($("#odoVal").value), date = $("#odoDate").value;
+    if (!(odo >= 0)){ m.textContent = "Enter the odometer reading in km."; return; }
+    const prev = entries.filter(x=>!x.sample && x.id !== (odoEditing && odoEditing.id) && x.date <= date).sort(byOdo).pop();
+    if (prev && odo < prev.odo){ m.textContent = `That's lower than ${fmt(prev.odo)} km logged on ${prev.date}. Check the reading.`; return; }
+    const e = odoEditing ? {...odoEditing, odo, date} : {id: uid(), kind: "odo", date, odo, cost: 0, notes: ""};
+    if (odoEditing){ e.history = [...(odoEditing.history||[]), {at:new Date().toISOString(), byName: myName(), data: snapshotOf(odoEditing)}].slice(-5); e.editedByName = myName(); e.editedAt = new Date().toISOString(); }
+    try { await store.put(e); $("#odoOverlay").hidden = true; toast(`Odometer updated to ${fmt(odo)} km.`); }
+    catch(err){ m.textContent = "Couldn't save. Check your connection and try again."; }
+  });
+  // A reminder notification asking for the km opens this straight away
+  if (/[?&]odo=1\b/.test(location.search)){ try { localStorage.setItem("bike-logbook-askodo", "1"); } catch(e){} }
 
   // ---------- bikes ----------
   const bikeLabel = (b, i) => b.name || b.model || (bikes.length>1 ? "Bike " + (i+1) : "My Bike");
@@ -2975,6 +3031,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const ab = bikes.find(b=>b.id===activeId) || {};
     settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
     render(); renderBikes(); renderGroups(); renderReminders(); syncStats(); onShopData(data);
+    if ((data.ready !== false) && entries && lsGet("bike-logbook-askodo") && appMode === "rider" && (activeId || !isCloud())){
+      try { localStorage.removeItem("bike-logbook-askodo"); } catch(e){} goPage("home"); openOdo(null);
+    }
   }
   // invite links: ?join=<group>&code=<code>&g=<name>
   (function(){
