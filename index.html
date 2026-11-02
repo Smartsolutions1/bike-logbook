@@ -684,7 +684,14 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
           <label><input type="checkbox" value="service"> <span>Repairs</span></label>
           <label><input type="checkbox" value="part"> <span>Parts</span></label>
         </div></div>
-      <div class="field" id="jOilWrap" hidden><label for="jOil">Oil brand and grade</label><input id="jOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+      <div class="shopForm" id="jOilWrap" hidden style="gap:8px">
+        <div class="field" id="jOilStockWrap" hidden><label for="jOilStock">Oil from my stock</label><select id="jOilStock"></select></div>
+        <div class="row">
+          <div class="field"><label for="jOil">Oil brand and grade</label><input id="jOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+          <div class="field"><label for="jOilPrice">Oil price</label><input id="jOilPrice" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        </div>
+        <label class="svAllow"><input type="checkbox" id="jOilBrought"> <span>Customer brought the oil</span></label>
+      </div>
       <div class="field" id="jWorkWrap" hidden><label for="jWork">Work done</label><input id="jWork" type="text" placeholder="e.g. Puncture fixed, brakes adjusted"></div>
       <div class="field" id="jPartsWrap" hidden><span class="lbl">Parts</span><div id="jParts"></div>
         <div class="actions"><button class="btn small ghost" type="button" id="jAddPart">+ Add another part</button></div></div>
@@ -855,7 +862,7 @@ body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.6" data-updated="2026-11-02T05:16:08Z">Version 4.6</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.6.1" data-updated="2026-11-02T05:25:36Z">Version 4.6.1</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -1170,7 +1177,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     toastTimer=setTimeout(()=>{ el.hidden=true; }, actionLabel ? 8000 : 4500);
   }
   const myName = () => (me && me.name) ? me.name : "you";
-  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes","pctBefore","pctAfter","where","parts","labour","kinds","costs","shopId","byShop"];
+  const ENTRY_FIELDS = ["kind","date","odo","cost","liters","full","oil","filter","work","shop","items","part","partName","brand","life","notes","pctBefore","pctAfter","where","parts","labour","kinds","costs","shopId","byShop","oilStockId","oilBrought","oilPrice"];
   function snapshotOf(e){ const d={}; ENTRY_FIELDS.forEach(k=>{ if (e[k]!==undefined && e[k]!==null) d[k]=e[k]; }); return d; }
   function withoutDeleted(e){ const c={...e}; ["deleted","deletedAt","deletedBy","deletedByName"].forEach(k=>delete c[k]); return c; }
   const isCloud = () => !!(store && store.mode==="cloud");
@@ -1535,7 +1542,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     }
     const ks = kindsOf(e), multi = ks.length>1, c = e.costs || {}, cur = settings.currency, bits = [];
     const priced = (label, txt, amt) => [multi ? label : "", txt, (multi && amt) ? `${cur} ${fmt(amt)}` : ""].filter(Boolean).join(" ");
-    if (ks.includes("oil")){ const t = priced("Oil change:", [e.oil, e.filter?"filter changed":""].filter(Boolean).join(", "), +c.oil||0); if (t) bits.push(t); }
+    if (ks.includes("oil")){ const t = priced("Oil change:", [e.oil, e.filter?"filter changed":"", e.oilBrought?"own oil":""].filter(Boolean).join(", "), +c.oil||0); if (t) bits.push(t); }
     if (ks.includes("tune")){ const t = priced("Tuning:", (e.items||[]).join(", "), +c.tune||0); if (t) bits.push(t); }
     if (ks.includes("service")){ const t = priced(KINDS.service+":", e.work||"", +c.service||0); if (t) bits.push(t); }
     if (ks.includes("part")){
@@ -1776,6 +1783,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       if (prev){
         ["addedBy","addedByName","createdAt","sample"].forEach(k=>{ if (prev[k]!==undefined) e[k]=prev[k]; });
         if (prev.shopId && e.shop === prev.shop){ e.shopId = prev.shopId; if (prev.byShop) e.byShop = true; }
+        ["oilStockId","oilBrought","oilPrice"].forEach(k=>{ if (prev[k]!==undefined && e.oil === prev.oil) e[k] = prev[k]; });
         e.history = [...(prev.history||[]), {at:new Date().toISOString(), byName: myName(), data: snapshotOf(prev)}].slice(-5);
         e.editedByName = myName(); e.editedAt = new Date().toISOString();
       }
@@ -2080,6 +2088,21 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     });
     row.querySelector(".prt-x").addEventListener("click", ()=>{ if ($("#jParts").children.length > 1) row.remove(); });
   }
+  const isOilItem = it => /oil/i.test(stockLabel(it)) && !/fork|brake|filter/i.test(it.name||"");
+  function fillOilStock(){
+    const items = stock.filter(it=>(+it.qty||0) > 0 && isOilItem(it));
+    $("#jOilStockWrap").hidden = !items.length;
+    $("#jOilStock").innerHTML = `<option value="">Not from my stock</option>` + items.map(it=>`<option value="${esc(it.id)}">${esc(stockLabel(it))} · ${fmt(it.qty)} left${it.sell ? ` · Rs ${fmt(it.sell)}` : ""}</option>`).join("");
+  }
+  $("#jOilStock").addEventListener("change", ()=>{
+    const it = stock.find(x=>x.id===$("#jOilStock").value); if (!it) return;
+    $("#jOil").value = stockLabel(it); $("#jOilBrought").checked = false; $("#jOilPrice").disabled = false;
+    if (it.sell) $("#jOilPrice").value = it.sell;
+  });
+  $("#jOilBrought").addEventListener("change", ()=>{
+    const b = $("#jOilBrought").checked; $("#jOilPrice").disabled = b;
+    if (b){ $("#jOilPrice").value = ""; $("#jOilStock").value = ""; }
+  });
   function syncJobForm(){
     const on = k => !!document.querySelector(`#jKinds input[value="${k}"]:checked`);
     $("#jOilWrap").hidden = !on("oil"); $("#jWorkWrap").hidden = !on("service"); $("#jPartsWrap").hidden = !on("part");
@@ -2092,6 +2115,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#jDate").value = today(); $("#jWa").value = lsGet("bike-logbook-wa-" + c.bikeId) || "";
     $("#billCard").hidden = true;
     document.querySelectorAll("#jKinds [data-fuel]").forEach(l=>{ l.hidden = c.type==="electric"; });
+    fillOilStock(); $("#jOilPrice").disabled = false;
     syncJobForm(); f.hidden = false; f.scrollIntoView({behavior:"smooth", block:"start"});
   }
   // ---------- 4.3: bill on WhatsApp (English block, then Urdu block) ----------
@@ -2102,7 +2126,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const who = [c.bikeLabel, c.ownerName].filter(Boolean).join(" · ");
     const en = [`*${shop}* - Bill`, who, `Date: ${j.date} · ${fmt(j.odo||0)} km`, ""];
     const ur = [`*${shop}* - بل`, who, `تاریخ: ${j.date} · ${fmt(j.odo||0)} کلومیٹر`, ""];
-    if (ks.includes("oil")){ en.push("Oil change" + (j.oil ? ": " + j.oil : "")); ur.push("آئل چینج" + (j.oil ? ": " + j.oil : "")); }
+    if (ks.includes("oil")){
+      const pe = j.oilBrought ? " - customer's own oil" : j.oilPrice ? " - " + rs(j.oilPrice) : "", pu = j.oilBrought ? " - گاہک کا اپنا آئل" : j.oilPrice ? " - " + rs(j.oilPrice) : "";
+      en.push("Oil change" + (j.oil ? ": " + j.oil : "") + pe); ur.push("آئل چینج" + (j.oil ? ": " + j.oil : "") + pu); }
     if (ks.includes("tune")){ en.push("Tuning"); ur.push("ٹیوننگ"); }
     if (ks.includes("service")){ en.push("Repairs: " + (j.work||"")); ur.push("مرمت: " + (j.work||"")); }
     (j.parts||[]).forEach(p=>{ const nm = p.part==="other" ? (p.partName||"Other part") : ((PDEF[p.part]||{}).label || p.part);
@@ -2178,6 +2204,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       if (it && !(+d < 0 && (+it.qty||0) <= 0)) store.adjustStock(id, +d).catch(()=>toast("Couldn't update. Check your connection and try again.")); return; }
     const e = ev.target.closest("[data-stedit]"); if (e){ const it = stock.find(x=>x.id===e.dataset.stedit); if (it) openStockForm(it); }
   });
+  // Everything a job took from stock: its parts and the oil
+  const stockUses = j => [...(j.parts||[]), ...(j.oilStockId ? [{stockId: j.oilStockId}] : [])];
   // A job used (-1) or gave back (+1) parts from stock
   function useStock(parts, dir){
     (parts||[]).filter(p=>p.stockId).forEach(p=>{
@@ -2212,7 +2240,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const NAVY = "#0e1b30", INK = "#14202e", MUTED = "#5a6776", LINE = "#d5dde6", ACC = "#c77a06";
     const rs = n => "Rs " + fmt(n||0), ks = jobKinds(j), sh = myShop || {};
     const rows = [];
-    if (ks.includes("oil")) rows.push({en:"Oil change", sub:j.oil||"", ur:"آئل چینج"});
+    if (ks.includes("oil")) rows.push({en:"Oil change", sub:j.oil||"", ur:"آئل چینج",
+      ...(j.oilBrought ? {price:"Customer's own", priceUr:"گاہک کا اپنا"} : j.oilPrice ? {price: rs(j.oilPrice)} : {})});
     if (ks.includes("tune")) rows.push({en:"Tuning", ur:"ٹیوننگ"});
     if (ks.includes("service")) rows.push({en:"Repairs", sub:j.work||"", ur:"مرمت"});
     (j.parts||[]).forEach(p=>{ const nm = p.part==="other" ? (p.partName||"Other part") : ((PDEF[p.part]||{}).label || p.part);
@@ -2322,7 +2351,12 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (!vk.length){ m.textContent = "Tick what was done on this bike."; return; }
     const e = { id: uid(), kind: vk[0], date, odo, notes: $("#jNotes").value.trim() };
     if (vk.length > 1){ e.kinds = vk; e.costs = {}; }
-    if (vk.includes("oil")) e.oil = $("#jOil").value.trim();
+    if (vk.includes("oil")){
+      e.oil = $("#jOil").value.trim();
+      if ($("#jOilBrought").checked){ e.oilBrought = true; e.oilPrice = 0; }
+      else { e.oilPrice = Math.max(0, parseFloat($("#jOilPrice").value)||0); if ($("#jOilStock").value) e.oilStockId = $("#jOilStock").value; }
+      if (e.costs) e.costs.oil = e.oilPrice;
+    }
     if (vk.includes("tune")) e.items = [];
     if (vk.includes("service")){ e.work = $("#jWork").value.trim(); if (!e.work){ m.textContent = "Describe the work done."; $("#jWork").focus(); return; } }
     if (vk.includes("part")){
@@ -2338,12 +2372,12 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     }
     e.labour = Math.max(0, parseFloat($("#jLabour").value)||0);
     const total = $("#jTotal").value;
-    e.cost = total !== "" ? Math.max(0, +total||0) : (e.parts||[]).reduce((a,x)=>a+x.price,0) + e.labour;
+    e.cost = total !== "" ? Math.max(0, +total||0) : (e.parts||[]).reduce((a,x)=>a+x.price,0) + e.labour + (e.oilPrice||0);
     m.className = "msg"; m.textContent = "Saving…";
     const bikeId = jobFor.bikeId, cust = jobFor, wa = $("#jWa").value.trim();
     try {
       await store.addShopJob(bikeId, e);
-      useStock(e.parts, -1);
+      useStock(stockUses(e), -1);
       if (wa) lsSet("bike-logbook-wa-" + bikeId, wa); else { try { localStorage.removeItem("bike-logbook-wa-" + bikeId); } catch(x){} }
       closeJobForm(); $("#shopMsg").textContent = "";
       lastBill = {job: {...e, bikeId}, cust}; $("#billCard").hidden = false;
@@ -2363,7 +2397,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const d = ev.target.closest("[data-jdel]"); if (d){ twoTap(d, "Delete job", "Tap again to delete", async ()=>{
       const [bikeId, id] = d.dataset.jdel.split("|"); const list = openJobs.get(bikeId); const j = Array.isArray(list) && list.find(x=>x.id===id);
       if (!j) return;
-      try { await store.deleteShopJob(j); useStock(j.parts, +1); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
+      try { await store.deleteShopJob(j); useStock(stockUses(j), +1); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
     }); }
   });
 

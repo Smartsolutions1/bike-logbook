@@ -532,6 +532,10 @@
     "You're offline. Saving stock needs internet.": "آپ آف لائن ہیں۔ اسٹاک محفوظ کرنے کے لیے انٹرنیٹ چاہیے۔",
     "Couldn't update. Check your connection and try again.": "اپ ڈیٹ نہیں ہو سکا۔ انٹرنیٹ چیک کر کے دوبارہ کوشش کریں۔",
     "e.g. Spark plug": "مثلاً پلگ",
+    // 4.6.1: oil from stock
+    "Oil from my stock": "میرے اسٹاک سے آئل",
+    "Oil price": "آئل کی قیمت",
+    "Customer brought the oil": "گاہک آئل خود لایا",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
@@ -651,6 +655,8 @@
     [/^(.+): now out of stock\.$/, "$1: اسٹاک ختم ہو گیا۔"],
     [/^(.+): only (\d+) left in stock\.$/, "$1: اسٹاک میں صرف $2 رہ گئے۔"],
     [/ · (\d[\d,]*) left · /g, " · $1 باقی · "],
+    [/\bown oil\b/g, "اپنا آئل"],
+    [/\bown part\b/g, "اپنا پرزہ"],
   ];
   const MONTHS = { Jan: "جنوری", Feb: "فروری", Mar: "مارچ", Apr: "اپریل", May: "مئی", Jun: "جون", Jul: "جولائی", Aug: "اگست", Sep: "ستمبر", Oct: "اکتوبر", Nov: "نومبر", Dec: "دسمبر" };
   const MONTH_RE = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g;
