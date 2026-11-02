@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bike Log</title>
+<script>document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},8000);</script>
 <meta name="description" content="Track fuel, oil changes, servicing, tuning and part replacements for your motorcycle.">
 <meta name="theme-color" content="#0e1b30">
 <script>try{var t=localStorage.getItem("bike-logbook-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);if(localStorage.getItem("bike-logbook-lang")==="ur"){document.documentElement.setAttribute("dir","rtl");document.documentElement.setAttribute("lang","ur");}}catch(e){}</script>
@@ -331,6 +332,9 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 .gate:not([hidden]) ~ .tabbar{display:none}
 /* sign-in screen: nothing of the app shows behind it, and its content scrolls inside it */
 .gate:not([hidden]) ~ .wrap{display:none}
+/* while the app checks whether you're signed in, show only the plain background (no flash of the app) */
+html.booting .wrap,html.booting .tabbar,html.booting .toast{visibility:hidden}
+html.booting body{background:var(--hero)}
 .gate{align-items:flex-start;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .gate .gate-in{margin:auto 0}
 body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
@@ -766,7 +770,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2.1" data-updated="2026-11-02T03:55:51Z">Version 4.2.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2.2" data-updated="2026-11-02T03:59:00Z">Version 4.2.2</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -2285,14 +2289,15 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const pj = pendingJoin();
     $("#gateJoin").hidden = !pj; if (pj) $("#gateJoin").textContent = `You've been invited to the "${pj.name}" group. Sign in to join.`;
     $("#localBtn").hidden = !!pj;
-    $("#gate").hidden = false;
+    $("#gate").hidden = false; booted();
   }
+  function booted(){ document.documentElement.classList.remove("booting"); }
   $("#signInBtn").addEventListener("click", async ()=>{
     const m=$("#gateMsg"); m.textContent="";
     try { await BikeCloud.signIn(); }
     catch(err){ m.textContent = (err && err.code==="auth/popup-closed-by-user") ? "Sign-in was closed before it finished. Tap the button to try again." : (navigator.onLine ? "Couldn't sign in. Tap the button to try again." : "You're offline. Connect to the internet to sign in."); }
   });
-  $("#localBtn").addEventListener("click", ()=>{ lsSet("bike-logbook-mode","local"); $("#gate").hidden = true; if (!store) useLocal(); });
+  $("#localBtn").addEventListener("click", ()=>{ lsSet("bike-logbook-mode","local"); $("#gate").hidden = true; booted(); if (!store) useLocal(); });
   $("#goSignIn").addEventListener("click", ()=>{ lsSet("bike-logbook-mode","cloud"); location.reload(); });
 
   async function migrateLocal(user){
@@ -2322,13 +2327,13 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   async function start(){
     resetForm(); onData({bikes:[], entries:[]});
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
-    if (!window.BikeCloud || !BikeCloud.available()){ useLocal(); $("#storeNote").textContent += " (Online sync couldn't load. Check your internet and reopen the app.)"; return; }
-    if (lsGet("bike-logbook-mode")==="local" && !pendingJoin()){ useLocal(); return; }
+    if (!window.BikeCloud || !BikeCloud.available()){ booted(); useLocal(); $("#storeNote").textContent += " (Online sync couldn't load. Check your internet and reopen the app.)"; return; }
+    if (lsGet("bike-logbook-mode")==="local" && !pendingJoin()){ booted(); useLocal(); return; }
     BikeCloud.init();
     BikeCloud.onAuth(async user=>{
       if (!user){ if (store && store.stop) { store.stop(); store = null; } showGate(); return; }
       lsSet("bike-logbook-mode","cloud");
-      $("#gate").hidden = true;
+      $("#gate").hidden = true; booted();
       if (store && store.stop) store.stop();
       store = BikeCloud.createStore(user, (what)=>toast(`${what}. Check your internet and try again.`));
       me = {uid:user.uid, name:user.displayName||"", email:user.email||""};
