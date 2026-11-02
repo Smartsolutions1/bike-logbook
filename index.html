@@ -272,6 +272,8 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .prt .field label{font-size:13px}
 .prt input,.prt select{padding:8px 10px}
 .toast{min-width:min(88vw,320px)}
+#shopsTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M14.7%206.3a4%204%200%200%200-5.2%205.2L3.8%2017.2a1.6%201.6%200%200%200%202.3%202.3l5.7-5.7a4%204%200%200%200%205.2-5.2l-2.5%202.5-2.3-.5-.5-2.3z%22%2F%3E%3C%2Fsvg%3E")}
+#setTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M12%202.5v3M12%2018.5v3M2.5%2012h3M18.5%2012h3M5.3%205.3l2.1%202.1M16.6%2016.6l2.1%202.1M5.3%2018.7l2.1-2.1M16.6%207.4l2.1-2.1%22%2F%3E%3C%2Fsvg%3E")}
 #remTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2016.5V11a6%206%200%200%201%2012%200v5.5l1.5%202h-15z%22%2F%3E%3Cpath%20d%3D%22M10%2020.5a2%202%200%200%200%204%200%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
@@ -315,6 +317,27 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 .switch select option{font-size:16px}
 .themeBtn{font-size:13.5px}
 @media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+/* app pages + bottom tabs (4.0) */
+[data-page]:not(.on){display:none!important}
+.main{grid-template-columns:minmax(0,1fr)!important}
+.wrap{max-width:760px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;gap:4px;background:var(--panel);border-top:var(--bw) solid var(--line);box-shadow:0 -2px 12px rgba(0,0,0,.12);padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{flex:1;max-width:160px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;border-radius:12px;padding:7px 4px;min-height:58px;color:var(--muted);font:600 13px var(--body);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tabbar svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-current="page"]{color:var(--ink);background:var(--soft)}
+.tabbar button[aria-current="page"] svg{color:var(--glow);stroke-width:2.3}
+.tabbar button:active{transform:scale(.95)}
+.gate:not([hidden]) ~ .tabbar{display:none}
+.navLinks{display:flex;flex-direction:column;gap:10px}
+.navLinks .btn{text-align:center;text-decoration:none}
+.setRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-weight:600}
+.setRow .themeBtn{position:static;color:var(--ink);background:var(--soft);border-color:var(--line);font-size:14px;padding:8px 14px}
+#shareSlot .shareRow{margin-top:12px}
+.pageHead{order:-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px}
+.pageHead h1{margin:0;font:800 28px var(--display,var(--body));color:var(--head)}
+.pageHead .themeBtn{position:static;color:var(--ink);background:var(--panel);border-color:var(--line);font-size:14px;padding:8px 14px}
+
 @media (max-width:440px){.hero{padding:18px 16px}.top h1{font-size:36px}.odo{align-items:flex-start}.digits span{font-size:22px}.gauge .big{font-size:26px}.row{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}.ring .val{transition:stroke-dashoffset .8s ease}}
 </style>
@@ -345,7 +368,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="wrap">
-  <section class="hero" aria-label="Bike status">
+  <section class="hero" aria-label="Bike status" data-page="home history">
   <div class="topBtns"><button class="themeBtn langBtn" type="button" id="langBtn" aria-label="Change language" data-noi18n></button><button class="themeBtn" type="button" id="themeBtn" aria-label="Change light or dark mode"></button><button class="themeBtn" type="button" id="shareTopBtn" aria-label="Share this app"></button></div>
   <header class="top">
     <div class="brand">
@@ -383,7 +406,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
   </div>
   </section>
 
-  <div class="installCard" id="mainInstall" hidden>
+  <div class="installCard" id="mainInstall" data-page="home" hidden>
       <b>Install Bike Log on your phone</b>
       <span class="ins-auto">Tap Install to add it to your home screen like a normal app.</span>
       <ol class="ins-steps">
@@ -395,13 +418,13 @@ input,select,textarea{font-size:16px;padding:10px 12px}
       <div class="actions"><button class="btn small" type="button" data-install>Install</button><button class="btn small ghost" type="button" data-install-hide>Not now</button></div>
     </div>
 
-  <div class="banner" id="sampleBanner" hidden>
+  <div class="banner" id="sampleBanner" data-page="home history" hidden>
     <span>You're looking at <b>example entries</b>. Add your own, then remove these.</span>
     <button class="btn small ghost" id="clearSamples" type="button">Remove examples</button>
   </div>
 
   <div class="main">
-    <section class="panel" aria-labelledby="formTitle">
+    <section class="panel" aria-labelledby="formTitle" data-page="home">
       <h2 id="formTitle">Add entry</h2>
       <div class="tabs" role="tablist" id="tabs">
         <button type="button" role="tab" data-kind="charge" data-k="charge" aria-selected="false" hidden>Charge</button>
@@ -486,7 +509,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
       </form>
     </section>
 
-    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0" data-page="history">
       <section class="panel" aria-labelledby="partsTitle">
         <h2 id="partsTitle">Parts life</h2>
         <div class="parts" id="parts"></div>
@@ -527,7 +550,25 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     </div>
   </div>
 
-  <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel">
+  <header class="pageHead" data-page="shops more"><h1 id="pageTitle">Bike Log</h1><button class="themeBtn langBtn" type="button" id="langBtn2" aria-label="Change language" data-noi18n></button></header>
+
+  <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
+    <h2 id="shopsTitle">Shops &amp; mechanics</h2>
+    <p class="foot" style="margin:0">Coming soon: scan your mechanic's QR code to save his shop on your entries, and see all your mechanics here.</p>
+    <div class="navLinks">
+      <a class="btn" id="findMech" href="https://www.google.com/maps/search/motorcycle+mechanic/" target="_blank" rel="noopener">Find bike mechanics near me</a>
+      <a class="btn ghost" id="findFuel" href="https://www.google.com/maps/search/petrol+pump/" target="_blank" rel="noopener">Find petrol pumps near me</a>
+    </div>
+    <p class="foot" style="margin:0">Opens Google Maps near your location.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="setTitle" id="settingsPanel" data-page="more">
+    <h2 id="setTitle">Settings</h2>
+    <div class="setRow"><span>Light or dark mode</span><span id="themeSlot"></span></div>
+    <div id="shareSlot"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel" data-page="more">
     <div class="histhead"><h2 id="bikesTitle">My bikes</h2><button class="btn small" type="button" id="addBikeBtn">+ Add new bike</button></div>
     <div class="bikes" id="bikeList"></div>
     <form id="bikeForm" hidden>
@@ -577,14 +618,14 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <div class="msg" id="bikeMsg" role="status"></div>
   </section>
 
-  <section class="panel" aria-labelledby="remTitle" id="remPanel">
+  <section class="panel" aria-labelledby="remTitle" id="remPanel" data-page="more">
     <h2 id="remTitle">Phone reminders</h2>
     <p class="foot" style="margin:0" id="remText">Get a notification on this phone when an oil change, tuning or check-up is coming up, and a reminder to update your odometer reading.</p>
     <div class="actions"><button class="btn" type="button" id="remBtn">Turn on reminders</button></div>
     <div class="msg" id="remMsg" role="status"></div>
   </section>
 
-  <section class="panel" aria-labelledby="famTitle" id="familyPanel">
+  <section class="panel" aria-labelledby="famTitle" id="familyPanel" data-page="more">
     <h2 id="famTitle">Family &amp; sharing</h2>
     <div id="famLocal" hidden>
       <p class="foot" style="margin:0">Sign in with Google to save your bikes online and share them with your family, so everyone can add fuel and maintenance from their own phone.</p>
@@ -600,7 +641,7 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <div class="msg" id="groupMsg" role="status"></div>
   </section>
 
-  <section class="panel" aria-labelledby="bkTitle" id="backupPanel">
+  <section class="panel" aria-labelledby="bkTitle" id="backupPanel" data-page="more">
     <h2 id="bkTitle">Backup &amp; restore</h2>
     <p class="foot" style="margin:0">Entries live on this phone. Save a backup file to keep them safe, or to move them to a new phone.</p>
     <div class="actions">
@@ -611,11 +652,17 @@ input,select,textarea{font-size:16px;padding:10px 12px}
     <div class="msg" id="bkMsg" role="status"></div>
   </section>
 
-  <p class="foot" id="storeNote">Loading your logbook…</p>
-  <p class="foot" id="acctLine" style="margin-top:-12px" hidden></p>
+  <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
+  <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-version="3.12" data-updated="2026-11-01T15:24:38Z">Version 3.12</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.0" data-updated="2026-11-02T03:02:48Z">Version 4.0</p>
 </div>
+<nav class="tabbar" id="tabbar" aria-label="Main">
+  <button type="button" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
+  <button type="button" data-go="history"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg><span>History</span></button>
+  <button type="button" data-go="shops"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.3-.5-.5-2.3z"/></svg><span>Shops</span></button>
+  <button type="button" data-go="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
+</nav>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -630,6 +677,29 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 <script>
 (function(){
   const $ = s => document.querySelector(s);
+  // ---------- pages + bottom tabs ----------
+  const PAGES = ["home","history","shops","more"];
+  function showPage(pg){
+    if (!PAGES.includes(pg)) pg = "home";
+    document.querySelectorAll("[data-page]").forEach(el=>el.classList.toggle("on", el.dataset.page.split(" ").includes(pg)));
+    document.querySelectorAll("#tabbar [data-go]").forEach(b=>{ if (b.dataset.go===pg) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    PAGES.forEach(x=>document.body.classList.toggle("p-"+x, x===pg));
+    const t = document.getElementById("pageTitle"); if (t) t.textContent = pg==="shops" ? "Shops" : pg==="more" ? "More" : "Bike Log";
+  }
+  const pageFromHash = () => (location.hash.match(/^#(home|history|shops|more)$/)||[])[1] || "home";
+  function goPage(pg){
+    // History stays at most [Home, one tab], so the phone's back button goes to Home, then closes the app
+    const cur = pageFromHash();
+    if (cur!==pg){
+      if (pg==="home"){ if (history.state && history.state.bl) history.back(); else history.replaceState(null, "", location.pathname + location.search); }
+      else if (cur==="home") history.pushState({bl:1}, "", "#"+pg);
+      else history.replaceState(history.state, "", "#"+pg);
+    }
+    showPage(pg); window.scrollTo(0,0);
+  }
+  window.addEventListener("popstate", ()=>{ showPage(pageFromHash()); window.scrollTo(0,0); });
+  document.querySelectorAll("#tabbar [data-go]").forEach(b=>b.addEventListener("click", ()=>goPage(b.dataset.go)));
+  showPage(pageFromHash());
   const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part", charge:"Charge"};
   // for: p = petrol bikes, e = electric bikes
   const PARTS = [
@@ -754,10 +824,12 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function paintLangBtns(){
     const ur = window.BikeI18n && BikeI18n.lang === "ur";
     const html = LANG_ICON + (ur ? "<b>English</b>" : "<b>اردو</b>");
-    ["#langBtn","#gateLangBtn"].forEach(id=>{ const b=$(id); if (b){ b.innerHTML = html; b.title = ur ? "Switch to English" : "اردو میں دیکھیں"; } });
+    ["#langBtn","#gateLangBtn","#langBtn2"].forEach(id=>{ const b=$(id); if (b){ b.innerHTML = html; b.title = ur ? "Switch to English" : "اردو میں دیکھیں"; } });
   }
   function toggleLang(){ if (window.BikeI18n) BikeI18n.set(BikeI18n.lang === "ur" ? "en" : "ur"); }
-  ["#langBtn","#gateLangBtn"].forEach(id=>{ const b=$(id); if (b) b.addEventListener("click", toggleLang); });
+  ["#langBtn","#gateLangBtn","#langBtn2"].forEach(id=>{ const b=$(id); if (b) b.addEventListener("click", toggleLang); });
+  // 4.0: dark mode and share live on the More page; the share icon at the top is no longer needed
+  $("#themeSlot").appendChild($("#themeBtn")); $("#shareSlot").appendChild(document.querySelector(".shareRow")); $("#shareTopBtn").hidden = true;
   document.addEventListener("bike-lang", ()=>{
     paintLangBtns(); applyTheme(theme);
     try { render(); renderBikes(); renderGroups(); } catch(e){}
@@ -1399,7 +1471,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     also = new Set(kindsOf(e).filter(k=>k!==e.kind));
     $("#cancelEdit").hidden=false; $("#formTitle").textContent = "Edit entry"; setKind(kind, true);
     $("#fCost").value = e.cost || "";
-    $("#formMsg").textContent=""; $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
+    $("#formMsg").textContent=""; goPage("home"); $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
   }
 
   $("#tabs").addEventListener("click", ev=>{ const b=ev.target.closest("button"); if(b) setKind(b.dataset.kind); });
@@ -1579,7 +1651,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     }
   });
   $("#bikeSwitch").addEventListener("change", async ev=>{
-    if (ev.target.value==="__add"){ ev.target.value = activeId; openBikeForm(null); $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); return; }
+    if (ev.target.value==="__add"){ ev.target.value = activeId; openBikeForm(null); goPage("more"); $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); return; }
     await store.setActive(ev.target.value); resetForm();
   });
 
@@ -1775,13 +1847,15 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   });
 
   // ---------- boot ----------
-  let autoBikeMade = false;
+  let autoBikeMade = false, autoBikeOpen = false;
   function onData(data){
     bikes = data.bikes || []; activeId = data.active;
     groups = data.groups || []; if (data.me) me = data.me;
+    // a shared bike arrived after we asked them to add one: go back to Home instead
+    if (autoBikeOpen && bikes.length){ autoBikeOpen = false; $("#bikeMsg").textContent = ""; try { $("#bikeCancel").click(); } catch(e){} if (pageFromHash()==="more") goPage("home"); }
     if (isCloud() && data.ready && !bikes.length && !autoBikeMade && !lsGet("bike-logbook-migrating") && !pendingJoin()){
       autoBikeMade = true;
-      setTimeout(()=>{ openBikeForm(null); $("#bikeMsg").textContent = "Add your bike to start: its name and what the odometer shows today."; $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); }, 50);
+      setTimeout(()=>{ if (bikes.length) return; autoBikeOpen = true; openBikeForm(null); $("#bikeMsg").textContent = "Add your bike to start: its name and what the odometer shows today."; goPage("more"); $("#bikesPanel").scrollIntoView({behavior:"smooth", block:"start"}); }, 50);
     }
     const every = (data.entries||[]).filter(e=>e && e.kind in KINDS && typeof e.date==="string");
     allEntries = every.filter(e=>!e.deleted);
