@@ -465,6 +465,14 @@
     "Connect to the internet once to use the scanner.": "اسکینر استعمال کرنے کے لیے ایک بار انٹرنیٹ سے جڑیں۔",
     "That isn't a Bike Log shop code. Scan the QR code on your mechanic's Bike Log poster.": "یہ Bike Log دکان کا کوڈ نہیں ہے۔ اپنے مستری کے Bike Log پوسٹر والا QR کوڈ اسکین کریں۔",
     "Sign in with Google to save shops.": "دکانیں محفوظ کرنے کے لیے گوگل سے سائن ان کریں۔",
+    // 4.3.2: picture bill
+    "Making the bill…": "بل بن رہا ہے…",
+    "Share bill": "بل بھیجیں",
+    "Save picture": "تصویر محفوظ کریں",
+    "Send as text": "لکھائی میں بھیجیں",
+    "Couldn't make the picture. Use Send as text instead.": "تصویر نہیں بن سکی۔ لکھائی میں بھیجیں استعمال کریں۔",
+    "Couldn't open sharing. Tap Save picture, then send it on WhatsApp.": "شیئر نہیں کھل سکا۔ تصویر محفوظ کریں دبائیں، پھر واٹس ایپ پر بھیج دیں۔",
+    "Picture saved. Send it to the customer on WhatsApp.": "تصویر محفوظ ہو گئی۔ اسے واٹس ایپ پر گاہک کو بھیج دیں۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };

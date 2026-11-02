@@ -363,6 +363,8 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 .scanBox video{width:100%;height:100%;object-fit:cover;display:block}
 .scanFrame{position:absolute;inset:14%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
 .scanMsg{color:#fff;text-align:center;max-width:360px;margin:0;font-size:15px;line-height:1.5}
+.billImg{max-width:min(92vw,420px);max-height:70vh;border-radius:12px;background:#fff;box-shadow:0 6px 30px rgba(0,0,0,.4)}
+#billOverlay .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
 .linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
@@ -672,7 +674,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     <div class="msg" id="shopMsg" role="status"></div>
     <div class="shopItem" id="billCard" hidden>
       <span id="billMsg">Job saved. The bike's owner sees it in their history.</span>
-      <div class="actions"><button class="btn small" type="button" id="billSend">Send bill on WhatsApp</button><button class="btn small ghost" type="button" id="billClose">Close</button></div>
+      <div class="actions"><button class="btn small" type="button" id="billSend">Send bill</button><button class="btn small ghost" type="button" id="billClose">Close</button></div>
     </div>
     <div id="custWrap" hidden>
       <h3 class="subh">My customers</h3>
@@ -796,7 +798,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.1" data-updated="2026-11-02T04:20:03Z">Version 4.3.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.2" data-updated="2026-11-02T04:28:26Z">Version 4.3.2</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -810,6 +812,12 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     <div class="pUr" dir="rtl" lang="ur" data-noi18n>پہلے سے Bike Log ہے؟ ایپ کھولیں، دکانیں میں جا کر اسکین دبائیں۔</div>
   </div>
   <div class="actions noprint"><button class="btn" type="button" id="qrPrint">Print poster</button><button class="btn ghost" type="button" id="qrShare">Send link on WhatsApp</button><button class="btn ghost" type="button" id="qrClose">Close</button></div>
+</div>
+<div class="qrOverlay" id="billOverlay" hidden>
+  <p class="scanMsg" id="billOvMsg" role="status">Making the bill…</p>
+  <img class="billImg" id="billImg" alt="Bill" hidden>
+  <div class="actions"><button class="btn" type="button" id="billShare">Share bill</button><a class="btn ghost" id="billSave" download="bill.png" style="text-decoration:none">Save picture</a>
+    <button class="btn ghost" type="button" id="billAsText">Send as text</button><button class="btn ghost" type="button" id="billOvClose">Close</button></div>
 </div>
 <div class="qrOverlay" id="scanOverlay" hidden>
   <div class="scanBox"><video id="scanVideo" playsinline muted autoplay></video><div class="scanFrame"></div></div>
@@ -2014,10 +2022,124 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const link = myShop && store.shopLink ? store.shopLink(myShop.id) : "";
     return en.join("\n") + "\n\n" + ur.join("\n") + (link ? "\n\nBike Log: " + link : "");
   }
-  function sendBill(j, c){
+  function sendBillText(j, c){
     const num = waNum(lsGet("bike-logbook-wa-" + c.bikeId) || "");
     window.open(`https://wa.me/${num}?text=` + encodeURIComponent(billText(j, c)), "_blank", "noopener");
   }
+
+  // ---------- 4.3.2: bill as a picture ----------
+  let billFile = null, billUrl = null, billFor = null;
+  function urduFont(){
+    if (!document.querySelector('link[href*="Noto+Nastaliq+Urdu"]')){
+      const l = document.createElement("link"); l.rel = "stylesheet";
+      l.href = "https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap"; document.head.appendChild(l);
+    }
+    const wait = ms => new Promise(r=>setTimeout(r, ms));
+    return Promise.race([Promise.all([
+      document.fonts.load('600 40px "Noto Nastaliq Urdu"', "بل"), document.fonts.load('700 60px "Barlow Condensed"'),
+      document.fonts.load('400 30px "IBM Plex Sans"'), document.fonts.load('600 30px "IBM Plex Sans"')]).catch(()=>{}), wait(4000)]);
+  }
+  function wrapText(cx, text, maxW){
+    const words = String(text).split(/\s+/), lines = []; let cur = "";
+    words.forEach(w=>{ const t = cur ? cur + " " + w : w; if (cx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; });
+    if (cur) lines.push(cur); return lines.length ? lines : [""];
+  }
+  async function drawBill(j, c){
+    await urduFont();
+    let qr = null; try { const qrcode = await loadQrLib(); qr = qrcode(0, "M"); qr.addData(store.shopLink(myShop.id)); qr.make(); } catch(e){ qr = null; }
+    const U = s => (window.BikeI18n && BikeI18n.toUr) ? BikeI18n.toUr(s) : s;
+    const W = 1080, P = 64, EN = '"IBM Plex Sans", system-ui, sans-serif', UR = '"Noto Nastaliq Urdu", serif', HD = '"Barlow Condensed", "IBM Plex Sans", sans-serif';
+    const NAVY = "#0e1b30", INK = "#14202e", MUTED = "#5a6776", LINE = "#d5dde6", ACC = "#c77a06";
+    const rs = n => "Rs " + fmt(n||0), ks = jobKinds(j), sh = myShop || {};
+    const rows = [];
+    if (ks.includes("oil")) rows.push({en:"Oil change", sub:j.oil||"", ur:"آئل چینج"});
+    if (ks.includes("tune")) rows.push({en:"Tuning", ur:"ٹیوننگ"});
+    if (ks.includes("service")) rows.push({en:"Repairs", sub:j.work||"", ur:"مرمت"});
+    (j.parts||[]).forEach(p=>{ const nm = p.part==="other" ? (p.partName||"Other part") : ((PDEF[p.part]||{}).label || p.part);
+      rows.push({en:nm, ur:U(nm)===nm ? "" : U(nm), price: p.brought ? "Customer's own" : rs(p.price), priceUr: p.brought ? "گاہک کا اپنا" : ""}); });
+    if (j.labour) rows.push({en:"Mechanic / labour", ur:"مستری / مزدوری", price: rs(j.labour)});
+    const cv = document.createElement("canvas"), cx = cv.getContext("2d");
+    // measure
+    cx.font = `400 28px ${EN}`;
+    rows.forEach(r=>{ r.subLines = r.sub ? wrapText(cx, r.sub, W - 2*P - 300) : []; r.h = 56 + r.subLines.length*38 + (r.price && (r.ur || r.priceUr) ? 52 : 0) + 24; });
+    const headH = 250, infoH = 150, totH = 150, notesH = j.notes ? 110 : 0, footH = qr ? 330 : 150;
+    const H = headH + infoH + rows.reduce((a,r)=>a+r.h, 0) + 30 + totH + notesH + footH;
+    cv.width = W; cv.height = H;
+    cx.fillStyle = "#ffffff"; cx.fillRect(0, 0, W, H);
+    const txt = (t, x, y, font, color, align, dir) => { cx.font = font; cx.fillStyle = color; cx.textAlign = align || "left"; cx.direction = dir || "ltr"; cx.fillText(t, x, y); };
+    // header band
+    cx.fillStyle = NAVY; cx.fillRect(0, 0, W, headH);
+    cx.fillStyle = ACC; cx.fillRect(0, headH - 10, W, 10);
+    cx.font = `700 72px ${HD}`; let name = sh.name || j.shop || "";
+    while (cx.measureText(name).width > W - 2*P - 200 && name.length > 3) name = name.slice(0, -2);
+    if (name !== (sh.name || j.shop || "")) name = name.trimEnd() + "…";
+    txt(name, P, 112, `700 72px ${HD}`, "#ffffff");
+    const where = [sh.owner, [sh.area, sh.city].filter(Boolean).join(", "), sh.phone].filter(Boolean).join("  ·  ");
+    if (where) txt(where, P, 168, `400 28px ${EN}`, "#c9d6e6");
+    txt("BILL", W - P, 104, `700 52px ${HD}`, "#ffffff", "right");
+    txt("بل", W - P, 190, `700 46px ${UR}`, "#f0c27a", "right", "rtl");
+    // bike and date
+    let y = headH + 66;
+    txt([c.bikeLabel, c.ownerName].filter(Boolean).join("  ·  "), P, y, `600 36px ${EN}`, INK);
+    y += 52; txt(`${j.date}   ·   ${fmt(j.odo||0)} km`, P, y, `400 30px ${EN}`, MUTED);
+    y = headH + infoH - 10; cx.fillStyle = LINE; cx.fillRect(P, y, W - 2*P, 2);
+    // rows
+    y += 8;
+    rows.forEach((r, i)=>{
+      let ry = y + 50;
+      txt(r.en, P, ry, `600 34px ${EN}`, INK);
+      if (r.price) txt(r.price, W - P, ry, `600 34px ${EN}`, r.priceUr ? MUTED : INK, "right");
+      else if (r.ur) txt(r.ur, W - P, ry, `400 30px ${UR}`, MUTED, "right", "rtl");
+      const ly = ry; r.subLines.forEach(l=>{ ry += 38; txt(l, P, ry, `400 28px ${EN}`, MUTED); });
+      if (r.price && (r.ur || r.priceUr)){ const uy = ly + 52;
+        if (r.priceUr) txt(r.priceUr, W - P, uy, `400 28px ${UR}`, MUTED, "right", "rtl");
+        if (r.ur) txt(r.ur, r.priceUr ? P : W - P, uy, `400 30px ${UR}`, MUTED, r.priceUr ? "left" : "right", "rtl"); }
+      y += r.h; if (i < rows.length - 1){ cx.fillStyle = "#eef2f6"; cx.fillRect(P, y - 4, W - 2*P, 2); }
+    });
+    // total
+    y += 30; cx.fillStyle = "#f3f6f9"; cx.fillRect(P - 20, y, W - 2*P + 40, totH - 20);
+    cx.fillStyle = ACC; cx.fillRect(P - 20, y, 8, totH - 20);
+    txt("Total", P + 12, y + 62, `700 40px ${HD}`, INK);
+    txt("کل", P + 12, y + 112, `700 32px ${UR}`, MUTED, "left", "rtl");
+    txt(rs(j.cost), W - P, y + 92, `700 64px ${HD}`, NAVY, "right");
+    y += totH;
+    if (j.notes){ cx.font = `400 28px ${EN}`; txt(wrapText(cx, "Note: " + j.notes, W - 2*P)[0], P, y + 40, `400 28px ${EN}`, MUTED); y += notesH; }
+    // footer: thanks + QR
+    cx.fillStyle = LINE; cx.fillRect(P, y, W - 2*P, 2); y += 20;
+    if (qr){
+      const n = qr.getModuleCount(), size = 220, cell = size / n, qx = W - P - size, qy = y + 20;
+      cx.fillStyle = "#ffffff"; cx.fillRect(qx - 10, qy - 10, size + 20, size + 20); cx.fillStyle = NAVY;
+      for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (qr.isDark(r, k)) cx.fillRect(Math.floor(qx + k*cell), Math.floor(qy + r*cell), Math.ceil(cell), Math.ceil(cell));
+      txt("Thank you!  شکریہ", P, y + 70, `600 40px ${EN}`, INK);
+      txt("Keep your bike's record and get", P, y + 128, `400 27px ${EN}`, MUTED);
+      txt("oil change reminders: scan with Bike Log", P, y + 166, `400 27px ${EN}`, MUTED);
+      txt("بائیک کا ریکارڈ اور آئل چینج کی یاد دہانی کے لیے اسکین کریں", qx - 40, y + 222, `400 24px ${UR}`, MUTED, "right", "rtl");
+    } else txt("Thank you!  شکریہ", P, y + 80, `600 40px ${EN}`, INK);
+    txt("Bike Log", P, H - 28, `600 24px ${HD}`, "#9aa7b5");
+    return await new Promise(res=>cv.toBlob(res, "image/png"));
+  }
+  async function sendBill(j, c){
+    billFor = {j, c}; billFile = null;
+    $("#billImg").hidden = true; $("#billOvMsg").hidden = false; $("#billOvMsg").textContent = "Making the bill…";
+    $("#billShare").disabled = true; $("#billOverlay").hidden = false;
+    try {
+      const blob = await drawBill(j, c); if (!blob) throw new Error("blob");
+      const fname = `bill-${(myShop && myShop.name || "shop").replace(/[^\w]+/g,"-").toLowerCase()}-${j.date}.png`;
+      billFile = new File([blob], fname, {type:"image/png"});
+      if (billUrl) URL.revokeObjectURL(billUrl); billUrl = URL.createObjectURL(blob);
+      $("#billImg").src = billUrl; $("#billImg").hidden = false; $("#billOvMsg").hidden = true;
+      $("#billSave").href = billUrl; $("#billSave").download = fname; $("#billShare").disabled = false;
+    } catch(e){ console.error(e); $("#billOvMsg").textContent = "Couldn't make the picture. Use Send as text instead."; }
+  }
+  $("#billShare").addEventListener("click", async ()=>{
+    if (!billFile) return;
+    const data = {files:[billFile], title:"Bill", text: myShop ? `${myShop.name} - Bill / بل` : "Bill / بل"};
+    if (navigator.canShare && navigator.canShare({files:[billFile]})){
+      try { await navigator.share(data); } catch(e){ if (e && e.name !== "AbortError") toast("Couldn't open sharing. Tap Save picture, then send it on WhatsApp."); }
+    } else { $("#billSave").click(); toast("Picture saved. Send it to the customer on WhatsApp."); }
+  });
+  $("#billAsText").addEventListener("click", ()=>{ if (billFor) sendBillText(billFor.j, billFor.c); });
+  $("#billOvClose").addEventListener("click", ()=>{ $("#billOverlay").hidden = true; });
   $("#billSend").addEventListener("click", ()=>{ if (lastBill) sendBill(lastBill.job, lastBill.cust); });
   $("#billClose").addEventListener("click", ()=>{ $("#billCard").hidden = true; lastBill = null; });
 
