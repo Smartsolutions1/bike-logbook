@@ -3,7 +3,12 @@ name: Daily reminders
 on:
   schedule:
     - cron: "37 13 * * *"   # every day at 6:37 pm Pakistan time
-  workflow_dispatch: {}      # also runnable by hand from the Actions tab
+  workflow_dispatch:         # also runnable by hand from the Actions tab
+    inputs:
+      test:
+        description: "Send a test notification to every phone instead of the normal reminders"
+        type: boolean
+        default: false
 
 jobs:
   send:
@@ -16,9 +21,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - run: npm install --no-audit --no-fund
-      - run: node send.js
+      - run: node send.js ${{ inputs.test && '--test' || '' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}

@@ -37,6 +37,20 @@ async function main() {
   });
   if (!devices.size) { console.log("No phones have reminders turned on."); return; }
 
+  // Test mode (run by hand with "test" ticked): send one bilingual test notification to every phone, nothing else
+  if (process.argv.includes("--test")) {
+    let ok = 0;
+    for (const [uid, phones] of devices) for (const ph of phones) {
+      const en = { t: "Test reminder", b: "Bike Log reminders are working on this phone." };
+      const ur = { t: "آزمائشی یاد دہانی", b: "Bike Log کی یاد دہانیاں اس فون پر کام کر رہی ہیں۔" };
+      const [a, b] = ph.lang === "ur" ? [ur, en] : [en, ur];
+      const payload = JSON.stringify({ title: `${a.t} · ${b.t}`, body: `${a.b}\n\n${b.t}\n${b.b}`, lang: ph.lang, tag: "bike-log-test", url: APP_URL });
+      try { await webpush.sendNotification(ph.sub, payload, { TTL: 3600 }); ok++; }
+      catch (e) { console.error("test send failed", e.statusCode || e.message); if (e.statusCode === 404 || e.statusCode === 410) await ph.ref.delete(); }
+    }
+    console.log(`Test: sent to ${ok} phone(s).`); return;
+  }
+
   // Bikes and who can see them (owner + members of the groups the bike is shared with)
   const [bikeSnap, statSnap] = await Promise.all([db.collection("bikes").get(), db.collection("bikeStats").get()]);
   const stats = new Map(); statSnap.forEach(d => stats.set(d.id, d.data()));
