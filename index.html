@@ -277,6 +277,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 #setTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M12%202.5v3M12%2018.5v3M2.5%2012h3M18.5%2012h3M5.3%205.3l2.1%202.1M16.6%2016.6l2.1%202.1M5.3%2018.7l2.1-2.1M16.6%207.4l2.1-2.1%22%2F%3E%3C%2Fsvg%3E")}
 #myShopTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.5%209.5%205%204.5h14l1.5%205%22%2F%3E%3Cpath%20d%3D%22M3.5%209.5a2.8%202.8%200%200%200%205.6%200%202.8%202.8%200%200%200%205.8%200%202.8%202.8%200%200%200%205.6%200%22%2F%3E%3Cpath%20d%3D%22M5%2012.5v7h14v-7%22%2F%3E%3Cpath%20d%3D%22M10%2019.5v-4.5h4v4.5%22%2F%3E%3C%2Fsvg%3E")}
 #custTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%228%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M3%2019.5c0-3.3%202.7-5.5%206-5.5s6%202.2%206%205.5%22%2F%3E%3Cpath%20d%3D%22M15.5%205.2a3%203%200%200%201%200%205.6%22%2F%3E%3Cpath%20d%3D%22M17.5%2014.3c2%20.7%203.5%202.6%203.5%205.2%22%2F%3E%3C%2Fsvg%3E")}
+#stockTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.5%207.5%2012%203l8.5%204.5v9L12%2021l-8.5-4.5z%22%2F%3E%3Cpath%20d%3D%22M3.5%207.5%2012%2012l8.5-4.5%22%2F%3E%3Cpath%20d%3D%22M12%2012v9%22%2F%3E%3C%2Fsvg%3E")}
 #remTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2016.5V11a6%206%200%200%201%2012%200v5.5l1.5%202h-15z%22%2F%3E%3Cpath%20d%3D%22M10%2020.5a2%202%200%200%200%204%200%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
@@ -374,6 +375,13 @@ body.mode-shop #tabbar [data-r],body:not(.mode-shop) #tabbar [data-s],body:not(.
 .modeChip{display:none;font:600 12.5px var(--body);color:var(--glow);border:var(--bw) solid var(--glow);border-radius:999px;padding:2px 10px;margin-inline-start:8px;vertical-align:middle;white-space:nowrap}
 body.mode-shop .modeChip{display:inline-block}
 .modeLine{gap:8px}
+body:not(.shop-stock) #tabbar [data-stockonly]{display:none}
+.stItem{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.stQty{flex:none;min-width:58px;text-align:center;border-radius:10px;padding:4px 8px;font:700 20px var(--display);background:var(--soft);color:var(--ink)}
+.stQty small{display:block;font:500 11.5px var(--body);color:var(--muted)}
+.stQty.low{background:#fde3e1;color:#a3261b}.stQty.low small{color:#a3261b}
+.stBtns{display:flex;gap:6px;flex-wrap:wrap}.stBtns .btn{min-width:42px}
+#stSearch{width:100%}
 .custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
 .linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
@@ -622,7 +630,7 @@ body.mode-shop .modeChip{display:inline-block}
     </div>
   </div>
 
-  <header class="pageHead" data-page="shops more scust sshop"><h1><span id="pageTitle">Bike Log</span><span class="modeChip">Shop mode</span></h1><button class="themeBtn langBtn" type="button" id="langBtn2" aria-label="Change language" data-noi18n></button></header>
+  <header class="pageHead" data-page="shops more scust sstock sshop"><h1><span id="pageTitle">Bike Log</span><span class="modeChip">Shop mode</span></h1><button class="themeBtn langBtn" type="button" id="langBtn2" aria-label="Change language" data-noi18n></button></header>
 
   <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
     <h2 id="shopsTitle">Shops &amp; mechanics</h2>
@@ -690,6 +698,30 @@ body.mode-shop .modeChip{display:inline-block}
       <div class="actions"><button class="btn" type="submit">Save job</button><button class="btn ghost" type="button" id="jCancel">Cancel</button></div>
       <div class="msg" id="jobMsg" role="status"></div>
     </form>
+  </section>
+
+  <section class="panel" aria-labelledby="stockTitle" id="stockPanel" data-page="sstock">
+    <div class="histhead"><h2 id="stockTitle">Parts stock</h2><button class="btn small" type="button" id="stAddBtn">+ Add part</button></div>
+    <p class="foot" style="margin:0" id="stSummary" role="status"></p>
+    <form id="stForm" class="shopForm" hidden>
+      <div class="field"><label for="stName">Part name</label><input id="stName" type="text" list="stNames" required placeholder="e.g. Spark plug"></div>
+      <datalist id="stNames"></datalist>
+      <div class="field"><label for="stBrand">Brand / type</label><input id="stBrand" type="text" placeholder="optional"></div>
+      <div class="row">
+        <div class="field"><label for="stQty">Quantity in shop</label><input id="stQty" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="stSell">Sale price</label><input id="stSell" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="stBuy">Buying price (optional)</label><input id="stBuy" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="stLow">Warn me when only</label><input id="stLow" type="number" inputmode="numeric" min="0" step="1" placeholder="2"></div>
+      </div>
+      <p class="foot" style="margin:0">Buying price stays private to your shop. It will help show your profit later.</p>
+      <div class="actions"><button class="btn" type="submit">Save part</button><button class="btn ghost" type="button" id="stCancel">Cancel</button><button class="btn ghost" type="button" id="stDelete" hidden>Delete</button></div>
+      <div class="msg" id="stMsg" role="status"></div>
+    </form>
+    <input id="stSearch" type="search" placeholder="Search parts" hidden>
+    <div class="shopList" id="stList"></div>
+    <p class="foot" style="margin:0" id="stEmpty">Add the parts you keep in your shop. When you use one in a job, the count goes down by itself.</p>
   </section>
 
   <section class="panel" aria-labelledby="myShopTitle" id="myShopPanel" data-page="sshop">
@@ -823,7 +855,7 @@ body.mode-shop .modeChip{display:inline-block}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.5.1" data-updated="2026-11-02T05:08:07Z">Version 4.5.1</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.6" data-updated="2026-11-02T05:16:08Z">Version 4.6</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -856,6 +888,7 @@ body.mode-shop .modeChip{display:inline-block}
   <button type="button" data-go="more" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
   <button type="button" data-mode="shop" data-r data-shoponly><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>Shop mode</span></button>
   <button type="button" data-go="scust" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M15.5 5.2a3 3 0 0 1 0 5.6"/><path d="M17.5 14.3c2 .7 3.5 2.6 3.5 5.2"/></svg><span>Customers</span></button>
+  <button type="button" data-go="sstock" data-s data-stockonly><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><path d="M12 12v9"/></svg><span>Stock</span></button>
   <button type="button" data-go="sshop" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>My shop</span></button>
   <button type="button" data-mode="rider" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M5.5 16.5h5l3-6h3l2 6"/><path d="M13.5 10.5 12 7.5H9.5"/></svg><span>Rider mode</span></button>
 </nav>
@@ -874,9 +907,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 (function(){
   const $ = s => document.querySelector(s);
   // ---------- pages + bottom tabs ----------
-  const PAGES = ["home","history","shops","more","scust","sshop"];
+  const PAGES = ["home","history","shops","more","scust","sstock","sshop"];
   // Rider mode and Shop mode (like InDrive's two modes); the app reopens in the last one used.
-  const MODE_KEY = "bike-logbook-appmode", RIDER_PAGES = ["home","history","shops","more"], SHOP_PAGES = ["scust","sshop"];
+  const MODE_KEY = "bike-logbook-appmode", RIDER_PAGES = ["home","history","shops","more"], SHOP_PAGES = ["scust","sstock","sshop"];
   let appMode = (()=>{ try {
     const q = new URLSearchParams(location.search);
     if (q.has("mechanic")){ localStorage.setItem(MODE_KEY, "shop"); localStorage.setItem("bike-logbook-mechsetup", "1");
@@ -897,9 +930,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     document.querySelectorAll("[data-page]").forEach(el=>el.classList.toggle("on", el.dataset.page.split(" ").includes(pg)));
     document.querySelectorAll("#tabbar [data-go]").forEach(b=>{ if (b.dataset.go===pg) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     PAGES.forEach(x=>document.body.classList.toggle("p-"+x, x===pg));
-    const t = document.getElementById("pageTitle"); if (t) t.textContent = ({shops:"Shops", more:"More", scust:"Customers", sshop:"My shop"})[pg] || "Bike Log";
+    const t = document.getElementById("pageTitle"); if (t) t.textContent = ({shops:"Shops", more:"More", scust:"Customers", sstock:"Stock", sshop:"My shop"})[pg] || "Bike Log";
   }
-  const pageFromHash = () => (location.hash.match(/^#(home|history|shops|more|scust|sshop)$/)||[])[1] || basePage();
+  const pageFromHash = () => (location.hash.match(/^#(home|history|shops|more|scust|sstock|sshop)$/)||[])[1] || basePage();
   function goPage(pg){
     // History stays at most [Home, one tab], so the phone's back button goes to Home, then closes the app
     const cur = pageFromHash();
@@ -2023,7 +2056,9 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function jobPartOptions(){ const t = jobFor && jobFor.type==="electric" ? "e" : "p"; return PARTS.filter(p=>p.for.includes(t)).map(p=>`<option value="${p.key}">${p.label}</option>`).join(""); }
   function addJobPart(){
     const n = ++jpSeq, row = document.createElement("div"); row.className = "prt";
+    const inStock = stock.filter(it=>(+it.qty||0) > 0);
     row.innerHTML = `<div class="prt-h"><span class="prt-t">Part</span><button type="button" class="prt-x" aria-label="Remove this part">Remove</button></div>
+      ${inStock.length ? `<div class="field"><label for="js-${n}">From my stock</label><select id="js-${n}" class="js"><option value="">Not from my stock</option>${inStock.map(it=>`<option value="${esc(it.id)}">${esc(stockLabel(it))} · ${fmt(it.qty)} left${it.sell ? ` · Rs ${fmt(it.sell)}` : ""}</option>`).join("")}</select></div>` : ""}
       <div class="row">
         <div class="field"><label for="jp-${n}">Part replaced</label><select id="jp-${n}" class="jp">${jobPartOptions()}</select></div>
         <div class="field"><label for="jc-${n}">Part price</label><input id="jc-${n}" class="jc" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
@@ -2033,7 +2068,16 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     $("#jParts").appendChild(row);
     const syncName = ()=>{ row.querySelector(".jnw").hidden = row.querySelector(".jp").value !== "other"; };
     row.querySelector(".jp").addEventListener("change", syncName); syncName();
-    row.querySelector(".jb").addEventListener("change", ()=>{ const c = row.querySelector(".jc"), b = row.querySelector(".jb").checked; c.disabled = b; if (b) c.value = ""; });
+    row.querySelector(".jb").addEventListener("change", ()=>{ const c = row.querySelector(".jc"), b = row.querySelector(".jb").checked; c.disabled = b; if (b){ c.value = ""; const js = row.querySelector(".js"); if (js) js.value = ""; } });
+    const js = row.querySelector(".js");
+    if (js) js.addEventListener("change", ()=>{
+      const it = stock.find(x=>x.id===js.value); if (!it) return;
+      const sel = row.querySelector(".jp");
+      if (it.part && it.part!=="other" && [...sel.options].some(o=>o.value===it.part)){ sel.value = it.part; row.querySelector(".jn").value = ""; }
+      else { sel.value = "other"; row.querySelector(".jn").value = stockLabel(it); }
+      syncName(); row.querySelector(".jb").checked = false; row.querySelector(".jc").disabled = false;
+      if (it.sell) row.querySelector(".jc").value = it.sell;
+    });
     row.querySelector(".prt-x").addEventListener("click", ()=>{ if ($("#jParts").children.length > 1) row.remove(); });
   }
   function syncJobForm(){
@@ -2074,6 +2118,73 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function sendBillText(j, c){
     const num = waNum(lsGet("bike-logbook-wa-" + c.bikeId) || "");
     window.open(`https://wa.me/${num}?text=` + encodeURIComponent(billText(j, c)), "_blank", "noopener");
+  }
+
+  // ---------- 4.6: parts stock ----------
+  let stock = [], stEditing = null;
+  const STOCK_NAMES = ["Spark plug","Engine oil","Chain","Sprocket set","Chain + Sprocket set","Clutch plates","Clutch cable","Accelerator cable","Brake cable",
+    "Front brake shoes/pads","Rear brake shoes","Front tyre","Rear tyre","Tube","Air filter","Oil filter","Battery","Head light bulb","Indicator bulb","Horn",
+    "Carburetor kit","Piston ring set","Gasket set","Mirror","Seat cover","Fork oil","Brake oil","Fuse","Wire set"];
+  const stockLabel = it => [it.name, it.brand].filter(Boolean).join(" · ");
+  const partKeyFor = name => { const n = String(name).trim().toLowerCase(); const p = PARTS.find(x=>x.key!=="other" && x.label.toLowerCase()===n); return p ? p.key : "other"; };
+  function stockOn(){ return !!(myShop && (myShop.kinds||[]).some(k=>k==="sell"||k==="stock")); }
+  function renderStock(){
+    document.body.classList.toggle("shop-stock", stockOn());
+    if (!$("#stockPanel")) return;
+    const low = stock.filter(it=>(+it.qty||0) <= (it.low ?? 2));
+    $("#stSummary").textContent = !stock.length ? "" : low.length ? `${stock.length} parts · ${low.length} running low` : `${stock.length} parts · all in stock`;
+    $("#stSearch").hidden = stock.length < 6;
+    $("#stEmpty").hidden = stock.length > 0;
+    const q = $("#stSearch").value.trim().toLowerCase();
+    const list = stock.filter(it=>!q || stockLabel(it).toLowerCase().includes(q))
+      .sort((a,b)=>((+a.qty||0) <= (a.low ?? 2) ? 0 : 1) - ((+b.qty||0) <= (b.low ?? 2) ? 0 : 1) || String(a.name).localeCompare(String(b.name)));
+    $("#stList").innerHTML = list.map(it=>{
+      const qty = +it.qty||0, isLow = qty <= (it.low ?? 2);
+      return `<div class="shopItem"><div class="stItem"><div style="min-width:0"><b data-noi18n>${esc(it.name)}</b>
+          <span class="by" style="display:block">${it.brand ? `<span data-noi18n>${esc(it.brand)}</span> · ` : ""}${it.sell ? `<bdi dir="ltr" data-noi18n>Rs ${fmt(it.sell)}</bdi>` : `<span>No price set</span>`}</span>
+          ${isLow ? `<span class="by" style="color:var(--bad)">${qty <= 0 ? "Out of stock" : "Running low"}</span>` : ""}</div>
+        <div class="stQty${isLow ? " low" : ""}"><bdi dir="ltr" data-noi18n>${fmt(qty)}</bdi><small>in shop</small></div></div>
+        <div class="stBtns"><button class="btn small ghost" type="button" data-stq="${esc(it.id)}|-1" aria-label="One less"><bdi dir="ltr">−1</bdi></button><button class="btn small ghost" type="button" data-stq="${esc(it.id)}|1" aria-label="One more"><bdi dir="ltr">+1</bdi></button>
+          <button class="btn small ghost" type="button" data-stedit="${esc(it.id)}">Edit</button></div></div>`;
+    }).join("");
+    $("#stNames").innerHTML = [...new Set([...STOCK_NAMES, ...PARTS.filter(p=>p.key!=="other").map(p=>p.label)])].map(n=>`<option value="${esc(n)}">`).join("");
+  }
+  function openStockForm(it){
+    stEditing = it || null; const f = $("#stForm"); f.reset(); $("#stMsg").textContent = "";
+    $("#stName").value = it ? it.name || "" : ""; $("#stBrand").value = it ? it.brand || "" : "";
+    $("#stQty").value = it ? (+it.qty||0) : ""; $("#stSell").value = it && it.sell ? it.sell : "";
+    $("#stBuy").value = it && it.buy ? it.buy : ""; $("#stLow").value = it ? (it.low ?? 2) : "";
+    $("#stDelete").hidden = !it; f.hidden = false; f.scrollIntoView({behavior:"smooth", block:"start"}); if (!it) $("#stName").focus();
+  }
+  function closeStockForm(){ $("#stForm").hidden = true; stEditing = null; }
+  $("#stAddBtn").addEventListener("click", ()=>openStockForm(null));
+  $("#stCancel").addEventListener("click", closeStockForm);
+  $("#stSearch").addEventListener("input", renderStock);
+  $("#stDelete").addEventListener("click", ()=>{ const b = $("#stDelete"); twoTap(b, "Delete", "Tap again to delete", async ()=>{
+    if (!stEditing) return; try { await store.deleteStockItem(stEditing.id); closeStockForm(); toast("Part removed from stock."); } catch(e){ toast("Couldn't delete. Check your connection and try again."); } }); });
+  $("#stForm").addEventListener("submit", async ev=>{
+    ev.preventDefault(); const m = $("#stMsg"); m.className = "msg err";
+    const name = $("#stName").value.trim(); if (!name){ m.textContent = "Type the part's name."; return; }
+    const low = $("#stLow").value === "" ? 2 : Math.max(0, parseInt($("#stLow").value)||0);
+    const item = { name, part: partKeyFor(name), brand: $("#stBrand").value.trim(), qty: Math.max(0, parseInt($("#stQty").value)||0),
+      sell: Math.max(0, parseFloat($("#stSell").value)||0), buy: Math.max(0, parseFloat($("#stBuy").value)||0), low };
+    if (stEditing) item.id = stEditing.id;
+    m.className = "msg"; m.textContent = "Saving…";
+    try { await store.saveStockItem(item); closeStockForm(); toast(stEditing ? "Part updated." : "Part added to stock."); }
+    catch(e){ console.error(e); m.className = "msg err"; m.textContent = navigator.onLine ? "Couldn't save the part. Please try again." : "You're offline. Saving stock needs internet."; }
+  });
+  $("#stList").addEventListener("click", ev=>{
+    const q = ev.target.closest("[data-stq]"); if (q){ const [id, d] = q.dataset.stq.split("|"); const it = stock.find(x=>x.id===id);
+      if (it && !(+d < 0 && (+it.qty||0) <= 0)) store.adjustStock(id, +d).catch(()=>toast("Couldn't update. Check your connection and try again.")); return; }
+    const e = ev.target.closest("[data-stedit]"); if (e){ const it = stock.find(x=>x.id===e.dataset.stedit); if (it) openStockForm(it); }
+  });
+  // A job used (-1) or gave back (+1) parts from stock
+  function useStock(parts, dir){
+    (parts||[]).filter(p=>p.stockId).forEach(p=>{
+      store.adjustStock(p.stockId, dir).catch(()=>{});
+      const it = stock.find(x=>x.id===p.stockId);
+      if (dir < 0 && it){ const left = (+it.qty||0) - 1; if (left <= (it.low ?? 2)) toast(left <= 0 ? `${it.name}: now out of stock.` : `${it.name}: only ${left} left in stock.`); }
+    });
   }
 
   // ---------- 4.3.2: bill as a picture ----------
@@ -2217,9 +2328,10 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     if (vk.includes("part")){
       const rows = [...document.querySelectorAll("#jParts .prt")];
       e.parts = rows.map(r=>{ const part = r.querySelector(".jp").value;
-        const brought = r.querySelector(".jb").checked;
-        const it = {part, partName: part==="other" ? r.querySelector(".jn").value.trim() : "", brand: "", price: brought ? 0 : Math.max(0, parseFloat(r.querySelector(".jc").value)||0), life: 0};
-        if (brought) it.brought = true; return it; });
+        const brought = r.querySelector(".jb").checked, js = r.querySelector(".js"), sid = (!brought && js && js.value) || "";
+        const sItem = sid ? stock.find(x=>x.id===sid) : null;
+        const it = {part, partName: part==="other" ? r.querySelector(".jn").value.trim() : "", brand: sItem && sItem.brand || "", price: brought ? 0 : Math.max(0, parseFloat(r.querySelector(".jc").value)||0), life: 0};
+        if (brought) it.brought = true; if (sid) it.stockId = sid; return it; });
       const miss = e.parts.findIndex(x=>x.part==="other" && !x.partName);
       if (miss>=0){ m.textContent = "Name the part you replaced."; rows[miss].querySelector(".jn").focus(); return; }
       e.part = e.parts[0].part; e.partName = e.parts[0].partName; e.brand = ""; e.life = 0;
@@ -2231,6 +2343,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const bikeId = jobFor.bikeId, cust = jobFor, wa = $("#jWa").value.trim();
     try {
       await store.addShopJob(bikeId, e);
+      useStock(e.parts, -1);
       if (wa) lsSet("bike-logbook-wa-" + bikeId, wa); else { try { localStorage.removeItem("bike-logbook-wa-" + bikeId); } catch(x){} }
       closeJobForm(); $("#shopMsg").textContent = "";
       lastBill = {job: {...e, bikeId}, cust}; $("#billCard").hidden = false;
@@ -2250,7 +2363,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     const d = ev.target.closest("[data-jdel]"); if (d){ twoTap(d, "Delete job", "Tap again to delete", async ()=>{
       const [bikeId, id] = d.dataset.jdel.split("|"); const list = openJobs.get(bikeId); const j = Array.isArray(list) && list.find(x=>x.id===id);
       if (!j) return;
-      try { await store.deleteShopJob(j); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
+      try { await store.deleteShopJob(j); useStock(j.parts, +1); toast("Job deleted."); loadJobs(bikeId); } catch(err){ toast("Couldn't delete the job."); }
     }); }
   });
 
@@ -2500,7 +2613,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function onShopData(data){
     myShop = data.myShop || null; savedShops = data.savedShops || [];
     shopLinks = data.links || []; customers = data.customers || [];
-    renderShops(); renderCustomers(); renderModeLine(); renderNear();
+    stock = data.stock || [];
+    renderShops(); renderCustomers(); renderModeLine(); renderNear(); renderStock();
     document.body.classList.toggle("has-shop", !!myShop);
     if (data.ready && lsGet("bike-logbook-mechsetup")){
       try { localStorage.removeItem("bike-logbook-mechsetup"); } catch(e){}
