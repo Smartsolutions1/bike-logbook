@@ -359,6 +359,10 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 .shopForm{display:flex;flex-direction:column;gap:12px}
 .shopForm .lbl{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
 .shopCard{display:flex;flex-direction:column;gap:6px}.shopCard b{font-size:20px}
+.scanBox{position:relative;width:min(86vw,360px);aspect-ratio:1;border-radius:18px;overflow:hidden;background:#000}
+.scanBox video{width:100%;height:100%;object-fit:cover;display:block}
+.scanFrame{position:absolute;inset:14%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.scanMsg{color:#fff;text-align:center;max-width:360px;margin:0;font-size:15px;line-height:1.5}
 .custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
 .linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
@@ -611,9 +615,10 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 
   <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
     <h2 id="shopsTitle">Shops &amp; mechanics</h2>
+    <div class="actions"><button class="btn" type="button" id="scanBtn">Scan mechanic's QR code</button></div>
     <h3 class="subh">My mechanics</h3>
     <div class="shopList" id="myShopsList"></div>
-    <p class="foot" style="margin:0" id="myShopsEmpty">Scan your mechanic's Bike Log QR code with your phone camera to save his shop here.</p>
+    <p class="foot" style="margin:0" id="myShopsEmpty">Tap Scan above and point the camera at your mechanic's Bike Log QR code to save his shop here.</p>
     <h3 class="subh">Search on Google Maps</h3>
     <div class="navLinks">
       <a class="btn" id="findMech" href="https://www.google.com/maps/search/motorcycle+mechanic/" target="_blank" rel="noopener">Find bike mechanics near me</a>
@@ -791,7 +796,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3" data-updated="2026-11-02T04:06:33Z">Version 4.3</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.1" data-updated="2026-11-02T04:20:03Z">Version 4.3.1</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -801,8 +806,15 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     <div class="pQr" id="pQr"></div>
     <div class="pEn" data-noi18n>Scan with your phone camera to keep your bike's record and get oil change reminders</div>
     <div class="pUr" dir="rtl" lang="ur" data-noi18n>اپنی بائیک کا ریکارڈ رکھنے اور آئل چینج کی یاد دہانی کے لیے فون کے کیمرے سے اسکین کریں</div>
+    <div class="pEn" data-noi18n>Already have Bike Log? Open it, go to Shops and tap Scan.</div>
+    <div class="pUr" dir="rtl" lang="ur" data-noi18n>پہلے سے Bike Log ہے؟ ایپ کھولیں، دکانیں میں جا کر اسکین دبائیں۔</div>
   </div>
   <div class="actions noprint"><button class="btn" type="button" id="qrPrint">Print poster</button><button class="btn ghost" type="button" id="qrShare">Send link on WhatsApp</button><button class="btn ghost" type="button" id="qrClose">Close</button></div>
+</div>
+<div class="qrOverlay" id="scanOverlay" hidden>
+  <div class="scanBox"><video id="scanVideo" playsinline muted autoplay></video><div class="scanFrame"></div></div>
+  <p class="scanMsg" id="scanMsg" role="status">Point the camera at the mechanic's Bike Log QR code.</p>
+  <div class="actions"><button class="btn ghost" type="button" id="scanClose">Close</button></div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <button type="button" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
@@ -1873,6 +1885,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   const shopWhere = sh => [sh.area, sh.city].filter(Boolean).join(", ");
   const mapUrl = sh => (sh.lat && sh.lng) ? `https://www.google.com/maps/search/?api=1&query=${sh.lat},${sh.lng}` : (shopWhere(sh) ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sh.name+" "+shopWhere(sh))}` : "");
   let myShop = null, savedShops = [], pendingShop = null, scannedShop = null;
+  const SCAN_KEY = "bike-logbook-shopscan";
 
   function shopButtons(sh, withVisit){
     const wa = waNum(sh.phone), map = mapUrl(sh);
@@ -2134,17 +2147,28 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   // A rider scanned a shop's QR code: ?shop=<id>
   (function(){
     const q = new URLSearchParams(location.search), id = q.get("shop");
-    if (id){ lsSet("bike-logbook-shopscan", id); try { history.replaceState(null, "", location.pathname + location.hash); } catch(e){} }
+    if (id){ setPendingScan(id); try { history.replaceState(null, "", location.pathname + location.hash); } catch(e){} }
   })();
+  // A scan stays pending until the rider taps Add or Close, so it survives the hand-off
+  // from the camera's browser page to the installed app (it expires after 30 minutes).
+  function setPendingScan(id){ lsSet(SCAN_KEY, JSON.stringify({id, at: Date.now()})); }
+  function clearPendingScan(){ try { localStorage.removeItem(SCAN_KEY); } catch(e){} }
+  function pendingScan(){
+    const v = lsGet(SCAN_KEY); if (!v) return null;
+    let o = null; try { o = JSON.parse(v); } catch(e){}
+    if (!o || typeof o !== "object") return v;
+    if (!o.id || Date.now() - (o.at||0) > 30*60*1000){ clearPendingScan(); return null; }
+    return o.id;
+  }
   let scanChecking = false;
   async function checkShopScan(){
-    const id = lsGet("bike-logbook-shopscan");
+    const id = pendingScan();
     if (!id || scanChecking || !isCloud()) return;
+    if (scannedShop && scannedShop.id === id && !$("#shopVisit").hidden) return;
     scanChecking = true;
     try {
       const sh = await store.getShop(id);
-      try { localStorage.removeItem("bike-logbook-shopscan"); } catch(e){}
-      if (!sh) { toast("That shop code wasn't found."); return; }
+      if (!sh) { clearPendingScan(); toast("That shop code wasn't found."); return; }
       scannedShop = sh;
       if (!(myShop && myShop.id===sh.id)) store.saveShopToMine(sh.id).catch(()=>{});
       showScannedShop();
@@ -2164,8 +2188,66 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     goPage("home"); $("#formMsg").className = "msg"; $("#formMsg").textContent = "Shop filled in. Choose what was done and save.";
     $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
   }
-  $("#svAdd").addEventListener("click", ()=>{ $("#shopVisit").hidden = true; if (scannedShop) startVisitAt(scannedShop, $("#svAllow").checked); });
-  $("#svClose").addEventListener("click", ()=>{ $("#shopVisit").hidden = true; scannedShop = null; });
+  $("#svAdd").addEventListener("click", ()=>{ clearPendingScan(); $("#shopVisit").hidden = true; if (scannedShop) startVisitAt(scannedShop, $("#svAllow").checked); });
+  $("#svClose").addEventListener("click", ()=>{ clearPendingScan(); $("#shopVisit").hidden = true; scannedShop = null; });
+
+  // ---------- 4.3.1: QR scanner inside the app ----------
+  let scanStream = null, scanTimer = null, jsQRLib = null;
+  function loadJsQR(){
+    if (jsQRLib) return jsQRLib;
+    jsQRLib = new Promise((res, rej)=>{ const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+      sc.onload = ()=>res(window.jsQR); sc.onerror = ()=>{ jsQRLib = null; rej(new Error("jsqr")); }; document.head.appendChild(sc); });
+    return jsQRLib;
+  }
+  function shopIdFromText(t){
+    try { const u = new URL(String(t).trim(), location.href); const id = u.searchParams.get("shop");
+      if (id && u.origin === location.origin) return id; } catch(e){}
+    return null;
+  }
+  async function makeDetector(v){
+    if ("BarcodeDetector" in window){
+      try { const f = await BarcodeDetector.getSupportedFormats();
+        if (f.includes("qr_code")){ const bd = new BarcodeDetector({formats:["qr_code"]}); return async ()=>{ const r = await bd.detect(v); return r[0] && r[0].rawValue; }; } } catch(e){}
+    }
+    const jsQR = await loadJsQR();
+    const cv = document.createElement("canvas"), cx = cv.getContext("2d", {willReadFrequently:true});
+    return async ()=>{
+      if (!v.videoWidth) return null;
+      const w = Math.min(640, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
+      cv.width = w; cv.height = h; cx.drawImage(v, 0, 0, w, h);
+      const r = jsQR(cx.getImageData(0, 0, w, h).data, w, h, {inversionAttempts:"dontInvert"}); return r && r.data;
+    };
+  }
+  async function openScanner(){
+    const m = $("#scanMsg");
+    if (!isCloud()){ toast("Sign in with Google to save shops."); return; }
+    m.textContent = "Point the camera at the mechanic's Bike Log QR code."; $("#scanOverlay").hidden = false;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ m.textContent = "This phone can't open the camera inside the app. Scan the poster with your phone's camera instead."; return; }
+    try { scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}, audio:false}); }
+    catch(e){ m.textContent = e && e.name==="NotAllowedError" ? "Camera is blocked for Bike Log. Allow the camera in your phone's settings for this app, then try again." : "Couldn't open the camera. Close other apps using it and try again."; return; }
+    if ($("#scanOverlay").hidden){ closeScanner(); return; }
+    const v = $("#scanVideo"); v.srcObject = scanStream; try { await v.play(); } catch(e){}
+    let detect;
+    try { detect = await makeDetector(v); }
+    catch(e){ m.textContent = navigator.onLine ? "Couldn't load the scanner. Please try again." : "Connect to the internet once to use the scanner."; return; }
+    const tick = async ()=>{
+      if (!scanStream) return;
+      let t = null; try { t = await detect(); } catch(e){}
+      if (t){ const id = shopIdFromText(t);
+        if (id){ closeScanner(); if (navigator.vibrate) navigator.vibrate(60); setPendingScan(id); scannedShop = null; checkShopScan(); return; }
+        m.textContent = "That isn't a Bike Log shop code. Scan the QR code on your mechanic's Bike Log poster."; }
+      scanTimer = setTimeout(tick, 250);
+    };
+    tick();
+  }
+  function closeScanner(){
+    clearTimeout(scanTimer);
+    if (scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream = null; }
+    $("#scanVideo").srcObject = null; $("#scanOverlay").hidden = true;
+  }
+  $("#scanBtn").addEventListener("click", openScanner);
+  $("#scanClose").addEventListener("click", closeScanner);
+  document.addEventListener("visibilitychange", ()=>{ if (document.hidden && scanStream) closeScanner(); });
   $("#myShopsList").addEventListener("click", ev=>{
     const v = ev.target.closest("[data-visit]"); if (v){ const sh = savedShops.find(x=>x.id===v.dataset.visit); if (sh) startVisitAt(sh, false); return; }
     const f = ev.target.closest("[data-forget]"); if (f) store.forgetShop(f.dataset.forget).catch(()=>{});

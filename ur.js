@@ -304,7 +304,6 @@
     "You scanned this shop's code": "آپ نے اس دکان کا کوڈ اسکین کیا",
     "Let this shop add jobs to my bike": "اس دکان کو میری بائیک پر کام درج کرنے دیں",
     "Add a visit at this shop": "اس دکان کا وزٹ درج کریں",
-    "Close": "بند کریں",
     "My mechanics": "میرے مستری",
     "Scan your mechanic's Bike Log QR code with your phone camera to save his shop here.": "اپنے مستری کا بائیک لاگ QR کوڈ فون کے کیمرے سے اسکین کریں تاکہ اس کی دکان یہاں محفوظ ہو جائے۔",
     "Search on Google Maps": "گوگل میپس پر تلاش کریں",
@@ -455,6 +454,17 @@
     "customer's own part": "گاہک کا اپنا پرزہ",
     "own part": "اپنا پرزہ",
     "Close": "بند کریں",
+    // 4.3.1: in-app QR scanner
+    "Scan mechanic's QR code": "مستری کا QR کوڈ اسکین کریں",
+    "Tap Scan above and point the camera at your mechanic's Bike Log QR code to save his shop here.": "اوپر اسکین دبائیں اور کیمرہ اپنے مستری کے Bike Log QR کوڈ کی طرف کریں، اس کی دکان یہاں محفوظ ہو جائے گی۔",
+    "Point the camera at the mechanic's Bike Log QR code.": "کیمرہ مستری کے Bike Log QR کوڈ کی طرف کریں۔",
+    "This phone can't open the camera inside the app. Scan the poster with your phone's camera instead.": "یہ فون ایپ کے اندر کیمرہ نہیں کھول سکتا۔ پوسٹر فون کے کیمرے سے اسکین کریں۔",
+    "Camera is blocked for Bike Log. Allow the camera in your phone's settings for this app, then try again.": "Bike Log کے لیے کیمرہ بند ہے۔ فون کی سیٹنگز میں اس ایپ کو کیمرے کی اجازت دیں، پھر دوبارہ کوشش کریں۔",
+    "Couldn't open the camera. Close other apps using it and try again.": "کیمرہ نہیں کھل سکا۔ کیمرہ استعمال کرنے والی دوسری ایپس بند کر کے دوبارہ کوشش کریں۔",
+    "Couldn't load the scanner. Please try again.": "اسکینر لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "Connect to the internet once to use the scanner.": "اسکینر استعمال کرنے کے لیے ایک بار انٹرنیٹ سے جڑیں۔",
+    "That isn't a Bike Log shop code. Scan the QR code on your mechanic's Bike Log poster.": "یہ Bike Log دکان کا کوڈ نہیں ہے۔ اپنے مستری کے Bike Log پوسٹر والا QR کوڈ اسکین کریں۔",
+    "Sign in with Google to save shops.": "دکانیں محفوظ کرنے کے لیے گوگل سے سائن ان کریں۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
