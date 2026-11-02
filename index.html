@@ -367,7 +367,10 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 .scanMsg{color:#fff;text-align:center;max-width:360px;margin:0;font-size:15px;line-height:1.5}
 .billImg{max-width:min(92vw,420px);max-height:70vh;border-radius:12px;background:#fff;box-shadow:0 6px 30px rgba(0,0,0,.4)}
 #billOverlay .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-body.mode-shop #tabbar [data-r],body:not(.mode-shop) #tabbar [data-s]{display:none}
+.tabbar span{white-space:nowrap}
+body.has-shop:not(.mode-shop) .tabbar{gap:2px;padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+body.has-shop:not(.mode-shop) .tabbar button{padding-left:2px;padding-right:2px;font-size:12.5px;min-width:0}
+body.mode-shop #tabbar [data-r],body:not(.mode-shop) #tabbar [data-s],body:not(.has-shop) #tabbar [data-shoponly]{display:none}
 .modeChip{display:none;font:600 12.5px var(--body);color:var(--glow);border:var(--bw) solid var(--glow);border-radius:999px;padding:2px 10px;margin-inline-start:8px;vertical-align:middle;white-space:nowrap}
 body.mode-shop .modeChip{display:inline-block}
 .modeLine{gap:8px}
@@ -820,7 +823,7 @@ body.mode-shop .modeChip{display:inline-block}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.5" data-updated="2026-11-02T05:05:30Z">Version 4.5</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.5.1" data-updated="2026-11-02T05:08:07Z">Version 4.5.1</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -851,6 +854,7 @@ body.mode-shop .modeChip{display:inline-block}
   <button type="button" data-go="history" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg><span>History</span></button>
   <button type="button" data-go="shops" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.3-.5-.5-2.3z"/></svg><span>Shops</span></button>
   <button type="button" data-go="more" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
+  <button type="button" data-mode="shop" data-r data-shoponly><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>Shop mode</span></button>
   <button type="button" data-go="scust" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M15.5 5.2a3 3 0 0 1 0 5.6"/><path d="M17.5 14.3c2 .7 3.5 2.6 3.5 5.2"/></svg><span>Customers</span></button>
   <button type="button" data-go="sshop" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>My shop</span></button>
   <button type="button" data-mode="rider" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M5.5 16.5h5l3-6h3l2 6"/><path d="M13.5 10.5 12 7.5H9.5"/></svg><span>Rider mode</span></button>
@@ -2497,6 +2501,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     myShop = data.myShop || null; savedShops = data.savedShops || [];
     shopLinks = data.links || []; customers = data.customers || [];
     renderShops(); renderCustomers(); renderModeLine(); renderNear();
+    document.body.classList.toggle("has-shop", !!myShop);
     if (data.ready && lsGet("bike-logbook-mechsetup")){
       try { localStorage.removeItem("bike-logbook-mechsetup"); } catch(e){}
       if (!myShop && isCloud()){ goPage("sshop"); openShopForm(); }
