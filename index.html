@@ -329,6 +329,26 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 .tabbar button[aria-current="page"] svg{color:var(--glow);stroke-width:2.3}
 .tabbar button:active{transform:scale(.95)}
 .gate:not([hidden]) ~ .tabbar{display:none}
+.subh{font:700 16px var(--body);margin:6px 0 0;color:var(--ink)}
+.svName{font-size:22px}
+.svAllow{display:flex;gap:8px;align-items:center;font-size:14px}.svAllow input{width:auto;margin:0}
+.shopList{display:flex;flex-direction:column;gap:10px}
+.shopItem{border:var(--bw) solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--panel)}
+.shopItem b{font-size:17px}.shopItem .by{font-size:13px}
+.shopItem .actions,.shopCard .actions{display:flex;flex-wrap:wrap;gap:8px}
+.shopItem a.btn{text-decoration:none}
+.shopForm{display:flex;flex-direction:column;gap:12px}
+.shopForm .lbl{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.shopCard{display:flex;flex-direction:column;gap:6px}.shopCard b{font-size:20px}
+.qrOverlay{position:fixed;inset:0;z-index:60;background:rgba(5,10,18,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:auto}
+.poster{background:#fff;color:#0e1621;border-radius:16px;width:min(360px,100%);padding:22px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;border:3px solid #ffb02e}
+.pBrand{font:800 15px var(--body);letter-spacing:.08em;text-transform:uppercase;color:#13284a}
+.pName{font:800 28px var(--body);line-height:1.1}
+.pWhere{font-size:15px;color:#424e5b}
+.pQr svg{width:230px;height:230px;display:block}
+.pEn{font-size:14px;font-weight:600}
+.pUr{font-family:"Noto Nastaliq Urdu",serif;font-size:15px;line-height:2}
+@media print{body *{visibility:hidden!important}#poster,#poster *{visibility:visible!important}#poster{position:fixed;left:0;top:0;width:100%;border:0}.qrOverlay{background:none}}
 .navLinks{display:flex;flex-direction:column;gap:10px}
 .navLinks .btn{text-align:center;text-decoration:none}
 .setRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-weight:600}
@@ -421,6 +441,14 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
   <div class="banner" id="sampleBanner" data-page="home history" hidden>
     <span>You're looking at <b>example entries</b>. Add your own, then remove these.</span>
     <button class="btn small ghost" id="clearSamples" type="button">Remove examples</button>
+  </div>
+
+  <div class="installCard" id="shopVisit" data-page="home" hidden>
+    <span class="ins-auto">You scanned this shop's code</span>
+    <b class="svName" id="svName"></b>
+    <span class="ins-auto" id="svWhere"></span>
+    <label class="svAllow" id="svAllowWrap"><input type="checkbox" id="svAllow" checked> <span>Let this shop add jobs to my bike</span></label>
+    <div class="actions"><button class="btn small" type="button" id="svAdd">Add a visit at this shop</button><button class="btn small ghost" type="button" id="svClose">Close</button></div>
   </div>
 
   <div class="main">
@@ -554,7 +582,10 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 
   <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
     <h2 id="shopsTitle">Shops &amp; mechanics</h2>
-    <p class="foot" style="margin:0">Coming soon: scan your mechanic's QR code to save his shop on your entries, and see all your mechanics here.</p>
+    <h3 class="subh">My mechanics</h3>
+    <div class="shopList" id="myShopsList"></div>
+    <p class="foot" style="margin:0" id="myShopsEmpty">Scan your mechanic's Bike Log QR code with your phone camera to save his shop here.</p>
+    <h3 class="subh">Search on Google Maps</h3>
     <div class="navLinks">
       <a class="btn" id="findMech" href="https://www.google.com/maps/search/motorcycle+mechanic/" target="_blank" rel="noopener">Find bike mechanics near me</a>
       <a class="btn ghost" id="findFuel" href="https://www.google.com/maps/search/petrol+pump/" target="_blank" rel="noopener">Find petrol pumps near me</a>
@@ -566,6 +597,45 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
     <h2 id="setTitle">Settings</h2>
     <div class="setRow"><span>Light or dark mode</span><span id="themeSlot"></span></div>
     <div id="shareSlot"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="myShopTitle" id="myShopPanel" data-page="more">
+    <h2 id="myShopTitle">My shop</h2>
+    <div id="shopIntro">
+      <p class="foot" style="margin:0">Do you run a bike workshop or parts shop? Set it up here. Customers scan your QR code to save your shop in their app, and their reminders bring them back to you.</p>
+      <div class="actions"><button class="btn" type="button" id="shopSetupBtn">Set up my shop</button></div>
+    </div>
+    <form id="shopForm" class="shopForm" hidden>
+      <div class="field"><label for="spName">Shop name</label><input id="spName" type="text" required placeholder="e.g. Akram Autos"></div>
+      <div class="field"><label for="spOwner">Owner or mechanic name</label><input id="spOwner" type="text" placeholder="e.g. Ustad Akram"></div>
+      <div class="row">
+        <div class="field"><label for="spArea">Area / market</label><input id="spArea" type="text" placeholder="e.g. Gulberg"></div>
+        <div class="field"><label for="spCity">City</label><input id="spCity" type="text" placeholder="e.g. Lahore"></div>
+      </div>
+      <div class="field"><label for="spPhone">WhatsApp number</label><input id="spPhone" type="tel" inputmode="tel" placeholder="03xx xxxxxxx"></div>
+      <div class="field"><span class="lbl">What do you do?</span>
+        <div class="chips" id="spKinds">
+          <label><input type="checkbox" value="fix" checked> <span>I repair bikes</span></label>
+          <label><input type="checkbox" value="sell"> <span>I sell parts</span></label>
+          <label><input type="checkbox" value="stock"> <span>I keep some parts in stock</span></label>
+        </div></div>
+      <div class="field"><span class="lbl">Services</span>
+        <div class="chips" id="spServices">
+          <label><input type="checkbox" value="oil" checked> <span>Oil change</span></label>
+          <label><input type="checkbox" value="tune" checked> <span>Tuning</span></label>
+          <label><input type="checkbox" value="repair" checked> <span>Repairs</span></label>
+          <label><input type="checkbox" value="electric"> <span>Electric bikes</span></label>
+          <label><input type="checkbox" value="puncture"> <span>Puncture</span></label>
+          <label><input type="checkbox" value="engine"> <span>Engine work</span></label>
+          <label><input type="checkbox" value="paint"> <span>Denting &amp; painting</span></label>
+        </div></div>
+      <div class="field"><span class="lbl">Shop location</span>
+        <button class="btn ghost" type="button" id="spLocBtn">Use my current location</button>
+        <span class="by" id="spLocMsg">Stand inside your shop and tap this, so customers can find you on the map.</span></div>
+      <div class="actions"><button class="btn" type="submit" id="spSave">Save shop</button><button class="btn ghost" type="button" id="spCancel">Cancel</button></div>
+    </form>
+    <div id="shopCard" class="shopCard" hidden></div>
+    <div class="msg" id="shopMsg" role="status"></div>
   </section>
 
   <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel" data-page="more">
@@ -655,7 +725,18 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.0" data-updated="2026-11-02T03:02:48Z">Version 4.0</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.1" data-updated="2026-11-02T03:25:22Z">Version 4.1</p>
+</div>
+<div class="qrOverlay" id="qrOverlay" hidden>
+  <div class="poster" id="poster">
+    <div class="pBrand" data-noi18n>Bike Log</div>
+    <div class="pName" id="pName" data-noi18n></div>
+    <div class="pWhere" id="pWhere" data-noi18n></div>
+    <div class="pQr" id="pQr"></div>
+    <div class="pEn" data-noi18n>Scan with your phone camera to keep your bike's record and get oil change reminders</div>
+    <div class="pUr" dir="rtl" lang="ur" data-noi18n>اپنی بائیک کا ریکارڈ رکھنے اور آئل چینج کی یاد دہانی کے لیے فون کے کیمرے سے اسکین کریں</div>
+  </div>
+  <div class="actions noprint"><button class="btn" type="button" id="qrPrint">Print poster</button><button class="btn ghost" type="button" id="qrShare">Send link on WhatsApp</button><button class="btn ghost" type="button" id="qrClose">Close</button></div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <button type="button" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
@@ -1529,7 +1610,8 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
         e.editedByName = myName(); e.editedAt = new Date().toISOString();
       }
     }
-    try { await store.put(e); msg.textContent = wasEdit ? "Changes saved." : multi ? "Visit saved." : `${KINDS[kind]} saved.`; resetForm(); if (!wasEdit) maybeAskReminders(); }
+    if (pendingShop && e.shop && e.shop === pendingShop.name){ e.shopId = pendingShop.id; }
+    try { await store.put(e); if (!wasEdit) pendingShop = null; msg.textContent = wasEdit ? "Changes saved." : multi ? "Visit saved." : `${KINDS[kind]} saved.`; resetForm(); if (!wasEdit) maybeAskReminders(); }
     catch(err){ msg.className="msg err"; msg.textContent="Couldn't save. Check your connection and try again."; }
   });
 
@@ -1716,6 +1798,152 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   // keep the reminder language in step with the app language
   document.addEventListener("bike-lang", ()=>{ if (isCloud() && remOn() && pushOK() && Notification.permission==="granted") store.saveDevice(devId(), {lang: BikeI18n.lang}).catch(()=>{}); });
 
+  // ---------- shops (4.1): my shop, its QR poster, scanning a shop, my mechanics ----------
+  const SERVICE_LABEL = {oil:"Oil change", tune:"Tuning", repair:"Repairs", electric:"Electric bikes", puncture:"Puncture", engine:"Engine work", paint:"Denting & painting"};
+  const waNum = p => { let d = String(p||"").replace(/\D/g,""); if (d.startsWith("0")) d = "92" + d.slice(1); return d.length >= 11 ? d : ""; };
+  const shopWhere = sh => [sh.area, sh.city].filter(Boolean).join(", ");
+  const mapUrl = sh => (sh.lat && sh.lng) ? `https://www.google.com/maps/search/?api=1&query=${sh.lat},${sh.lng}` : (shopWhere(sh) ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sh.name+" "+shopWhere(sh))}` : "");
+  let myShop = null, savedShops = [], pendingShop = null, scannedShop = null;
+
+  function shopButtons(sh, withVisit){
+    const wa = waNum(sh.phone), map = mapUrl(sh);
+    return `<div class="actions">
+      ${withVisit ? `<button class="btn small" type="button" data-visit="${esc(sh.id)}">Add visit here</button>` : ""}
+      ${sh.phone ? `<a class="btn small ghost" href="tel:${esc(String(sh.phone).replace(/[^\d+]/g,""))}">Call</a>` : ""}
+      ${wa ? `<a class="btn small ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+      ${map ? `<a class="btn small ghost" href="${map}" target="_blank" rel="noopener">Map</a>` : ""}
+    </div>`;
+  }
+  function renderShops(){
+    // Shops tab: mechanics I scanned
+    const list = $("#myShopsList");
+    list.innerHTML = savedShops.map(sh=>`<div class="shopItem"><b>${esc(sh.name)}</b>
+      <span class="by">${esc([sh.owner, shopWhere(sh)].filter(Boolean).join(" · "))}</span>
+      ${(sh.services||[]).length ? `<span class="by">${(sh.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>` : ""}
+      ${shopButtons(sh, true)}
+      <div class="actions"><button class="btn small ghost" type="button" data-forget="${esc(sh.id)}">Remove</button></div></div>`).join("");
+    $("#myShopsEmpty").hidden = savedShops.length > 0;
+    // More tab: my own shop
+    const formOpen = !$("#shopForm").hidden;
+    $("#shopIntro").hidden = !!myShop || formOpen || !isCloud();
+    if (!isCloud()){ $("#shopCard").hidden = false; $("#shopCard").innerHTML = `<p class="foot" style="margin:0">Sign in with Google to set up your shop.</p>`; return; }
+    $("#shopCard").hidden = !myShop || formOpen;
+    if (myShop) $("#shopCard").innerHTML = `<b>${esc(myShop.name)}</b>
+      <span class="by">${esc([myShop.owner, shopWhere(myShop)].filter(Boolean).join(" · "))}</span>
+      <span class="by">${(myShop.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>
+      <div class="actions"><button class="btn" type="button" id="shopQrBtn">Show my QR code</button><button class="btn ghost" type="button" id="shopEditBtn">Edit shop</button></div>
+      <p class="foot" style="margin:0">Print the QR poster and put it where customers wait. Coming next: add jobs and bills for your customers' bikes.</p>`;
+  }
+  function fillShopForm(sh){
+    sh = sh || {};
+    $("#spName").value = sh.name || ""; $("#spOwner").value = sh.owner || (myShop ? "" : (me && me.name) || "");
+    $("#spArea").value = sh.area || ""; $("#spCity").value = sh.city || ""; $("#spPhone").value = sh.phone || "";
+    const kinds = sh.kinds || ["fix"], svc = sh.services || ["oil","tune","repair"];
+    document.querySelectorAll("#spKinds input").forEach(i=>i.checked = kinds.includes(i.value));
+    document.querySelectorAll("#spServices input").forEach(i=>i.checked = svc.includes(i.value));
+    const f = $("#shopForm"); f.dataset.lat = sh.lat || ""; f.dataset.lng = sh.lng || "";
+    $("#spLocMsg").textContent = sh.lat ? "Location saved." : "Stand inside your shop and tap this, so customers can find you on the map.";
+  }
+  function openShopForm(){ fillShopForm(myShop); $("#shopForm").hidden = false; $("#shopMsg").textContent = ""; renderShops(); $("#spName").focus(); }
+  function closeShopForm(){ $("#shopForm").hidden = true; renderShops(); }
+  $("#shopSetupBtn").addEventListener("click", openShopForm);
+  $("#spCancel").addEventListener("click", closeShopForm);
+  $("#shopCard").addEventListener("click", ev=>{
+    if (ev.target.closest("#shopEditBtn")) openShopForm();
+    if (ev.target.closest("#shopQrBtn")) showQr();
+  });
+  $("#spLocBtn").addEventListener("click", ()=>{
+    const m = $("#spLocMsg");
+    if (!navigator.geolocation){ m.textContent = "This phone can't share its location."; return; }
+    m.textContent = "Finding your location…";
+    navigator.geolocation.getCurrentPosition(p=>{
+      const f = $("#shopForm"); f.dataset.lat = p.coords.latitude.toFixed(5); f.dataset.lng = p.coords.longitude.toFixed(5);
+      m.textContent = "Location saved.";
+    }, ()=>{ m.textContent = "Couldn't get the location. Allow location for Bike Log and try again, or skip it."; }, {enableHighAccuracy:true, timeout:15000});
+  });
+  $("#shopForm").addEventListener("submit", async ev=>{
+    ev.preventDefault();
+    const m = $("#shopMsg"); m.className = "msg";
+    const name = $("#spName").value.trim();
+    if (!name){ m.className = "msg err"; m.textContent = "Type your shop's name."; return; }
+    const f = $("#shopForm");
+    const data = { name, owner: $("#spOwner").value.trim(), area: $("#spArea").value.trim(), city: $("#spCity").value.trim(), phone: $("#spPhone").value.trim(),
+      kinds: [...document.querySelectorAll("#spKinds input:checked")].map(i=>i.value),
+      services: [...document.querySelectorAll("#spServices input:checked")].map(i=>i.value),
+      lat: f.dataset.lat ? +f.dataset.lat : null, lng: f.dataset.lng ? +f.dataset.lng : null };
+    try { const wasNew = !myShop; await store.saveShop(data); closeShopForm(); m.textContent = wasNew ? "Shop saved. Now print your QR code." : "Shop updated."; }
+    catch(err){ m.className = "msg err"; m.textContent = navigator.onLine ? "Couldn't save the shop. Please try again." : "You're offline. Saving the shop needs internet."; }
+  });
+
+  // QR poster
+  let qrLib = null;
+  function loadQrLib(){
+    if (qrLib) return qrLib;
+    qrLib = new Promise((res, rej)=>{ const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"; sc.onload = ()=>res(window.qrcode); sc.onerror = ()=>{ qrLib = null; rej(new Error("qr")); }; document.head.appendChild(sc); });
+    return qrLib;
+  }
+  async function showQr(){
+    if (!myShop) return;
+    const link = store.shopLink(myShop.id);
+    $("#pName").textContent = myShop.name; $("#pWhere").textContent = shopWhere(myShop);
+    $("#pQr").innerHTML = ""; $("#qrOverlay").hidden = false;
+    try { const qrcode = await loadQrLib(); const q = qrcode(0, "M"); q.addData(link); q.make(); $("#pQr").innerHTML = q.createSvgTag({cellSize:6, margin:2, scalable:true}); }
+    catch(e){ $("#pQr").textContent = navigator.onLine ? "Couldn't make the QR code. Try again." : "Connect to the internet once to make the QR code."; }
+  }
+  $("#qrClose").addEventListener("click", ()=>{ $("#qrOverlay").hidden = true; });
+  $("#qrPrint").addEventListener("click", ()=>window.print());
+  $("#qrShare").addEventListener("click", ()=>{
+    if (!myShop) return;
+    const link = store.shopLink(myShop.id);
+    const text = `${myShop.name}: keep your bike's record and get oil change reminders on Bike Log.\n${myShop.name}: بائیک لاگ پر اپنی بائیک کا ریکارڈ رکھیں اور آئل چینج کی یاد دہانی پائیں۔\n${link}`;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  });
+
+  // A rider scanned a shop's QR code: ?shop=<id>
+  (function(){
+    const q = new URLSearchParams(location.search), id = q.get("shop");
+    if (id){ lsSet("bike-logbook-shopscan", id); try { history.replaceState(null, "", location.pathname + location.hash); } catch(e){} }
+  })();
+  let scanChecking = false;
+  async function checkShopScan(){
+    const id = lsGet("bike-logbook-shopscan");
+    if (!id || scanChecking || !isCloud()) return;
+    scanChecking = true;
+    try {
+      const sh = await store.getShop(id);
+      try { localStorage.removeItem("bike-logbook-shopscan"); } catch(e){}
+      if (!sh) { toast("That shop code wasn't found."); return; }
+      scannedShop = sh;
+      if (!(myShop && myShop.id===sh.id)) store.saveShopToMine(sh.id).catch(()=>{});
+      showScannedShop();
+    } catch(e){ /* offline: keep it for next time */ }
+    finally { scanChecking = false; }
+  }
+  function showScannedShop(){
+    const sh = scannedShop; if (!sh) return;
+    $("#svName").textContent = sh.name; $("#svWhere").textContent = [sh.owner, shopWhere(sh)].filter(Boolean).join(" · ");
+    $("#svAllowWrap").hidden = !(activeId && store.isOwner && store.isOwner(activeId));
+    $("#shopVisit").hidden = false; goPage("home");
+  }
+  async function startVisitAt(sh, allowLink){
+    pendingShop = sh;
+    if (allowLink && activeId && store.isOwner(activeId)) store.linkBikeToShop(activeId, sh).catch(()=>{});
+    setKind("oil"); $("#fShop").value = sh.name;
+    goPage("home"); $("#formMsg").className = "msg"; $("#formMsg").textContent = "Shop filled in. Choose what was done and save.";
+    $("#entryForm").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  $("#svAdd").addEventListener("click", ()=>{ $("#shopVisit").hidden = true; if (scannedShop) startVisitAt(scannedShop, $("#svAllow").checked); });
+  $("#svClose").addEventListener("click", ()=>{ $("#shopVisit").hidden = true; scannedShop = null; });
+  $("#myShopsList").addEventListener("click", ev=>{
+    const v = ev.target.closest("[data-visit]"); if (v){ const sh = savedShops.find(x=>x.id===v.dataset.visit); if (sh) startVisitAt(sh, false); return; }
+    const f = ev.target.closest("[data-forget]"); if (f) store.forgetShop(f.dataset.forget).catch(()=>{});
+  });
+  function onShopData(data){
+    myShop = data.myShop || null; savedShops = data.savedShops || [];
+    renderShops();
+    if (data.ready) checkShopScan();
+  }
+
   // A small summary of each bike that the daily reminder job reads (one read per bike)
   let statsTimer = null;
   function syncStats(){
@@ -1863,7 +2091,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
     entries = allEntries.filter(e=>e.bikeId===activeId);
     const ab = bikes.find(b=>b.id===activeId) || {};
     settings = {...DEF, ...ab}; settings.partLife = {...(ab.partLife||{})};
-    render(); renderBikes(); renderGroups(); renderReminders(); syncStats();
+    render(); renderBikes(); renderGroups(); renderReminders(); syncStats(); onShopData(data);
   }
   // invite links: ?join=<group>&code=<code>&g=<name>
   (function(){

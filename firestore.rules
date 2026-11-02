@@ -47,6 +47,14 @@ service cloud.firestore {
       allow read, write: if signedIn() && exists(/databases/$(database)/documents/bikes/$(bikeId)) && canAccess(statsBike());
     }
 
+    // Mechanics and parts shops. Any signed-in person can look a shop up (from its QR code); only its owner changes it.
+    match /shops/{sid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.ownerId == me();
+      allow update: if signedIn() && resource.data.ownerId == me() && request.resource.data.ownerId == me();
+      allow delete: if signedIn() && resource.data.ownerId == me();
+    }
+
     match /groups/{gid} {
       allow read: if signedIn() && (resource.data.ownerId == me() || isGroupMember(gid));
       allow create: if signedIn() && request.resource.data.ownerId == me();
@@ -77,6 +85,15 @@ service cloud.firestore {
       allow update: if signedIn() && resource.data.ownerId == me()
         && request.resource.data.ownerId == me() && validGroups(request.resource.data);
       allow delete: if signedIn() && resource.data.ownerId == me();
+
+      // Shops the bike's owner allowed to add jobs to this bike
+      match /links/{sid} {
+        function linkBike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
+        allow read: if signedIn() && (canAccess(linkBike())
+          || get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me());
+        allow write: if signedIn() && linkBike().ownerId == me()
+          && exists(/databases/$(database)/documents/shops/$(sid));
+      }
 
       match /entries/{eid} {
         function bike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }

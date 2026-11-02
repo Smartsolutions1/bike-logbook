@@ -62,6 +62,8 @@
       groups: new Map(),        // gid -> group {id, name, ownerId, inviteCode, bikeIds, members:[{uid,name}]}
       active: lsGet(ACTIVE_KEY),
       loaded: { own: false, groups: false },
+      shops: new Map(),         // shopId -> shop (my own shop + shops I saved)
+      myShopId: null, savedShops: [],
     };
     const unsubs = { entries: new Map(), sharedBike: new Map(), group: new Map(), groupMembers: new Map() };
     let cb = () => {};
@@ -87,6 +89,8 @@
           groups: [...state.groups.values()],
           me: state.me,
           ready,
+          myShop: state.myShopId ? (state.shops.get(state.myShopId) || null) : null,
+          savedShops: state.savedShops.map((id) => state.shops.get(id)).filter(Boolean),
         });
       });
     }
@@ -152,7 +156,18 @@
       db.collection("users").doc(uid).update({ groups: firebase.firestore.FieldValue.arrayRemove(gid) }).catch(() => {});
       syncSharedBikes(); emit();
     }
+    const shopUnsubs = new Map();
+    function watchShop(id) {
+      if (!id || shopUnsubs.has(id)) return;
+      shopUnsubs.set(id, db.collection("shops").doc(id).onSnapshot((sd) => {
+        if (sd.exists) state.shops.set(id, { ...sd.data(), id }); else state.shops.delete(id);
+        emit();
+      }, () => {}));
+    }
     const unMemberships = db.collection("users").doc(uid).onSnapshot((d) => {
+      const ud = d.exists ? d.data() : {};
+      state.myShopId = ud.shopId || null; watchShop(state.myShopId);
+      state.savedShops = Array.isArray(ud.myShops) ? ud.myShops.slice(-20) : []; state.savedShops.forEach(watchShop);
       const list = (d.exists && Array.isArray(d.data().groups)) ? d.data().groups : [];
       const gids = new Set(list);
       gids.forEach((gid) => {
@@ -273,11 +288,41 @@
       writeStats(bikeId, stats) {
         db.collection("bikeStats").doc(bikeId).set({ ...stats, updatedAt: now() }).catch(() => {});
       },
+      // ---------- shops (mechanics and parts shops) ----------
+      async saveShop(data) {
+        const id = state.myShopId || randomCode(8);
+        const prev = state.shops.get(id);
+        const body = { ...data, ownerId: uid, ownerName: myName, updatedAt: now(), createdAt: (prev && prev.createdAt) || now() };
+        Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+        await db.collection("shops").doc(id).set(body);
+        if (!state.myShopId) await db.collection("users").doc(uid).set({ shopId: id }, { merge: true });
+        return id;
+      },
+      async getShop(id) {
+        if (state.shops.has(id)) return state.shops.get(id);
+        const d = await db.collection("shops").doc(id).get();
+        return d.exists ? { ...d.data(), id } : null;
+      },
+      async saveShopToMine(id) {
+        await db.collection("users").doc(uid).set({ myShops: firebase.firestore.FieldValue.arrayUnion(id) }, { merge: true });
+      },
+      async forgetShop(id) {
+        await db.collection("users").doc(uid).set({ myShops: firebase.firestore.FieldValue.arrayRemove(id) }, { merge: true });
+      },
+      // Lets that shop add jobs to this bike (used from version 4.2). Only the bike's owner can do this.
+      async linkBikeToShop(bikeId, shop) {
+        const b = bikeById(bikeId); if (!b || b.ownerId !== uid) return false;
+        await db.collection("bikes").doc(bikeId).collection("links").doc(shop.id).set({
+          shopId: shop.id, shopName: shop.name || "", bikeLabel: [b.model, b.name].filter(Boolean).join(" · "),
+          ownerId: uid, ownerName: myName, status: "active", at: now() });
+        return true;
+      },
+      shopLink(id) { return `${location.origin}${location.pathname}?shop=${encodeURIComponent(id)}`; },
       async renameGroup(gid, name) {
         await db.collection("groups").doc(gid).update({ name });
       },
       stop() {
-        unOwn(); unMemberships();
+        unOwn(); unMemberships(); shopUnsubs.forEach((u) => u()); shopUnsubs.clear();
         [unsubs.entries, unsubs.sharedBike, unsubs.group, unsubs.groupMembers].forEach((m) => { m.forEach((u) => u()); m.clear(); });
       },
     };
