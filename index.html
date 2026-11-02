@@ -276,6 +276,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 #shopsTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M14.7%206.3a4%204%200%200%200-5.2%205.2L3.8%2017.2a1.6%201.6%200%200%200%202.3%202.3l5.7-5.7a4%204%200%200%200%205.2-5.2l-2.5%202.5-2.3-.5-.5-2.3z%22%2F%3E%3C%2Fsvg%3E")}
 #setTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M12%202.5v3M12%2018.5v3M2.5%2012h3M18.5%2012h3M5.3%205.3l2.1%202.1M16.6%2016.6l2.1%202.1M5.3%2018.7l2.1-2.1M16.6%207.4l2.1-2.1%22%2F%3E%3C%2Fsvg%3E")}
 #myShopTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.5%209.5%205%204.5h14l1.5%205%22%2F%3E%3Cpath%20d%3D%22M3.5%209.5a2.8%202.8%200%200%200%205.6%200%202.8%202.8%200%200%200%205.8%200%202.8%202.8%200%200%200%205.6%200%22%2F%3E%3Cpath%20d%3D%22M5%2012.5v7h14v-7%22%2F%3E%3Cpath%20d%3D%22M10%2019.5v-4.5h4v4.5%22%2F%3E%3C%2Fsvg%3E")}
+#custTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%228%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M3%2019.5c0-3.3%202.7-5.5%206-5.5s6%202.2%206%205.5%22%2F%3E%3Cpath%20d%3D%22M15.5%205.2a3%203%200%200%201%200%205.6%22%2F%3E%3Cpath%20d%3D%22M17.5%2014.3c2%20.7%203.5%202.6%203.5%205.2%22%2F%3E%3C%2Fsvg%3E")}
 #remTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2016.5V11a6%206%200%200%201%2012%200v5.5l1.5%202h-15z%22%2F%3E%3Cpath%20d%3D%22M10%2020.5a2%202%200%200%200%204%200%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
@@ -366,6 +367,10 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 .scanMsg{color:#fff;text-align:center;max-width:360px;margin:0;font-size:15px;line-height:1.5}
 .billImg{max-width:min(92vw,420px);max-height:70vh;border-radius:12px;background:#fff;box-shadow:0 6px 30px rgba(0,0,0,.4)}
 #billOverlay .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+body.mode-shop #tabbar [data-r],body:not(.mode-shop) #tabbar [data-s]{display:none}
+.modeChip{display:none;font:600 12.5px var(--body);color:var(--glow);border:var(--bw) solid var(--glow);border-radius:999px;padding:2px 10px;margin-inline-start:8px;vertical-align:middle;white-space:nowrap}
+body.mode-shop .modeChip{display:inline-block}
+.modeLine{gap:8px}
 .custJobs{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .custJob{display:flex;flex-direction:column;gap:2px;font-size:14px}.custJob .by{font-size:12.5px}
 .linkNote{font-size:13px;color:var(--muted)}.shopItem .linkNote b{font-size:13.5px}
@@ -614,7 +619,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     </div>
   </div>
 
-  <header class="pageHead" data-page="shops more"><h1 id="pageTitle">Bike Log</h1><button class="themeBtn langBtn" type="button" id="langBtn2" aria-label="Change language" data-noi18n></button></header>
+  <header class="pageHead" data-page="shops more scust sshop"><h1><span id="pageTitle">Bike Log</span><span class="modeChip">Shop mode</span></h1><button class="themeBtn langBtn" type="button" id="langBtn2" aria-label="Change language" data-noi18n></button></header>
 
   <section class="panel" aria-labelledby="shopsTitle" id="shopsPanel" data-page="shops">
     <h2 id="shopsTitle">Shops &amp; mechanics</h2>
@@ -630,13 +635,57 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     <p class="foot" style="margin:0">Opens Google Maps near your location.</p>
   </section>
 
-  <section class="panel" aria-labelledby="setTitle" id="settingsPanel" data-page="more">
+  <section class="panel" aria-labelledby="setTitle" id="settingsPanel" data-page="more sshop">
     <h2 id="setTitle">Settings</h2>
     <div class="setRow"><span>Light or dark mode</span><span id="themeSlot"></span></div>
     <div id="shareSlot"></div>
   </section>
 
-  <section class="panel" aria-labelledby="myShopTitle" id="myShopPanel" data-page="more">
+  <section class="panel" aria-labelledby="custTitle" id="custPanel" data-page="scust">
+    <h2 id="custTitle">My customers</h2>
+    <div id="custSetup" hidden>
+      <p class="foot" style="margin:0">Set up your shop first. Then print your QR code so customers can link their bikes to you.</p>
+      <div class="actions"><button class="btn" type="button" id="custSetupBtn">Set up my shop</button></div>
+    </div>
+    <div class="shopItem" id="billCard" hidden>
+      <span id="billMsg">Job saved. The bike's owner sees it in their history.</span>
+      <div class="actions"><button class="btn small" type="button" id="billSend">Send bill</button><button class="btn small ghost" type="button" id="billClose">Close</button></div>
+    </div>
+    <div id="custWrap" hidden>
+      <p class="foot" style="margin:0" id="custEmpty">When a customer scans your QR code and lets your shop add jobs, their bike shows here.</p>
+      <div class="shopList" id="custList"></div>
+    </div>
+    <form id="jobForm" class="shopForm" hidden>
+      <h3 class="subh">Add a job for this bike</h3>
+      <span class="by" id="jobBike" data-noi18n></span>
+      <div class="row">
+        <div class="field"><label for="jDate">Date</label><input id="jDate" type="date" required></div>
+        <div class="field"><label for="jOdo">Odometer (km)</label><input id="jOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 12450"></div>
+      </div>
+      <div class="field"><span class="lbl">What was done?</span>
+        <div class="chips" id="jKinds">
+          <label data-fuel><input type="checkbox" value="oil"> <span>Oil change</span></label>
+          <label data-fuel><input type="checkbox" value="tune"> <span>Tuning</span></label>
+          <label><input type="checkbox" value="service"> <span>Repairs</span></label>
+          <label><input type="checkbox" value="part"> <span>Parts</span></label>
+        </div></div>
+      <div class="field" id="jOilWrap" hidden><label for="jOil">Oil brand and grade</label><input id="jOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
+      <div class="field" id="jWorkWrap" hidden><label for="jWork">Work done</label><input id="jWork" type="text" placeholder="e.g. Puncture fixed, brakes adjusted"></div>
+      <div class="field" id="jPartsWrap" hidden><span class="lbl">Parts</span><div id="jParts"></div>
+        <div class="actions"><button class="btn small ghost" type="button" id="jAddPart">+ Add another part</button></div></div>
+      <div class="row">
+        <div class="field"><label for="jLabour">Mechanic / labour cost</label><input id="jLabour" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="jTotal">Total bill</label><input id="jTotal" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+      </div>
+      <p class="foot" style="margin:0">Leave the total empty and it adds up the parts and labour.</p>
+      <div class="field"><label for="jNotes">Notes</label><input id="jNotes" type="text" placeholder="Anything to remember next time"></div>
+      <div class="field"><label for="jWa">Customer's WhatsApp number (optional)</label><input id="jWa" type="tel" inputmode="tel" placeholder="03xx xxxxxxx"><span class="by">Saved on this phone only, for sending bills.</span></div>
+      <div class="actions"><button class="btn" type="submit">Save job</button><button class="btn ghost" type="button" id="jCancel">Cancel</button></div>
+      <div class="msg" id="jobMsg" role="status"></div>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="myShopTitle" id="myShopPanel" data-page="sshop">
     <h2 id="myShopTitle">My shop</h2>
     <div id="shopIntro">
       <p class="foot" style="margin:0">Do you run a bike workshop or parts shop? Set it up here. Customers scan your QR code to save your shop in their app, and their reminders bring them back to you.</p>
@@ -673,43 +722,6 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     </form>
     <div id="shopCard" class="shopCard" hidden></div>
     <div class="msg" id="shopMsg" role="status"></div>
-    <div class="shopItem" id="billCard" hidden>
-      <span id="billMsg">Job saved. The bike's owner sees it in their history.</span>
-      <div class="actions"><button class="btn small" type="button" id="billSend">Send bill</button><button class="btn small ghost" type="button" id="billClose">Close</button></div>
-    </div>
-    <div id="custWrap" hidden>
-      <h3 class="subh">My customers</h3>
-      <p class="foot" style="margin:0" id="custEmpty">When a customer scans your QR code and lets your shop add jobs, their bike shows here.</p>
-      <div class="shopList" id="custList"></div>
-    </div>
-    <form id="jobForm" class="shopForm" hidden>
-      <h3 class="subh">Add a job for this bike</h3>
-      <span class="by" id="jobBike" data-noi18n></span>
-      <div class="row">
-        <div class="field"><label for="jDate">Date</label><input id="jDate" type="date" required></div>
-        <div class="field"><label for="jOdo">Odometer (km)</label><input id="jOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 12450"></div>
-      </div>
-      <div class="field"><span class="lbl">What was done?</span>
-        <div class="chips" id="jKinds">
-          <label data-fuel><input type="checkbox" value="oil"> <span>Oil change</span></label>
-          <label data-fuel><input type="checkbox" value="tune"> <span>Tuning</span></label>
-          <label><input type="checkbox" value="service"> <span>Repairs</span></label>
-          <label><input type="checkbox" value="part"> <span>Parts</span></label>
-        </div></div>
-      <div class="field" id="jOilWrap" hidden><label for="jOil">Oil brand and grade</label><input id="jOil" type="text" placeholder="e.g. Shell Advance 20W-50, 1 L"></div>
-      <div class="field" id="jWorkWrap" hidden><label for="jWork">Work done</label><input id="jWork" type="text" placeholder="e.g. Puncture fixed, brakes adjusted"></div>
-      <div class="field" id="jPartsWrap" hidden><span class="lbl">Parts</span><div id="jParts"></div>
-        <div class="actions"><button class="btn small ghost" type="button" id="jAddPart">+ Add another part</button></div></div>
-      <div class="row">
-        <div class="field"><label for="jLabour">Mechanic / labour cost</label><input id="jLabour" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
-        <div class="field"><label for="jTotal">Total bill</label><input id="jTotal" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
-      </div>
-      <p class="foot" style="margin:0">Leave the total empty and it adds up the parts and labour.</p>
-      <div class="field"><label for="jNotes">Notes</label><input id="jNotes" type="text" placeholder="Anything to remember next time"></div>
-      <div class="field"><label for="jWa">Customer's WhatsApp number (optional)</label><input id="jWa" type="tel" inputmode="tel" placeholder="03xx xxxxxxx"><span class="by">Saved on this phone only, for sending bills.</span></div>
-      <div class="actions"><button class="btn" type="submit">Save job</button><button class="btn ghost" type="button" id="jCancel">Cancel</button></div>
-      <div class="msg" id="jobMsg" role="status"></div>
-    </form>
   </section>
 
   <section class="panel" aria-labelledby="bikesTitle" id="bikesPanel" data-page="more">
@@ -796,10 +808,14 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
     <div class="msg" id="bkMsg" role="status"></div>
   </section>
 
+  <section class="panel modeLine" id="shopModeLine" data-page="more">
+    <p class="foot" style="margin:0" id="modeLineText">Are you a mechanic or run a parts shop?</p>
+    <div class="actions"><button class="btn small" type="button" id="openShopMode">Open Shop mode</button><button class="btn small ghost" type="button" id="sendMechLink">Send setup link to a mechanic</button></div>
+  </section>
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.3" data-updated="2026-11-02T04:33:02Z">Version 4.3.3</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.4" data-updated="2026-11-02T04:38:52Z">Version 4.4</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -826,10 +842,13 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <div class="actions"><button class="btn ghost" type="button" id="scanClose">Close</button></div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Main">
-  <button type="button" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
-  <button type="button" data-go="history"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg><span>History</span></button>
-  <button type="button" data-go="shops"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.3-.5-.5-2.3z"/></svg><span>Shops</span></button>
-  <button type="button" data-go="more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
+  <button type="button" data-go="home" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></button>
+  <button type="button" data-go="history" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg><span>History</span></button>
+  <button type="button" data-go="shops" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.3-.5-.5-2.3z"/></svg><span>Shops</span></button>
+  <button type="button" data-go="more" data-r><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
+  <button type="button" data-go="scust" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M15.5 5.2a3 3 0 0 1 0 5.6"/><path d="M17.5 14.3c2 .7 3.5 2.6 3.5 5.2"/></svg><span>Customers</span></button>
+  <button type="button" data-go="sshop" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5v7h14v-7"/><path d="M10 19.5v-4.5h4v4.5"/></svg><span>My shop</span></button>
+  <button type="button" data-mode="rider" data-s><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M5.5 16.5h5l3-6h3l2 6"/><path d="M13.5 10.5 12 7.5H9.5"/></svg><span>Rider mode</span></button>
 </nav>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -846,27 +865,46 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
 (function(){
   const $ = s => document.querySelector(s);
   // ---------- pages + bottom tabs ----------
-  const PAGES = ["home","history","shops","more"];
+  const PAGES = ["home","history","shops","more","scust","sshop"];
+  // Rider mode and Shop mode (like InDrive's two modes); the app reopens in the last one used.
+  const MODE_KEY = "bike-logbook-appmode", RIDER_PAGES = ["home","history","shops","more"], SHOP_PAGES = ["scust","sshop"];
+  let appMode = (()=>{ try {
+    const q = new URLSearchParams(location.search);
+    if (q.has("mechanic")){ localStorage.setItem(MODE_KEY, "shop"); localStorage.setItem("bike-logbook-mechsetup", "1");
+      q.delete("mechanic"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }
+    return localStorage.getItem(MODE_KEY) === "shop" ? "shop" : "rider";
+  } catch(e){ return "rider"; } })();
+  document.body.classList.toggle("mode-shop", appMode === "shop");
+  const basePage = () => appMode === "shop" ? "scust" : "home";
+  function setMode(m){
+    appMode = m === "shop" ? "shop" : "rider";
+    try { localStorage.setItem(MODE_KEY, appMode); } catch(e){}
+    document.body.classList.toggle("mode-shop", appMode === "shop");
+    try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+    showPage(basePage()); window.scrollTo(0,0);
+  }
   function showPage(pg){
-    if (!PAGES.includes(pg)) pg = "home";
+    if (!(appMode === "shop" ? SHOP_PAGES : RIDER_PAGES).includes(pg)) pg = basePage();
     document.querySelectorAll("[data-page]").forEach(el=>el.classList.toggle("on", el.dataset.page.split(" ").includes(pg)));
     document.querySelectorAll("#tabbar [data-go]").forEach(b=>{ if (b.dataset.go===pg) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     PAGES.forEach(x=>document.body.classList.toggle("p-"+x, x===pg));
-    const t = document.getElementById("pageTitle"); if (t) t.textContent = pg==="shops" ? "Shops" : pg==="more" ? "More" : "Bike Log";
+    const t = document.getElementById("pageTitle"); if (t) t.textContent = ({shops:"Shops", more:"More", scust:"Customers", sshop:"My shop"})[pg] || "Bike Log";
   }
-  const pageFromHash = () => (location.hash.match(/^#(home|history|shops|more)$/)||[])[1] || "home";
+  const pageFromHash = () => (location.hash.match(/^#(home|history|shops|more|scust|sshop)$/)||[])[1] || basePage();
   function goPage(pg){
     // History stays at most [Home, one tab], so the phone's back button goes to Home, then closes the app
     const cur = pageFromHash();
     if (cur!==pg){
-      if (pg==="home"){ if (history.state && history.state.bl) history.back(); else history.replaceState(null, "", location.pathname + location.search); }
-      else if (cur==="home") history.pushState({bl:1}, "", "#"+pg);
+      const base = basePage();
+      if (pg===base){ if (history.state && history.state.bl) history.back(); else history.replaceState(null, "", location.pathname + location.search); }
+      else if (cur===base) history.pushState({bl:1}, "", "#"+pg);
       else history.replaceState(history.state, "", "#"+pg);
     }
     showPage(pg); window.scrollTo(0,0);
   }
   window.addEventListener("popstate", ()=>{ showPage(pageFromHash()); window.scrollTo(0,0); });
   document.querySelectorAll("#tabbar [data-go]").forEach(b=>b.addEventListener("click", ()=>goPage(b.dataset.go)));
+  document.querySelectorAll("#tabbar [data-mode]").forEach(b=>b.addEventListener("click", ()=>setMode(b.dataset.mode)));
   showPage(pageFromHash());
   const KINDS = {fuel:"Fuel", oil:"Oil change", service:"Service", tune:"Tuning", part:"Part", charge:"Charge"};
   // for: p = petrol bikes, e = electric bikes
@@ -1924,7 +1962,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
       <span class="by">${esc([myShop.owner, shopWhere(myShop)].filter(Boolean).join(" · "))}</span>
       <span class="by">${(myShop.services||[]).map(k=>`<span>${esc(SERVICE_LABEL[k]||k)}</span>`).join(" · ")}</span>
       <div class="actions"><button class="btn" type="button" id="shopQrBtn">Show my QR code</button><button class="btn ghost" type="button" id="shopEditBtn">Edit shop</button></div>
-      <p class="foot" style="margin:0">Print the QR poster and put it where customers wait. Customers who let your shop add jobs show below.</p>`;
+      <p class="foot" style="margin:0">Print the QR poster and put it where customers wait. Customers who let your shop add jobs show on the Customers tab.</p>`;
     renderCustomers();
   }
   // ---------- 4.2: bikes linked to shops ----------
@@ -1950,6 +1988,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function renderCustomers(){
     const wrap = $("#custWrap"); if (!wrap) return;
     wrap.hidden = !(isCloud() && myShop);
+    $("#custSetup").hidden = !wrap.hidden;
     if (wrap.hidden) return;
     $("#custEmpty").hidden = customers.length > 0;
     $("#custList").innerHTML = customers.map(c=>{
@@ -2219,6 +2258,16 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function openShopForm(){ fillShopForm(myShop); $("#shopForm").hidden = false; $("#shopMsg").textContent = ""; renderShops(); $("#spName").focus(); }
   function closeShopForm(){ $("#shopForm").hidden = true; renderShops(); }
   $("#shopSetupBtn").addEventListener("click", openShopForm);
+  $("#custSetupBtn").addEventListener("click", ()=>{ goPage("sshop"); if (isCloud()) openShopForm(); });
+  function renderModeLine(){
+    $("#modeLineText").textContent = myShop ? "Your shop's customers, jobs and bills are in Shop mode." : "Are you a mechanic or run a parts shop?";
+  }
+  $("#openShopMode").addEventListener("click", ()=>{ setMode("shop"); if (!myShop && isCloud()){ goPage("sshop"); openShopForm(); } });
+  $("#sendMechLink").addEventListener("click", ()=>{
+    const link = location.origin + location.pathname + "?mechanic";
+    const text = `Bike Log for mechanics: keep your customers' bike records, send bills on WhatsApp and bring customers back with oil change reminders. Free.\nمستریوں کے لیے Bike Log: گاہکوں کی بائیکس کا ریکارڈ رکھیں، واٹس ایپ پر بل بھیجیں اور آئل چینج کی یاد دہانی سے گاہک واپس لائیں۔ مفت۔\n${link}`;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  });
   $("#spCancel").addEventListener("click", closeShopForm);
   $("#shopCard").addEventListener("click", ev=>{
     if (ev.target.closest("#shopEditBtn")) openShopForm();
@@ -2304,6 +2353,7 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
   function showScannedShop(){
     const sh = scannedShop; if (!sh) return;
+    if (appMode === "shop") setMode("rider");
     $("#svName").textContent = sh.name; $("#svWhere").textContent = [sh.owner, shopWhere(sh)].filter(Boolean).join(" · ");
     $("#svAllowWrap").hidden = !(activeId && store.isOwner && store.isOwner(activeId));
     $("#shopVisit").hidden = false; goPage("home");
@@ -2386,7 +2436,11 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   function onShopData(data){
     myShop = data.myShop || null; savedShops = data.savedShops || [];
     shopLinks = data.links || []; customers = data.customers || [];
-    renderShops(); renderCustomers();
+    renderShops(); renderCustomers(); renderModeLine();
+    if (data.ready && lsGet("bike-logbook-mechsetup")){
+      try { localStorage.removeItem("bike-logbook-mechsetup"); } catch(e){}
+      if (!myShop && isCloud()){ goPage("sshop"); openShopForm(); }
+    }
     if (data.ready) checkShopScan();
   }
 

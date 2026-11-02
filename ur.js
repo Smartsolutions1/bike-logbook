@@ -473,6 +473,16 @@
     "Couldn't make the picture. Use Send as text instead.": "تصویر نہیں بن سکی۔ لکھائی میں بھیجیں استعمال کریں۔",
     "Couldn't open sharing. Tap Save picture, then send it on WhatsApp.": "شیئر نہیں کھل سکا۔ تصویر محفوظ کریں دبائیں، پھر واٹس ایپ پر بھیج دیں۔",
     "Picture saved. Send it to the customer on WhatsApp.": "تصویر محفوظ ہو گئی۔ اسے واٹس ایپ پر گاہک کو بھیج دیں۔",
+    // 4.4: Rider and Shop modes
+    "Shop mode": "دکان موڈ",
+    "Customers": "گاہک",
+    "Rider mode": "سوار موڈ",
+    "Set up your shop first. Then print your QR code so customers can link their bikes to you.": "پہلے اپنی دکان بنائیں۔ پھر اپنا QR کوڈ پرنٹ کریں تاکہ گاہک اپنی بائیک آپ سے جوڑ سکیں۔",
+    "Are you a mechanic or run a parts shop?": "کیا آپ مستری ہیں یا پرزوں کی دکان چلاتے ہیں؟",
+    "Your shop's customers, jobs and bills are in Shop mode.": "آپ کی دکان کے گاہک، کام اور بل دکان موڈ میں ہیں۔",
+    "Open Shop mode": "دکان موڈ کھولیں",
+    "Send setup link to a mechanic": "مستری کو سیٹ اپ لنک بھیجیں",
+    "Print the QR poster and put it where customers wait. Customers who let your shop add jobs show on the Customers tab.": "QR پوسٹر پرنٹ کر کے وہاں لگائیں جہاں گاہک انتظار کرتے ہیں۔ جن گاہکوں نے آپ کی دکان کو کام درج کرنے کی اجازت دی ہے وہ گاہک والے ٹیب میں نظر آئیں گے۔",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
