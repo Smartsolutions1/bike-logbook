@@ -446,6 +446,15 @@
     "Done. This shop can now add jobs to your bike.": "ہو گیا۔ اب یہ دکان آپ کی بائیک پر کام درج کر سکتی ہے۔",
     "Couldn't do that. Check your connection and try again.": "یہ نہیں ہو سکا۔ انٹرنیٹ چیک کر کے دوبارہ کوشش کریں۔",
     "Stopped. Jobs it already added stay in your history.": "روک دیا گیا۔ جو کام پہلے درج ہو چکے وہ آپ کی ہسٹری میں رہیں گے۔",
+    // 4.3: bills and customer-brought parts
+    "Customer brought it": "گاہک خود لایا",
+    "Customer's WhatsApp number (optional)": "گاہک کا واٹس ایپ نمبر (اختیاری)",
+    "Saved on this phone only, for sending bills.": "صرف اسی فون پر محفوظ، بل بھیجنے کے لیے۔",
+    "Send bill on WhatsApp": "واٹس ایپ پر بل بھیجیں",
+    "Send bill": "بل بھیجیں",
+    "customer's own part": "گاہک کا اپنا پرزہ",
+    "own part": "اپنا پرزہ",
+    "Close": "بند کریں",
     "Jan": "جنوری", "Feb": "فروری", "Mar": "مارچ", "Apr": "اپریل", "May": "مئی", "Jun": "جون",
     "Jul": "جولائی", "Aug": "اگست", "Sep": "ستمبر", "Oct": "اکتوبر", "Nov": "نومبر", "Dec": "دسمبر"
   };
@@ -661,6 +670,6 @@
     document.dispatchEvent(new CustomEvent("bike-lang", { detail: l }));
   }
 
-  window.BikeI18n = { get lang() { return lang; }, set, tr: (s) => (lang === "ur" ? tr(s) : s), start };
+  window.BikeI18n = { get lang() { return lang; }, set, tr: (s) => (lang === "ur" ? tr(s) : s), toUr: (s) => tr(s), start };
   applyDir();
 })();
