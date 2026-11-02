@@ -67,6 +67,7 @@
       links: new Map(),         // my own bikeId -> Map(shopId -> link): shops allowed to add jobs to that bike
       customers: [],            // bikes linked to my own shop (4.2)
       stock: [],                // my shop's parts stock (4.6)
+      ledger: [],               // my shop's udhaar khata (4.7)
     };
     const unsubs = { entries: new Map(), sharedBike: new Map(), group: new Map(), groupMembers: new Map() };
     let cb = () => {};
@@ -97,6 +98,7 @@
           links: [...state.links.values()].flatMap((m) => [...m.values()]),
           customers: state.customers,
           stock: state.stock,
+          ledger: state.ledger,
         });
       });
     }
@@ -146,11 +148,16 @@
         ownerId: uid, ownerName: myName, at: now() });
       await db.collection("bikes").doc(bikeId).collection("links").doc(shopId).set({ listed: true }, { merge: true });
     }
-    let unCustomers = null, customersOf = null, unStock = null;
+    let unCustomers = null, customersOf = null, unStock = null, unLedger = null;
     function watchCustomers(shopId) {
       if (customersOf === shopId) return;
       if (unCustomers) { unCustomers(); unCustomers = null; }
       if (unStock) { unStock(); unStock = null; } state.stock = [];
+      if (unLedger) { unLedger(); unLedger = null; } state.ledger = [];
+      if (shopId) unLedger = db.collection("shops").doc(shopId).collection("ledger").onSnapshot((snap) => {
+        state.ledger = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+        emit();
+      }, () => { state.ledger = []; emit(); });
       if (shopId) unStock = db.collection("shops").doc(shopId).collection("stock").onSnapshot((snap) => {
         state.stock = snap.docs.map((d) => ({ ...d.data(), id: d.id }))
           .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
@@ -417,6 +424,20 @@
         return db.collection("shops").doc(state.myShopId).collection("stock").doc(id)
           .update({ qty: firebase.firestore.FieldValue.increment(delta), updatedAt: now() });
       },
+      // ---------- my shop's udhaar khata (4.7) ----------
+      async saveLedger(entry, id) {
+        if (!state.myShopId) throw new Error("no shop");
+        const col = db.collection("shops").doc(state.myShopId).collection("ledger");
+        const ref = id ? col.doc(id) : col.doc();
+        const body = { ...entry, createdAt: now() };
+        Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+        await ref.set(body);
+        return ref.id;
+      },
+      async deleteLedger(id) {
+        if (!state.myShopId || !id) return;
+        await db.collection("shops").doc(state.myShopId).collection("ledger").doc(id).delete();
+      },
       async deleteShopJob(job) {
         const { id, bikeId, ...body } = job;
         await db.collection("bikes").doc(bikeId).collection("entries").doc(id).set({ ...body, bikeId, deleted: true, deletedAt: now(), deletedBy: uid, deletedByName: body.shop || myName, updatedAt: now() });
@@ -427,7 +448,7 @@
       },
       stop() {
         unOwn(); unMemberships(); shopUnsubs.forEach((u) => u()); shopUnsubs.clear();
-        linkUnsubs.forEach((u) => u()); linkUnsubs.clear(); if (unCustomers) unCustomers(); if (unStock) unStock();
+        linkUnsubs.forEach((u) => u()); linkUnsubs.clear(); if (unCustomers) unCustomers(); if (unStock) unStock(); if (unLedger) unLedger();
         [unsubs.entries, unsubs.sharedBike, unsubs.group, unsubs.groupMembers].forEach((m) => { m.forEach((u) => u()); m.clear(); });
       },
     };

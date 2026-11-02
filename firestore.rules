@@ -59,6 +59,11 @@ service cloud.firestore {
         allow read, write: if signedIn() && get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me();
       }
 
+      // The shop's udhaar khata (4.7): private to the shop's owner.
+      match /ledger/{entryId} {
+        allow read, write: if signedIn() && get(/databases/$(database)/documents/shops/$(sid)).data.ownerId == me();
+      }
+
       // Bikes whose owners let this shop add jobs (copied here by the bike's owner so the shop can list them).
       match /customers/{bikeId} {
         function custBike() { return get(/databases/$(database)/documents/bikes/$(bikeId)).data; }
