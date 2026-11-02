@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Bike Logbook</title>
+<title>Bike Log</title>
 <meta name="description" content="Track fuel, oil changes, servicing, tuning and part replacements for your motorcycle.">
 <meta name="theme-color" content="#0e1b30">
 <script>try{var t=localStorage.getItem("bike-logbook-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);if(localStorage.getItem("bike-logbook-lang")==="ur"){document.documentElement.setAttribute("dir","rtl");document.documentElement.setAttribute("lang","ur");}}catch(e){}</script>
@@ -329,6 +329,11 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
 .tabbar button[aria-current="page"] svg{color:var(--glow);stroke-width:2.3}
 .tabbar button:active{transform:scale(.95)}
 .gate:not([hidden]) ~ .tabbar{display:none}
+/* sign-in screen: nothing of the app shows behind it, and its content scrolls inside it */
+.gate:not([hidden]) ~ .wrap{display:none}
+.gate{align-items:flex-start;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.gate .gate-in{margin:auto 0}
+body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
 .subh{font:700 16px var(--body);margin:6px 0 0;color:var(--ink)}
 .svName{font-size:22px}
 .svAllow{display:flex;gap:8px;align-items:center;font-size:14px}.svAllow input{width:auto;margin:0}
@@ -371,7 +376,7 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
   <div class="topBtns"><button class="themeBtn langBtn" type="button" id="gateLangBtn" aria-label="Change language" data-noi18n></button></div>
   <div class="gate-in">
     <div class="emblem" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"> <g stroke-width="2.4"> <path d="M7 20.5v-4.3c0-1 .7-1.7 1.6-1.9l3.6-.8 3.4-4.6c.4-.5 1-.8 1.6-.8h12.1c.7 0 1.3.3 1.7.9l3.3 4.5 4.3.9c.9.2 1.5 1 1.5 1.9v4.2"/> <path d="M12.6 13.5h23.2"/><path d="M23.6 9v4.5"/> <path d="M17.6 20.5h12.8"/> <circle cx="14" cy="21" r="2.9"/><circle cx="34" cy="21" r="2.9"/> </g> <g stroke-width="2.2"> <circle cx="8" cy="38.5" r="3.6"/><circle cx="21" cy="38.5" r="3.6"/> <path d="M8 38.5l3.7-6.3h5.2l4.1 6.3"/><path d="M13.2 32.2l2.6 6.3h-3"/> <path d="M17 32.2l1.6-3.2h2.6"/><path d="M10.6 30.3h4.8" stroke-width="2.8"/> </g> <g stroke-width="2.2" transform="translate(2.4 0)"> <path d="M27.4 37.6v-7.2c0-2.5 2-4.4 4.5-4.4h10.6v11.6"/> <path d="M23.6 37.6l1.4-4.6h2.4"/> <path d="M23.6 37.6h20.6"/> <path d="M27.4 31.4h4.2"/> <circle cx="27.6" cy="39.8" r="2.3" fill="var(--glow)"/><circle cx="40" cy="39.8" r="2.3" fill="var(--glow)"/> </g> </g></svg></div>
-    <h1>Bike Logbook</h1>
+    <h1>Bike Log</h1>
     <p>Fuel, oil changes, tuning and parts for every bike in the family, saved to your Google account and shared with the people who ride it.</p>
     <div class="join" id="gateJoin" hidden></div>
     <button class="gbtn" type="button" id="signInBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
@@ -761,7 +766,7 @@ body.p-history .hero .gauges,body.p-history .hero .odo{display:none}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2" data-updated="2026-11-02T03:48:08Z">Version 4.2</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.2.1" data-updated="2026-11-02T03:55:51Z">Version 4.2.1</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
