@@ -275,6 +275,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .toast{min-width:min(88vw,320px)}
 #shopsTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M14.7%206.3a4%204%200%200%200-5.2%205.2L3.8%2017.2a1.6%201.6%200%200%200%202.3%202.3l5.7-5.7a4%204%200%200%200%205.2-5.2l-2.5%202.5-2.3-.5-.5-2.3z%22%2F%3E%3C%2Fsvg%3E")}
 #setTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M12%202.5v3M12%2018.5v3M2.5%2012h3M18.5%2012h3M5.3%205.3l2.1%202.1M16.6%2016.6l2.1%202.1M5.3%2018.7l2.1-2.1M16.6%207.4l2.1-2.1%22%2F%3E%3C%2Fsvg%3E")}
+#myShopTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3.5%209.5%205%204.5h14l1.5%205%22%2F%3E%3Cpath%20d%3D%22M3.5%209.5a2.8%202.8%200%200%200%205.6%200%202.8%202.8%200%200%200%205.8%200%202.8%202.8%200%200%200%205.6%200%22%2F%3E%3Cpath%20d%3D%22M5%2012.5v7h14v-7%22%2F%3E%3Cpath%20d%3D%22M10%2019.5v-4.5h4v4.5%22%2F%3E%3C%2Fsvg%3E")}
 #remTitle{--hicon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%230e1b30%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2016.5V11a6%206%200%200%201%2012%200v5.5l1.5%202h-15z%22%2F%3E%3Cpath%20d%3D%22M10%2020.5a2%202%200%200%200%204%200%22%2F%3E%3C%2Fsvg%3E")}
 /* Readability: larger type and clearer controls */
 body{font-size:16px;line-height:1.55}
@@ -798,7 +799,7 @@ body:has(.gate:not([hidden])){background:var(--hero);overflow:hidden}
   <p class="foot" id="storeNote" data-page="more">Loading your logbook…</p>
   <p class="foot" id="acctLine" style="margin-top:-12px" data-page="more" hidden></p>
   <div class="shareRow"><button class="btn ghost" type="button" id="shareBtn">Share Bike Log with someone</button><span class="by" id="shareMsg" role="status"></span></div>
-  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.2" data-updated="2026-11-02T04:28:26Z">Version 4.3.2</p>
+  <p class="foot" style="margin-top:-12px" id="appVersion" data-page="more" data-version="4.3.3" data-updated="2026-11-02T04:33:02Z">Version 4.3.3</p>
 </div>
 <div class="qrOverlay" id="qrOverlay" hidden>
   <div class="poster" id="poster">
@@ -2133,7 +2134,11 @@ window.addEventListener("error", function(ev){ var n=document.getElementById("st
   }
   $("#billShare").addEventListener("click", async ()=>{
     if (!billFile) return;
-    const data = {files:[billFile], title:"Bill", text: myShop ? `${myShop.name} - Bill / بل` : "Bill / بل"};
+    const bj = billFor && billFor.j, shopName = (myShop && myShop.name) || (bj && bj.shop) || "";
+    const dd = bj ? new Date(bj.date + "T12:00:00") : null, when = dd && !isNaN(dd) ? `${dd.getDate()} ${MON[dd.getMonth()]} ${dd.getFullYear()}` : "";
+    const amt = bj ? "Rs " + fmt(bj.cost||0) : "";
+    const caption = [`${shopName} bill: ${amt}${when ? ", " + when : ""}`, `${shopName} کا بل: ${amt}`].join("\n");
+    const data = {files:[billFile], title:"Bill", text: caption};
     if (navigator.canShare && navigator.canShare({files:[billFile]})){
       try { await navigator.share(data); } catch(e){ if (e && e.name !== "AbortError") toast("Couldn't open sharing. Tap Save picture, then send it on WhatsApp."); }
     } else { $("#billSave").click(); toast("Picture saved. Send it to the customer on WhatsApp."); }
